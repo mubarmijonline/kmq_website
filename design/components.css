@@ -2229,20 +2229,11 @@
   .kmq-stack__cap[data-lit="true"] { display: block; }
 }
 
-/* No scroll sequence without JS or with reduced motion: show the finished
-   car and the last caption, and drop the tall track to one screen.
-   :last-child, not the bare class — it has to outrank the :not(:first-child)
-   rule above, and a media query adds no specificity of its own. */
-@media (prefers-reduced-motion: reduce) {
-  .kmq-stack { height: auto; }
-  .kmq-stack__pin { position: static; height: auto; min-height: 100vh; }
-  .kmq-coat-wrap { clip-path: none; }
-  .kmq-stack__cap:not(:last-child) { display: none; }
-  .kmq-stack__cap:last-child {
-    display: block;
-    position: static;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-}
+/* Reduced motion deliberately has NO overrides here, and that is the whole
+   point: an earlier version collapsed the track to one screen, which handed
+   everyone with the OS setting on a hero with no sequence in it at all.
+   The build is scroll-driven — the visitor moves it, nothing moves on its
+   own — so it stays. What goes is the travel: app.js skips the caption slide
+   and the exit translate and scale under the setting, leaving a plain swap,
+   and the global rule in base.css already flattens every duration to nothing.
+   Coating reveal and caption order survive; only the movement is gone. */

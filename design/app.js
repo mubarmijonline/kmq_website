@@ -230,13 +230,19 @@
 
   /* ---- Hero protection stack -------------------------------------------
      Scroll drives four coating stages, then the car leaves and hands the page
-     to the Trust strip. Nothing here is required to read the section: the CSS
-     leaves the bare car and the first caption standing when this does not run,
-     and the reduced-motion rules collapse the track to one screen. */
+     to the Trust strip. The CSS leaves the bare car and the first caption
+     standing when this does not run at all.
+
+     This DOES run under prefers-reduced-motion. The build is scroll-driven,
+     so the visitor controls every frame of it and nothing animates on its own;
+     bailing out here just deleted the hero for anyone with the setting on.
+     What `reduce` suppresses below is the travel — the caption slide and the
+     car's exit translate and scale. Opacity is left alone: a cross-fade is
+     not motion. */
 
   (function stack() {
     var track = d.querySelector('[data-kmq-stack]');
-    if (!track || reduce) return;
+    if (!track) return;
 
     var car = track.querySelector('[data-kmq-car]');
     var dull = track.querySelector('[data-kmq-dull]');
@@ -283,7 +289,7 @@
 
       caps.forEach(function (c, i) {
         c.setAttribute('data-lit', i === active ? 'true' : 'false');
-        c.style.transform = i === active ? 'translateY(0)' : 'translateY(20px)';
+        if (!reduce) c.style.transform = i === active ? 'translateY(0)' : 'translateY(20px)';
       });
       dots.forEach(mark);
       lbls.forEach(mark);
@@ -295,7 +301,9 @@
 
       var x = Math.min(1, Math.max(0, (p - EXIT) / (1 - EXIT)));
       var xe = x * x;
-      car.style.transform = 'translateY(' + (xe * 62).toFixed(2) + 'vh) scale(' + (1 - xe * 0.12).toFixed(3) + ')';
+      if (!reduce) {
+        car.style.transform = 'translateY(' + (xe * 62).toFixed(2) + 'vh) scale(' + (1 - xe * 0.12).toFixed(3) + ')';
+      }
       car.style.opacity = (1 - xe * 0.9).toFixed(3);
       grid.style.opacity = (1 - Math.min(1, xe * 1.15)).toFixed(3);
     }
