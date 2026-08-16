@@ -1,0 +1,123 @@
+{# Pieces that appear on more than one page. #}
+
+{% macro shot(label, extra='') -%}
+  <div class="kmq-shot {{ extra }}" role="img" aria-label="{{ label }}">
+    <span class="kmq-shot__label" aria-hidden="true">{{ label }}</span>
+  </div>
+{%- endmacro %}
+
+
+{% macro icon(path, size=26, width=1.4) -%}
+  <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none"
+       stroke="#C9A84C" stroke-width="{{ width }}" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true"><path d="{{ path }}"></path></svg>
+{%- endmacro %}
+
+
+{# A package card. `wa`, `t` and `show_prices` come from the app context. #}
+{% macro package_card(p, t, wa, show_prices, cta_label) -%}
+  <article class="kmq-pkg {% if p.featured %}kmq-pkg--featured{% endif %}">
+    {% if p.featured %}<div class="kmq-pkg__flag">{{ t.most_chosen }}</div>{% endif %}
+    <h3>{{ p.name }}</h3>
+    <p class="kmq-pkg__includes">{{ p.includes }}</p>
+
+    {% if show_prices %}
+      {% if p.price %}
+        <div class="kmq-pkg__price">{{ p.price }}</div>
+        <div class="kmq-pkg__currency">{{ t.sar }}</div>
+      {% else %}
+        {# Price not agreed with the client yet. The slot holds its shape
+           and says so, so the card never renders blank. #}
+        <div class="kmq-pkg__price kmq-pkg__price--tbd">{{ t.tbd }}</div>
+        <div class="kmq-pkg__currency">{{ t.sar }}</div>
+      {% endif %}
+    {% endif %}
+
+    <dl class="kmq-pkg__warranty">
+      <dt>{{ t.warranty_label }}</dt>
+      <dd>{{ p.warranty }}</dd>
+    </dl>
+
+    {% set link = wa(t.wa_order ~ p.name) %}
+    <a class="kmq-btn kmq-pkg__cta" href="{{ link or url_for('site.contact') }}"
+       {% if link %}target="_blank" rel="noopener"{% endif %}>{{ cta_label }}</a>
+  </article>
+{%- endmacro %}
+
+
+{% macro branch_card(b, t, wa, shot_label) -%}
+  <article class="kmq-branch">
+    {{ shot(shot_label, 'kmq-shot--branch') }}
+    <div class="kmq-branch__body">
+      <div class="kmq-branch__city">{{ b.city_en }}</div>
+      <h3>{{ b.name }}</h3>
+      <p class="kmq-branch__loc">{{ b.location }}</p>
+
+      <dl class="kmq-branch__meta">
+        <dt>{{ t.hours_label }}</dt>
+        <dd {% if not b.hours %}data-tbd="true"{% endif %}>
+          {%- if b.hours %}{{ b.hours }}{% else %}{{ t.tbd }}{% endif -%}
+        </dd>
+      </dl>
+
+      <div class="kmq-branch__actions">
+        {% set link = wa(t.wa_book ~ b.name) %}
+        <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+           {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.branch_wa }}</a>
+        {# No map link until the client supplies each branch's exact address. #}
+        {% if b.map_url %}
+          <a class="kmq-btn kmq-btn--ghost" href="{{ b.map_url }}" target="_blank" rel="noopener">{{ t.directions }}</a>
+        {% else %}
+          <span class="kmq-btn kmq-btn--ghost" aria-disabled="true"
+                style="opacity:.45;cursor:default">{{ t.directions }} — {{ t.tbd }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+{%- endmacro %}
+
+
+{% macro post_card(p, t, cat_label) -%}
+  <a class="kmq-post" href="{{ url_for('site.article', slug=p.slug) }}"
+     data-kmq-post="{{ p.title }} {{ p.excerpt }}">
+    <div class="kmq-post__shot">
+      {{ shot(t.article_shot, 'kmq-shot--article') }}
+      <span class="kmq-post__cat">{{ cat_label }}</span>
+    </div>
+    <div class="kmq-post__body">
+      <h3>{{ p.title }}</h3>
+      <p class="kmq-post__excerpt">{{ p.excerpt }}</p>
+      <div class="kmq-post__meta">
+        <span class="kmq-ltr">{{ p.date }}</span>
+        <span>{{ p.minutes }}{{ t.min_read }}</span>
+      </div>
+    </div>
+  </a>
+{%- endmacro %}
+
+
+{% macro closing(t, wa, title=none, sub=none) -%}
+  <section class="kmq-close">
+    <div class="kmq-close__glow" aria-hidden="true"></div>
+    <div class="kmq-close__body">
+      <h2>{{ title or t.final_title }}</h2>
+      {% if sub is not none or title is none %}<p>{{ sub or t.final_sub }}</p>{% endif %}
+      {% set link = wa(t.wa_default) %}
+      <a class="kmq-btn kmq-btn--gold kmq-btn--lg"
+         href="{{ link or url_for('site.contact') }}"
+         {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_whatsapp }}</a>
+    </div>
+  </section>
+{%- endmacro %}
+
+
+{% macro pagehead(eyebrow, title, lede=none) -%}
+  <section class="kmq-pagehead">
+    <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
+    <div class="kmq-shell kmq-pagehead__body">
+      <div class="kmq-eyebrow">{{ eyebrow }}</div>
+      <h1>{{ title }}</h1>
+      {% if lede %}<p class="kmq-lede">{{ lede }}</p>{% endif %}
+    </div>
+  </section>
+{%- endmacro %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ post.title }} — KMQ{% endblock %}
+{% block description %}{{ post.excerpt }}{% endblock %}
+
+{% macro cat_label(slug) -%}
+  {{- t.categories | selectattr('slug', 'equalto', slug) | map(attribute='label') | first -}}
+{%- endmacro %}
+
+{% block content %}
+
+<section class="kmq-pagehead">
+  <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
+  <div class="kmq-shell kmq-pagehead__body" style="padding-block:110px 60px;max-width:900px">
+    <div class="kmq-eyebrow">{{ cat_label(post.category) }}</div>
+    <h1 style="font-size:clamp(28px,4.4vw,54px);margin-block-end:26px">{{ post.title }}</h1>
+    <div class="kmq-byline">
+      <span>{{ post.author }}</span>
+      <span class="kmq-byline__dot" aria-hidden="true"></span>
+      <span class="kmq-ltr">{{ post.date }}</span>
+      <span class="kmq-byline__dot" aria-hidden="true"></span>
+      <span>{{ post.minutes }}{{ t.min_read }}</span>
+    </div>
+  </div>
+</section>
+
+<article class="kmq-shell" style="padding-block:60px 100px;max-width:820px">
+  {{ m.shot(t.article_shot, 'kmq-shot--tall') }}
+
+  <div class="kmq-prose" style="margin-block-start:50px">
+    <p class="kmq-lede">{{ post.excerpt }}</p>
+
+    {# The content file supplies the eight article titles and nothing else.
+       Rather than generate body copy nobody at KMQ has approved, the page
+       says plainly that the text is still being written. #}
+    <div class="kmq-notice" style="margin-block-start:40px">{{ t.article_pending }}</div>
+  </div>
+
+  <div class="kmq-prompt" style="margin-block-start:50px">
+    <h3 style="margin:0">{{ t.article_cta }}</h3>
+    {% set link = wa(t.wa_default) %}
+    <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+       {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_whatsapp }}</a>
+  </div>
+
+  <p style="margin-block-start:40px">
+    <a class="kmq-link" href="{{ url_for('site.blog') }}">{{ t.back_to_blog }}</a>
+  </p>
+</article>
+
+{% if related %}
+<section class="kmq-section kmq-section--raised">
+  <div class="kmq-shell">
+    <h2 style="font-weight:900;font-size:var(--kmq-h2-sm);margin-block-end:40px">{{ t.blog_title }}</h2>
+    <div class="kmq-grid kmq-grid--wide">
+      {% for p in related %}
+        {{ m.post_card(p, t, cat_label(p.category)) }}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{# Nav key -> endpoint. The Word document's sitemap order. #}
+{% set endpoints = {
+  'home': 'site.home', 'about': 'site.about', 'services': 'site.services',
+  'packages': 'site.packages', 'warranty': 'site.warranty',
+  'branches': 'site.branches', 'blog': 'site.blog', 'contact': 'site.contact'
+} %}
+
+{# The same page in the other language. request.view_args carries the slug
+   for detail pages, so the switch stays on the article you were reading. #}
+{% set other_args = dict(request.view_args or {}, lang=t.other_lang) %}
+{% set other_url = url_for(request.endpoint, **other_args) if request.endpoint and request.endpoint != 'site.root' else url_for('site.home', lang=t.other_lang) %}
+
+<header class="kmq-header" data-kmq-header>
+  <div class="kmq-header__bar">
+
+    <a class="kmq-brand" href="{{ url_for('site.home') }}" aria-label="KMQ">
+      <span class="kmq-brand__mark" aria-hidden="true"></span>
+      <span class="kmq-brand__word">KMQ</span>
+    </a>
+
+    <nav class="kmq-nav" aria-label="{{ t.footer_nav }}">
+      {% for item in t.nav %}
+        <a class="kmq-nav__link"
+           href="{{ url_for(endpoints[item.key]) }}"
+           data-kmq-navlink="{{ item.key }}"
+           {% if page == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
+      {% endfor %}
+    </nav>
+
+    <a class="kmq-langbtn" href="{{ other_url }}" data-kmq-lang="{{ t.other_lang }}"
+       hreflang="{{ t.other_lang }}" lang="{{ t.other_lang }}"
+       aria-label="{{ t.other_label }}">{{ t.other_label }}</a>
+
+    <a class="kmq-btn kmq-btn--gold kmq-header__cta"
+       href="{{ wa(t.wa_default) or url_for('site.contact') }}"
+       {% if wa(t.wa_default) %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
+
+    <button class="kmq-burger" type="button" data-kmq-burger
+            aria-expanded="false" aria-controls="kmq-mobilenav"
+            aria-label="{{ t.menu_label }}">
+      <span class="kmq-burger__bar" aria-hidden="true"></span>
+      <span class="kmq-burger__bar" aria-hidden="true"></span>
+      <span class="kmq-burger__bar" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div class="kmq-mobilenav" id="kmq-mobilenav" data-kmq-mobilenav data-open="false">
+    <div class="kmq-mobilenav__list">
+      {% for item in t.nav %}
+        <a href="{{ url_for(endpoints[item.key]) }}"
+           {% if page == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
+      {% endfor %}
+    </div>
+    <div class="kmq-mobilenav__foot">
+      <a class="kmq-langbtn" href="{{ other_url }}" data-kmq-lang="{{ t.other_lang }}"
+         hreflang="{{ t.other_lang }}" lang="{{ t.other_lang }}">{{ t.other_label }}</a>
+      <a class="kmq-btn kmq-btn--gold"
+         href="{{ wa(t.wa_default) or url_for('site.contact') }}"
+         {% if wa(t.wa_default) %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
+    </div>
+  </div>
+</header>

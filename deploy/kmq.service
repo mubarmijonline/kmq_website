@@ -1,0 +1,50 @@
+# kmq (kmq.mubarmijonline.com)
+#
+# Install:
+#   sudo ln -sf /projects/kmq_website/deploy/kmq.service /etc/systemd/system/kmq.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now kmq
+
+[Unit]
+Description=Gunicorn instance serving kmq.mubarmijonline.com
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=omar_ashraf
+Group=www-data
+WorkingDirectory=/projects/kmq_website
+Environment="PATH=/projects/kmq_website/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+EnvironmentFile=/projects/kmq_website/.env
+
+# gunicorn wants to write a control socket; under systemd there is no
+# XDG_RUNTIME_DIR and $HOME is read-only (ProtectHome below), so its default
+# path fails at every start. RuntimeDirectory gives it a writable, auto-cleaned
+# directory under /run instead.
+RuntimeDirectory=kmq
+RuntimeDirectoryMode=0750
+Environment="GUNICORN_CTL=/run/kmq/gunicorn.ctl"
+
+ExecStart=/projects/kmq_website/.venv/bin/gunicorn --config deploy/gunicorn.conf.py wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillSignal=SIGTERM
+Restart=always
+RestartSec=3
+
+# New files must stay group-readable so nginx can serve uploads and static.
+UMask=0027
+
+# The app only ever writes inside its own directory.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/projects/kmq_website
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

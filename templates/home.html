@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}KMQ — {{ t.brand_tagline }}{% endblock %}
+{% block description %}{{ t.hero_sub }}{% endblock %}
+
+{% block content %}
+
+{# ═══════════ Hero ═══════════ #}
+<section class="kmq-hero">
+  <div class="kmq-hero__layer kmq-hero__layer--weave" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--veil" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--sheen" aria-hidden="true"></div>
+  <p class="kmq-shotnote" aria-hidden="true">{{ t.hero_shot }}</p>
+
+  <div class="kmq-shell kmq-hero__body">
+    <div class="kmq-hero__content">
+      <div class="kmq-hero__kicker"><span>{{ t.hero_kicker }}</span></div>
+      <h1>{{ t.hero_a }} <span class="kmq-hero__accent">{{ t.hero_b }}</span></h1>
+      <p class="kmq-hero__sub">{{ t.hero_sub }}</p>
+      <div class="kmq-btn-row">
+        {% set link = wa(t.wa_default) %}
+        <a class="kmq-btn kmq-btn--gold kmq-btn--lg" href="{{ link or url_for('site.contact') }}"
+           {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.hero_cta1 }}</a>
+        <a class="kmq-btn kmq-btn--ghost kmq-btn--lg" href="{{ url_for('site.packages') }}">{{ t.hero_cta2 }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ═══════════ Trust strip ═══════════ #}
+<section class="kmq-strip">
+  <div class="kmq-shell kmq-strip__grid">
+    {% for item in t.trust %}
+      <div class="kmq-strip__cell">
+        <span class="kmq-iconframe kmq-iconframe--sm">{{ m.icon(item.icon, 22) }}</span>
+        <div>
+          <div class="kmq-strip__title">{{ item.title }}</div>
+          <div class="kmq-strip__meta">{{ item.meta }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ═══════════ Services ═══════════ #}
+<section class="kmq-shell kmq-section" data-kmq-section="services">
+  <div class="kmq-sectionhead">
+    <div class="kmq-eyebrow">01 — SERVICES</div>
+    <h2>{{ t.services_title }}</h2>
+  </div>
+  <div class="kmq-grid">
+    {% for s in t.services[:4] %}
+      <article class="kmq-card">
+        <div class="kmq-card__code">S/0{{ loop.index }}</div>
+        <span class="kmq-iconframe">{{ m.icon(s.icon) }}</span>
+        <h3 class="kmq-card__title">{{ s.name }}</h3>
+        <p class="kmq-card__body">{{ s.tagline }}</p>
+        <a class="kmq-link" href="{{ url_for('site.service', slug=s.slug) }}">{{ t.learn_more }}</a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<hr class="kmq-rule">
+
+{# ═══════════ Packages ═══════════ #}
+<section class="kmq-section kmq-section--raised" data-kmq-section="packages">
+  <div class="kmq-shell">
+    <div class="kmq-sectionhead kmq-sectionhead--center">
+      <div class="kmq-eyebrow" style="text-align:center">02 — PACKAGES</div>
+      <h2>{{ t.packages_title }}</h2>
+    </div>
+    <div class="kmq-grid kmq-grid--wide">
+      {% for p in packages %}
+        {{ m.package_card(p, t, wa, show_prices, t.order_package) }}
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-block-start:44px">
+      <a class="kmq-link" href="{{ url_for('site.packages') }}">{{ t.all_packages_link }}</a>
+    </div>
+  </div>
+</section>
+
+{# ═══════════ Warranty ═══════════ #}
+<section class="kmq-band" data-kmq-section="warranty">
+  <div class="kmq-band__layer kmq-band__layer--base" aria-hidden="true"></div>
+  <div class="kmq-band__layer kmq-band__layer--glow" aria-hidden="true"></div>
+  <div class="kmq-band__layer kmq-band__layer--weave" aria-hidden="true"></div>
+
+  <div class="kmq-shell kmq-band__body">
+    <div class="kmq-seal">
+      <span class="kmq-seal__ring" aria-hidden="true"></span>
+      <span class="kmq-seal__ring kmq-seal__ring--inner" aria-hidden="true"></span>
+      <span class="kmq-seal__halo" aria-hidden="true"></span>
+      <div class="kmq-seal__body">
+        <div class="kmq-seal__num">{{ t.wb_years }}</div>
+        <div class="kmq-seal__label">{{ t.wb_years_label }}</div>
+        <div class="kmq-seal__stamp">
+          {{ m.icon(icons.tick, 14, 1.8) }}<span>{{ t.wb_seal }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="kmq-eyebrow">WARRANTY</div>
+      <h2>{{ t.wb_title }}</h2>
+      <p class="kmq-band__sub">{{ t.wb_sub }}</p>
+      <ul class="kmq-points">
+        {% for p in t.wb_points %}
+          <li>
+            {{ m.icon(icons.shield, 18, 1.6) }}
+            <div>
+              <div class="kmq-points__title">{{ p.title }}</div>
+              <div class="kmq-points__body">{{ p.body }}</div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="kmq-btn-row">
+        <a class="kmq-btn kmq-btn--gold" href="{{ url_for('site.warranty') }}">{{ t.wb_cta }}</a>
+        <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.warranty') }}#check">{{ t.wb_cta2 }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ═══════════ Why KMQ ═══════════ #}
+<section class="kmq-shell kmq-section">
+  <div class="kmq-eyebrow">03 — WHY KMQ</div>
+  <h2 style="font-weight:900;font-size:var(--kmq-h2);margin-block-end:70px">{{ t.why_title }}</h2>
+  <div class="kmq-grid kmq-grid--narrow kmq-grid--hairline">
+    {% for w in t.why %}
+      <div class="kmq-cell">
+        <div class="kmq-cell__num">0{{ loop.index }}</div>
+        <h3>{{ w.title }}</h3>
+        <p>{{ w.body }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ═══════════ Before / after ═══════════
+   The design also carried three Google review scores here. They are not
+   imported: the content file lists review data as pending, and a fabricated
+   third-party rating on a live commercial site is not a placeholder. #}
+{% if show_before_after %}
+<section class="kmq-section kmq-section--accent">
+  <div class="kmq-shell">
+    <div class="kmq-sectionhead kmq-sectionhead--split">
+      <div>
+        <div class="kmq-eyebrow">04 — PROOF</div>
+        <h2>{{ t.proof_title }}</h2>
+      </div>
+      <p style="font-size:14px;color:var(--kmq-ink-55);max-width:320px;line-height:1.9">{{ t.proof_sub }}</p>
+    </div>
+
+    <div class="kmq-compare" data-kmq-compare>
+      <div class="kmq-compare__before">
+        <span class="kmq-compare__tag">{{ t.proof_before }}</span>
+      </div>
+      <div class="kmq-compare__after">
+        <span class="kmq-compare__tag kmq-compare__tag--after">{{ t.proof_after }}</span>
+      </div>
+      <input class="kmq-compare__range" type="range" min="0" max="100" value="50"
+             aria-label="{{ t.proof_sub }}">
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ═══════════ Branches ═══════════ #}
+<section class="kmq-shell kmq-section" data-kmq-section="branches">
+  <div class="kmq-sectionhead kmq-sectionhead--split">
+    <div>
+      <div class="kmq-eyebrow">05 — BRANCHES</div>
+      <h2>{{ t.branches_title }}</h2>
+    </div>
+    <a class="kmq-link" href="{{ url_for('site.branches') }}">{{ t.all_branches_link }}</a>
+  </div>
+  <div class="kmq-grid kmq-grid--wide">
+    {% for b in t.branches %}
+      <a class="kmq-branch" href="{{ url_for('site.branches') }}" style="color:inherit">
+        {{ m.shot(t.branch_shot, 'kmq-shot--branch') }}
+        <div class="kmq-branch__body">
+          <div class="kmq-branch__city">{{ b.city_en }}</div>
+          <h3>{{ b.name }}</h3>
+          <p class="kmq-branch__loc">{{ b.location }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<hr class="kmq-rule">
+
+{# ═══════════ Journal ═══════════ #}
+<section class="kmq-section kmq-section--raised" data-kmq-section="blog">
+  <div class="kmq-shell">
+    <div class="kmq-sectionhead">
+      <div class="kmq-eyebrow">06 — JOURNAL</div>
+      <h2 style="margin-block-end:18px">{{ t.blog_title }}</h2>
+      <a class="kmq-link" href="{{ url_for('site.blog') }}">{{ t.all_blog_link }}</a>
+    </div>
+    <div class="kmq-grid kmq-grid--wide">
+      {% for p in posts %}
+        {{ m.post_card(p, t, t.categories | selectattr('slug', 'equalto', p.category) | map(attribute='label') | first) }}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ═══════════ FAQ ═══════════
+   Section 10 of the content file. The design had no FAQ at all. #}
+<section class="kmq-shell kmq-section">
+  <div class="kmq-sectionhead">
+    <div class="kmq-eyebrow">07 — FAQ</div>
+    <h2>{{ t.faq_title }}</h2>
+  </div>
+  <div class="kmq-faq" data-kmq-faq>
+    {% for item in t.faq %}
+      <details class="kmq-faq__item">
+        <summary class="kmq-faq__q">
+          <span>{{ item.q }}</span>
+          <span class="kmq-faq__sign" aria-hidden="true"></span>
+        </summary>
+        <div class="kmq-faq__a"><div><p>{{ item.a }}</p></div></div>
+      </details>
+    {% endfor %}
+  </div>
+</section>
+
+{{ m.closing(t, wa) }}
+
+{% endblock %}

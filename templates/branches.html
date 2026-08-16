@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ t.nav[5].label }} — KMQ{% endblock %}
+{% block description %}{{ t.branch_page_title }}{% endblock %}
+
+{% block content %}
+
+{{ m.pagehead('BRANCHES · 6', t.branch_page_title) }}
+
+<section class="kmq-shell" style="padding-block:90px 60px">
+  <div class="kmq-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr))">
+    {% for b in t.branches %}
+      {{ m.branch_card(b, t, wa, t.branch_shot) }}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="kmq-shell" style="padding-block:0 120px">
+  {{ m.shot(t.map_shot, 'kmq-shot--map') }}
+
+  <div class="kmq-prompt" style="margin-block-start:24px">
+    <p style="font-family:var(--kmq-head);font-weight:700;font-size:19px">{{ t.pickup_title }}</p>
+    {% set link = wa(t.wa_pickup) %}
+    <a class="kmq-link" href="{{ link or url_for('site.contact') }}"
+       {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.pickup_cta }}</a>
+  </div>
+</section>
+
+{{ m.closing(t, wa) }}
+
+{% endblock %}

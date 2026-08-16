@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ t.nav[6].label }} — KMQ{% endblock %}
+{% block description %}{{ t.blog_page_sub }}{% endblock %}
+
+{% macro cat_label(slug) -%}
+  {{- t.categories | selectattr('slug', 'equalto', slug) | map(attribute='label') | first -}}
+{%- endmacro %}
+
+{% block content %}
+
+<section class="kmq-pagehead">
+  <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
+  <div class="kmq-shell kmq-pagehead__body" style="padding-block:110px 70px">
+    <div class="kmq-eyebrow">JOURNAL</div>
+    <h1 style="margin-block-end:22px">{{ t.blog_page_title }}</h1>
+    <p class="kmq-lede">{{ t.blog_page_sub }}</p>
+  </div>
+</section>
+
+{# ---- Featured ---- #}
+<section class="kmq-shell" style="padding-block:70px 0">
+  <a class="kmq-feature" href="{{ url_for('site.article', slug=featured.slug) }}">
+    {{ m.shot(t.article_shot, 'kmq-shot--tall') }}
+    <div class="kmq-feature__body">
+      <div style="display:flex;align-items:center;gap:12px;margin-block-end:22px;flex-wrap:wrap">
+        <span class="kmq-flag">{{ t.featured }}</span>
+        <span style="font-family:var(--kmq-font-latin);font-size:11px;letter-spacing:.2em;color:rgba(201,168,76,.9)">{{ cat_label(featured.category) }}</span>
+      </div>
+      <h2>{{ featured.title }}</h2>
+      <p style="font-size:15px;line-height:2;color:var(--kmq-ink-60);margin-block-end:28px">{{ featured.excerpt }}</p>
+      <div class="kmq-byline">
+        <span>{{ featured.author }}</span>
+        <span class="kmq-byline__dot" aria-hidden="true"></span>
+        <span class="kmq-ltr">{{ featured.date }}</span>
+        <span class="kmq-byline__dot" aria-hidden="true"></span>
+        <span>{{ featured.minutes }}{{ t.min_read }}</span>
+      </div>
+    </div>
+  </a>
+</section>
+
+<section class="kmq-shell" style="padding-block:60px 120px">
+  <div class="kmq-bloglayout" data-kmq-blog
+       data-count-one="{{ t.results_one }}" data-count-many="{{ t.results_many }}">
+
+    <div>
+      {# Chips are links and search is a GET form: the filter works with the
+         script absent, and every filtered view has its own shareable URL. #}
+      <div class="kmq-filterbar">
+        <div class="kmq-chips">
+          <a class="kmq-chip" href="{{ url_for('site.blog') }}"
+             {% if not category %}aria-current="true"{% endif %}>{{ t.all_cats }}</a>
+          {% for c in t.categories %}
+            <a class="kmq-chip" href="{{ url_for('site.blog', cat=c.slug) }}"
+               {% if category == c.slug %}aria-current="true"{% endif %}>{{ c.label }}</a>
+          {% endfor %}
+        </div>
+
+        <form method="get" action="{{ url_for('site.blog') }}" role="search">
+          {% if category %}<input type="hidden" name="cat" value="{{ category }}">{% endif %}
+          <label class="kmq-sr" for="blog-q">{{ t.search_placeholder }}</label>
+          <input class="kmq-input" id="blog-q" name="q" type="search" value="{{ query }}"
+                 placeholder="{{ t.search_placeholder }}" data-kmq-search
+                 style="min-width:200px;width:auto;padding:12px 16px;font-size:14px">
+        </form>
+      </div>
+
+      <div class="kmq-resultcount" data-kmq-count>
+        {%- if matched == 1 %}{{ t.results_one }}{% else %}{{ matched }}{{ t.results_many }}{% endif -%}
+      </div>
+
+      <div class="kmq-grid">
+        {% for p in posts %}
+          {{ m.post_card(p, t, cat_label(p.category)) }}
+        {% endfor %}
+      </div>
+
+      <div class="kmq-empty" data-kmq-empty {% if matched %}hidden{% endif %}>{{ t.no_results }}</div>
+
+      {% if pages > 1 %}
+        <nav class="kmq-pager" data-kmq-pager aria-label="{{ t.nav[6].label }}">
+          {% if page_no > 1 %}
+            <a href="{{ url_for('site.blog', cat=category or none, q=query or none, page=page_no - 1) }}" rel="prev">{{ t.prev }}</a>
+          {% else %}
+            <span aria-disabled="true">{{ t.prev }}</span>
+          {% endif %}
+
+          {% for n in range(1, pages + 1) %}
+            {% if n == page_no %}
+              <span aria-current="page">{{ n }}</span>
+            {% else %}
+              <a href="{{ url_for('site.blog', cat=category or none, q=query or none, page=n) }}">{{ n }}</a>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_no < pages %}
+            <a href="{{ url_for('site.blog', cat=category or none, q=query or none, page=page_no + 1) }}" rel="next">{{ t.next }}</a>
+          {% else %}
+            <span aria-disabled="true">{{ t.next }}</span>
+          {% endif %}
+        </nav>
+      {% endif %}
+    </div>
+
+    <aside class="kmq-aside">
+      <div class="kmq-aside__card kmq-panel--card">
+        <h2 class="kmq-aside__title">{{ t.popular }}</h2>
+        <div class="kmq-ranked">
+          {% for p in popular %}
+            <a href="{{ url_for('site.article', slug=p.slug) }}">
+              <span class="kmq-ranked__num">0{{ loop.index }}</span>
+              <span class="kmq-ranked__title">{{ p.title }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="kmq-aside__card">
+        <h2 class="kmq-aside__title">{{ t.by_category }}</h2>
+        <div class="kmq-catlist">
+          {% for c in t.categories %}
+            <a href="{{ url_for('site.blog', cat=c.slug) }}">
+              <span>{{ c.label }}</span>
+              <span class="kmq-catlist__count">{{ counts[c.slug] }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="kmq-aside__card">
+        <h2 class="kmq-aside__title">{{ t.tags_title }}</h2>
+        <div class="kmq-tags">
+          {% for tag in t.tags %}
+            <a href="{{ url_for('site.blog', q=tag) }}">{{ tag }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="kmq-aside__card" style="border-color:var(--kmq-line);background:var(--kmq-bg-raised)">
+        <h2 style="font-family:var(--kmq-head);font-weight:900;font-size:19px;line-height:1.6;margin-block-end:18px">{{ t.blog_aside_cta }}</h2>
+        {% set link = wa(t.wa_contact) %}
+        <a class="kmq-btn kmq-btn--outline kmq-btn--block"
+           href="{{ link or url_for('site.contact') }}"
+           {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_whatsapp }}</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,1946 @@
+/* KMQ components.
+   A port of the style attributes in "KMQ Website.dc.html". Physical sides
+   (left/right) in the source became logical properties here, so the Arabic
+   and English layouts are one stylesheet plus a dir flip. */
+
+/* ═══════════ Eyebrow ═══════════
+   "01 — SERVICES", "WARRANTY", "BRANCHES · 6". Always Latin, always LTR. */
+
+.kmq-eyebrow {
+  font-family: var(--kmq-font-meta);
+  font-size: var(--kmq-micro);
+  letter-spacing: var(--kmq-track-meta);
+  color: var(--kmq-gold);
+  margin-block-end: 18px;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.kmq-lede {
+  font-size: 18px;
+  line-height: 2.05;
+  color: var(--kmq-ink-70);
+  max-width: var(--kmq-measure);
+}
+
+/* ═══════════ Buttons ═══════════ */
+
+.kmq-btn {
+  display: inline-block;
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 16px;
+  padding: 17px 32px;
+  border: 1px solid transparent;
+  border-radius: var(--kmq-radius);
+  text-align: center;
+  transition: filter var(--kmq-quick), border-color var(--kmq-quick), color var(--kmq-quick);
+}
+
+.kmq-btn--gold {
+  background: var(--kmq-grad-cta);
+  color: var(--kmq-bg);
+}
+
+.kmq-btn--gold:hover { filter: brightness(1.12); color: var(--kmq-bg); }
+
+.kmq-btn--ghost {
+  border-color: rgba(245, 245, 240, .28);
+  color: var(--kmq-ink);
+  background: transparent;
+}
+
+.kmq-btn--ghost:hover {
+  border-color: var(--kmq-gold);
+  color: var(--kmq-gold);
+}
+
+.kmq-btn--outline {
+  border-color: var(--kmq-gold-50);
+  color: var(--kmq-gold);
+  background: transparent;
+}
+
+.kmq-btn--outline:hover { background: rgba(212, 175, 55, .10); }
+
+.kmq-btn--lg { font-size: 18px; padding: 20px 46px; }
+
+.kmq-btn--block { display: block; width: 100%; }
+
+.kmq-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* On a phone a wrapped row leaves the first button full width and the second
+   at its content width, which reads as a mistake. Stretch both instead, and
+   pull the large variant's 46px side padding in so the longest CTA
+   ("Book a free inspection on WhatsApp") still fits on one line. */
+@media (max-width: 600px) {
+  .kmq-btn-row { gap: 12px; }
+  .kmq-btn-row > .kmq-btn { display: block; width: 100%; }
+  .kmq-btn--lg { font-size: 17px; padding: 19px 20px; }
+}
+
+/* Small phones (360px and under) need another step down before the English
+   CTA fits; Arabic is shorter and clears it either way. */
+@media (max-width: 380px) {
+  .kmq-btn--lg { font-size: 15px; padding: 18px 12px; }
+}
+
+/* Inline "learn more →" style link. */
+.kmq-link {
+  font-family: var(--kmq-head);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ═══════════ Header ═══════════ */
+
+.kmq-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 60;
+  background: transparent;
+  border-block-end: 1px solid transparent;
+  transition: background var(--kmq-header), backdrop-filter var(--kmq-header),
+              border-color var(--kmq-header), box-shadow var(--kmq-header);
+}
+
+/* Set by app.js past 40px of scroll. Without JS the header simply stays
+   in its transparent state, which is legible over every hero. */
+.kmq-header[data-scrolled="true"] {
+  background: rgba(13, 13, 13, .82);
+  backdrop-filter: blur(18px);
+  border-block-end-color: var(--kmq-gold-18);
+  box-shadow: var(--kmq-shadow-head);
+}
+
+.kmq-header__bar {
+  max-width: var(--kmq-shell);
+  margin-inline: auto;
+  padding: 16px var(--kmq-gutter);
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 32px;
+}
+
+.kmq-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* The diamond mark: a rotated square outline with a gold core. */
+.kmq-brand__mark {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--kmq-gold);
+  display: grid;
+  place-items: center;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.kmq-brand__mark::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, var(--kmq-gold-bright), var(--kmq-gold));
+}
+
+.kmq-brand__word {
+  font-family: var(--kmq-font-latin);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: .18em;
+  color: var(--kmq-ink);
+  direction: ltr;
+}
+
+.kmq-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  flex: 1 1 320px;
+  font-family: var(--kmq-head);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.kmq-nav__link {
+  position: relative;
+  color: var(--kmq-ink-70);
+  padding-block: 6px;
+  white-space: nowrap;
+  transition: color var(--kmq-quick), filter var(--kmq-header);
+}
+
+.kmq-nav__link:hover { color: var(--kmq-ink); }
+
+/* The gold underline sweeps in from the reading-start edge. */
+.kmq-nav__link::after {
+  content: "";
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, var(--kmq-gold-bright), rgba(212, 175, 55, 0));
+  transition: width var(--kmq-quick);
+}
+
+.kmq-nav__link[aria-current="page"],
+.kmq-nav__link[data-lit="true"] { color: var(--kmq-gold); }
+
+.kmq-nav__link[aria-current="page"]::after,
+.kmq-nav__link[data-lit="true"]::after { width: 100%; }
+
+/* Scroll-spy on the home page adds the glow the source had. */
+.kmq-nav__link[data-lit="true"] {
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, .65));
+}
+
+.kmq-langbtn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(201, 168, 76, .4);
+  color: var(--kmq-gold);
+  font-family: var(--kmq-font-latin);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: var(--kmq-track-code);
+  padding: 12px 16px;
+  transition: border-color var(--kmq-quick), color var(--kmq-quick);
+}
+
+.kmq-langbtn:hover {
+  border-color: var(--kmq-gold-bright);
+  color: var(--kmq-gold-hi);
+}
+
+.kmq-header__cta { flex-shrink: 0; font-size: 15px; padding: 13px 24px; }
+
+/* ---- Burger ---- */
+
+.kmq-burger {
+  display: none;
+  margin-inline-start: auto;
+  width: 46px;
+  height: 46px;
+  background: transparent;
+  border: 1px solid rgba(201, 168, 76, .4);
+  padding: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.kmq-burger:hover { border-color: var(--kmq-gold-bright); }
+
+.kmq-burger__bar {
+  display: block;
+  width: 20px;
+  height: 1.5px;
+  background: var(--kmq-gold);
+  transition: transform var(--kmq-quick), opacity .2s var(--kmq-ease);
+}
+
+.kmq-burger[aria-expanded="true"] .kmq-burger__bar:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+
+.kmq-burger[aria-expanded="true"] .kmq-burger__bar:nth-child(2) { opacity: 0; }
+
+.kmq-burger[aria-expanded="true"] .kmq-burger__bar:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+.kmq-mobilenav {
+  display: none;
+  border-block-start: 1px solid var(--kmq-gold-18);
+  background: rgba(10, 10, 12, .97);
+  backdrop-filter: blur(20px);
+  padding: 18px var(--kmq-gutter) 26px;
+}
+
+.kmq-mobilenav__list {
+  display: grid;
+  gap: 2px;
+  font-family: var(--kmq-head);
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.kmq-mobilenav__list a {
+  color: var(--kmq-ink-70);
+  padding-block: 14px;
+  border-block-end: 1px solid var(--kmq-line-soft);
+}
+
+.kmq-mobilenav__list a:hover { color: var(--kmq-ink); }
+
+.kmq-mobilenav__list a[aria-current="page"] { color: var(--kmq-gold); }
+
+.kmq-mobilenav__foot {
+  display: flex;
+  gap: 12px;
+  margin-block-start: 22px;
+}
+
+.kmq-mobilenav__foot .kmq-btn { flex: 1; }
+
+.kmq-mobilenav__foot .kmq-langbtn { padding-inline: 18px; }
+
+/* The source decided this in JavaScript at window.innerWidth < 1024. As a
+   media query it works before the script loads, and if it never does. */
+@media (max-width: 1023px) {
+  .kmq-nav,
+  .kmq-header__cta,
+  .kmq-header .kmq-langbtn { display: none; }
+
+  .kmq-burger { display: flex; }
+
+  .kmq-mobilenav[data-open="true"] { display: block; }
+}
+
+/* ═══════════ Floating WhatsApp ═══════════ */
+
+.kmq-fab {
+  position: fixed;
+  inset-block-end: 28px;
+  inset-inline-end: 28px;
+  z-index: 80;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #25D366;
+  border: none;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+  transition: background var(--kmq-quick), box-shadow var(--kmq-quick), transform var(--kmq-quick);
+}
+
+.kmq-fab:hover {
+  background: #1FB855;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+  transform: translateY(-3px);
+}
+
+/* ═══════════ Hero ═══════════ */
+
+.kmq-hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* Pulls the hero up under the sticky transparent header. */
+  margin-block-start: -100px;
+  padding-block-start: 100px;
+}
+
+.kmq-hero--short { min-height: 72vh; margin-block-start: 0; padding-block-start: 0; }
+
+.kmq-hero__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kmq-hero__layer--weave { background: var(--kmq-weave); }
+
+.kmq-hero__layer--glow {
+  background:
+    radial-gradient(120% 90% at 78% 15%, rgba(212, 175, 55, .20), transparent 55%),
+    radial-gradient(90% 70% at 10% 90%, rgba(28, 28, 46, .90), transparent 60%);
+}
+
+.kmq-hero__layer--veil {
+  background: linear-gradient(180deg, rgba(13, 13, 13, .35), rgba(13, 13, 13, .92));
+}
+
+.kmq-hero__layer--sheen {
+  inset-block: 50% auto;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(245, 245, 240, .05), transparent);
+  transform: skewY(-6deg);
+}
+
+.kmq-hero__body {
+  position: relative;
+  padding-block: 120px;
+  width: 100%;
+}
+
+.kmq-hero__content {
+  max-width: 900px;
+  animation: kmqFade .9s var(--kmq-ease) both;
+}
+
+.kmq-hero__kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-block-end: 30px;
+}
+
+.kmq-hero__kicker::before {
+  content: "";
+  width: 46px;
+  height: 1px;
+  background: var(--kmq-gold);
+  flex-shrink: 0;
+}
+
+.kmq-hero__kicker span {
+  font-family: var(--kmq-font-latin);
+  font-size: var(--kmq-micro);
+  letter-spacing: var(--kmq-track-meta);
+  color: var(--kmq-gold);
+  direction: ltr;
+}
+
+.kmq-hero h1 {
+  font-weight: 900;
+  font-size: var(--kmq-h1);
+  line-height: 1.14;
+  letter-spacing: -.01em;
+  margin-block-end: 28px;
+}
+
+.kmq-hero__accent {
+  background: var(--kmq-grad-head);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.kmq-hero__sub {
+  font-size: var(--kmq-lede);
+  line-height: 2;
+  color: var(--kmq-ink-70);
+  max-width: 660px;
+  margin-block-end: 44px;
+}
+
+/* Art-direction note the design leaves in place of a photograph. It is a
+   brief for the photographer, not decoration — it stays until real
+   photography lands, and it is hidden from assistive tech. */
+.kmq-shotnote {
+  position: absolute;
+  inset-block-end: 26px;
+  inset-inline-end: 32px;
+  font-family: var(--kmq-font-meta);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--kmq-ink-35);
+  direction: ltr;
+  pointer-events: none;
+  max-width: min(60ch, calc(100% - 64px));
+}
+
+/* Page hero: the short banner every non-home page opens with. */
+.kmq-pagehead {
+  position: relative;
+  overflow: hidden;
+  border-block-end: 1px solid var(--kmq-gold-18);
+}
+
+.kmq-pagehead__body { position: relative; padding-block: 110px 90px; }
+
+.kmq-pagehead h1 {
+  font-weight: 900;
+  font-size: var(--kmq-h1-page);
+  line-height: 1.2;
+  max-width: 960px;
+}
+
+.kmq-pagehead p { margin-block-start: 26px; }
+
+/* ═══════════ Trust strip / stat strip ═══════════ */
+
+.kmq-strip {
+  border-block: 1px solid var(--kmq-gold-18);
+  background: var(--kmq-bg-raised);
+}
+
+.kmq-strip__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+}
+
+.kmq-strip__cell {
+  padding: 40px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-inline-start: 1px solid var(--kmq-line-soft);
+}
+
+.kmq-strip__cell:first-child { border-inline-start: 0; }
+
+.kmq-strip__title {
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.kmq-strip__meta {
+  font-family: var(--kmq-font-latin);
+  font-size: var(--kmq-micro);
+  letter-spacing: var(--kmq-track-code);
+  color: rgba(201, 168, 76, .85);
+  margin-block-start: 6px;
+  direction: ltr;
+}
+
+/* Stat cells (About). */
+.kmq-stat { padding: 48px 26px; border-inline-start: 1px solid var(--kmq-line-soft); }
+
+.kmq-stat:first-child { border-inline-start: 0; }
+
+.kmq-stat__value {
+  font-family: var(--kmq-font-latin);
+  font-weight: 600;
+  font-size: clamp(38px, 4.4vw, 56px);
+  line-height: 1;
+  background: var(--kmq-grad-stat);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  direction: ltr;
+}
+
+.kmq-stat__label {
+  font-size: var(--kmq-small);
+  line-height: 1.85;
+  color: var(--kmq-ink-60);
+  margin-block-start: 16px;
+}
+
+/* ═══════════ Icon frame ═══════════ */
+
+.kmq-iconframe {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--kmq-gold-45);
+  flex-shrink: 0;
+}
+
+.kmq-iconframe--sm { width: 44px; height: 44px; }
+
+/* ═══════════ Card grids ═══════════ */
+
+.kmq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 22px;
+}
+
+.kmq-grid--wide { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+
+.kmq-grid--narrow { grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); }
+
+/* Hairline grid: 1px gap over a light background paints the rules. */
+.kmq-grid--hairline {
+  gap: 1px;
+  background: rgba(245, 245, 240, .09);
+}
+
+.kmq-sectionhead { margin-block-end: 60px; }
+
+.kmq-sectionhead h2 {
+  font-weight: 900;
+  font-size: var(--kmq-h2);
+  max-width: 780px;
+}
+
+.kmq-sectionhead--split {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.kmq-sectionhead--center { text-align: center; }
+
+.kmq-sectionhead--center h2 { max-width: none; }
+
+/* ---- Service card ---- */
+
+.kmq-card {
+  position: relative;
+  padding: 38px clamp(20px, 6vw, 32px) 32px;
+  background: var(--kmq-grad-card);
+  border: 1px solid rgba(245, 245, 240, .09);
+  transition: transform var(--kmq-lift), border-color var(--kmq-lift);
+}
+
+.kmq-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--kmq-gold-45);
+}
+
+.kmq-card__code {
+  font-family: var(--kmq-font-latin);
+  font-size: var(--kmq-micro);
+  letter-spacing: .16em;
+  color: rgba(201, 168, 76, .9);
+  margin-block-end: 26px;
+  direction: ltr;
+}
+
+.kmq-card__title {
+  font-weight: 800;
+  font-size: var(--kmq-h3);
+  margin-block: 32px 14px;
+}
+
+.kmq-card__body {
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--kmq-ink-60);
+  margin-block-end: 28px;
+}
+
+/* ---- Numbered cell (why / values / gloss features) ---- */
+
+.kmq-cell {
+  background: var(--kmq-bg);
+  padding: 38px 26px 44px;
+  transition: background var(--kmq-lift);
+}
+
+.kmq-cell:hover { background: var(--kmq-bg-hover); }
+
+.kmq-section--raised .kmq-cell { background: var(--kmq-bg-raised); }
+
+.kmq-section--raised .kmq-cell:hover { background: var(--kmq-bg-raised-2); }
+
+.kmq-cell__num {
+  font-family: var(--kmq-font-latin);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--kmq-gold-35);
+  margin-block-end: 26px;
+  direction: ltr;
+}
+
+.kmq-cell__num--sm {
+  font-size: 13px;
+  letter-spacing: .2em;
+  color: rgba(201, 168, 76, .85);
+  margin-block-end: 24px;
+}
+
+.kmq-cell h3 {
+  font-weight: 800;
+  font-size: 20px;
+  margin-block-end: 14px;
+}
+
+.kmq-cell p {
+  font-size: var(--kmq-small);
+  line-height: 1.95;
+  color: var(--kmq-ink-60);
+}
+
+/* ═══════════ Package card ═══════════ */
+
+.kmq-pkg {
+  position: relative;
+  padding: 44px clamp(20px, 6vw, 34px) 38px;
+  background: var(--kmq-grad-card);
+  border: 1px solid var(--kmq-line);
+  transition: transform var(--kmq-lift);
+  display: flex;
+  flex-direction: column;
+}
+
+.kmq-pkg:hover { transform: translateY(-6px); }
+
+.kmq-pkg--featured {
+  background: var(--kmq-grad-card-lit);
+  border-color: rgba(201, 168, 76, .75);
+  box-shadow: var(--kmq-shadow-card);
+}
+
+.kmq-pkg__flag {
+  position: absolute;
+  inset-block-start: -1px;
+  inset-inline-start: 34px;
+  background: var(--kmq-grad-cta);
+  color: var(--kmq-bg);
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: var(--kmq-micro);
+  padding: 6px 14px;
+}
+
+.kmq-pkg h3 {
+  font-weight: 900;
+  font-size: 27px;
+  margin-block: 14px 10px;
+}
+
+.kmq-pkg__includes {
+  font-size: var(--kmq-small);
+  line-height: 1.9;
+  color: var(--kmq-ink-60);
+  margin-block-end: 26px;
+}
+
+.kmq-pkg__price {
+  font-family: var(--kmq-font-latin);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--kmq-ink);
+  margin-block-end: 4px;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+/* A package whose price is not agreed yet gets the same slot at a size that
+   fits a sentence, so the card does not go blank or collapse. */
+.kmq-pkg__price--tbd {
+  font-family: var(--kmq-body-font);
+  font-size: 19px;
+  color: var(--kmq-ink-55);
+  direction: inherit;
+}
+
+.kmq-pkg__currency {
+  font-size: 13px;
+  color: var(--kmq-ink-45);
+  margin-block-end: 26px;
+}
+
+.kmq-pkg__warranty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-block: 14px;
+  border-block: 1px solid var(--kmq-line);
+  margin-block-end: 28px;
+}
+
+.kmq-pkg__warranty dt {
+  font-size: var(--kmq-small);
+  color: var(--kmq-ink-55);
+}
+
+.kmq-pkg__warranty dd {
+  margin: 0;
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--kmq-gold);
+}
+
+.kmq-pkg .kmq-btn { margin-block-start: auto; }
+
+.kmq-pkg__cta {
+  border-color: var(--kmq-gold-50);
+  background: transparent;
+  color: var(--kmq-ink);
+  padding: 17px;
+}
+
+.kmq-pkg__cta:hover { filter: brightness(1.14); color: var(--kmq-ink); }
+
+.kmq-pkg--featured .kmq-pkg__cta {
+  background: var(--kmq-grad-cta);
+  color: var(--kmq-bg);
+}
+
+.kmq-pkg--featured .kmq-pkg__cta:hover { color: var(--kmq-bg); }
+
+/* ═══════════ Warranty band ═══════════ */
+
+.kmq-band {
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid var(--kmq-gold-18);
+}
+
+.kmq-band__layer { position: absolute; inset: 0; pointer-events: none; }
+
+.kmq-band__layer--base { background: var(--kmq-bg-sunk); }
+
+.kmq-band__layer--glow {
+  background:
+    radial-gradient(85% 120% at 80% 0%, rgba(212, 175, 55, .22), transparent 58%),
+    radial-gradient(70% 90% at 8% 100%, rgba(28, 28, 46, .95), transparent 62%);
+}
+
+.kmq-band__layer--weave { background: var(--kmq-weave-fine); }
+
+.kmq-band__body {
+  position: relative;
+  padding-block: clamp(80px, 9vw, 140px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: clamp(44px, 6vw, 90px);
+  align-items: center;
+}
+
+/* The rotated-diamond seal around the big numeral. */
+.kmq-seal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.kmq-seal__ring,
+.kmq-seal__ring--inner,
+.kmq-seal__halo { position: absolute; }
+
+.kmq-seal__ring {
+  width: clamp(230px, 26vw, 320px);
+  aspect-ratio: 1;
+  border: 1px solid var(--kmq-gold-35);
+  transform: rotate(45deg);
+}
+
+.kmq-seal__ring--inner {
+  width: clamp(180px, 20vw, 250px);
+  border-color: var(--kmq-gold-18);
+}
+
+.kmq-seal__halo {
+  width: clamp(260px, 30vw, 380px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, .16), transparent 68%);
+}
+
+.kmq-seal__body { position: relative; text-align: center; }
+
+.kmq-seal__num {
+  font-family: var(--kmq-font-latin);
+  font-weight: 700;
+  font-size: clamp(96px, 15vw, 190px);
+  line-height: .85;
+  background: var(--kmq-grad-numeral);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  direction: ltr;
+}
+
+.kmq-seal__label {
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: clamp(15px, 1.6vw, 20px);
+  letter-spacing: .04em;
+  margin-block-start: 14px;
+}
+
+.kmq-seal__stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-block-start: 18px;
+  border: 1px solid var(--kmq-gold-50);
+  padding: 7px 14px;
+  font-family: var(--kmq-head);
+  font-weight: 700;
+  font-size: var(--kmq-micro);
+  color: var(--kmq-gold);
+}
+
+.kmq-band h2 {
+  font-weight: 900;
+  font-size: clamp(30px, 4.2vw, 58px);
+  line-height: 1.22;
+  margin-block-end: 22px;
+}
+
+.kmq-band__sub {
+  font-size: 17px;
+  line-height: 2;
+  color: var(--kmq-ink-70);
+  margin-block-end: 36px;
+  max-width: 560px;
+}
+
+.kmq-points {
+  display: grid;
+  gap: 1px;
+  background: var(--kmq-line);
+  margin-block-end: 38px;
+}
+
+.kmq-points li {
+  background: var(--kmq-bg-sunk);
+  padding: 20px 22px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kmq-points svg { flex-shrink: 0; margin-block-start: 3px; }
+
+.kmq-points__title {
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 17px;
+  margin-block-end: 5px;
+}
+
+.kmq-points__body {
+  font-size: var(--kmq-small);
+  line-height: 1.8;
+  color: var(--kmq-ink-55);
+}
+
+/* ═══════════ Before / after ═══════════ */
+
+.kmq-compare {
+  position: relative;
+  height: clamp(300px, 52vw, 560px);
+  overflow: hidden;
+  border: 1px solid rgba(201, 168, 76, .22);
+}
+
+.kmq-compare__before,
+.kmq-compare__after { position: absolute; inset: 0; }
+
+.kmq-compare__before {
+  background: repeating-linear-gradient(105deg, #26262C 0 2px, #1E1E24 2px 10px);
+  display: grid;
+  place-items: end start;
+  padding: 0 26px 70px;
+}
+
+/* Clipped to --kmq-reveal, which app.js drives from the range input. The
+   default of 50% means the split is visible before any script runs. */
+.kmq-compare__after {
+  background: repeating-linear-gradient(105deg, #3A3324 0 2px, #23201A 2px 10px);
+  display: grid;
+  place-items: start end;
+  padding: 26px 26px 0;
+  clip-path: inset(0 calc(100% - var(--kmq-reveal, 50%)) 0 0);
+  border-inline-end: 1px solid var(--kmq-gold-bright);
+}
+
+[dir="rtl"] .kmq-compare__after {
+  clip-path: inset(0 0 0 calc(100% - var(--kmq-reveal, 50%)));
+  border-inline-end: 0;
+  border-inline-start: 1px solid var(--kmq-gold-bright);
+}
+
+.kmq-compare__tag {
+  font-family: var(--kmq-font-meta);
+  font-size: var(--kmq-micro);
+  letter-spacing: .14em;
+  color: var(--kmq-ink-45);
+  direction: ltr;
+  white-space: nowrap;
+}
+
+.kmq-compare__tag--after { color: rgba(212, 175, 55, .75); }
+
+.kmq-compare__range {
+  position: absolute;
+  inset-block-end: 26px;
+  inset-inline-start: 5%;
+  width: 90%;
+  accent-color: var(--kmq-gold-bright);
+  cursor: ew-resize;
+}
+
+/* ═══════════ Media placeholder ═══════════
+   Stands in for photography that has not been delivered. */
+
+.kmq-shot {
+  background: var(--kmq-weave-soft);
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+}
+
+.kmq-shot__label {
+  font-family: var(--kmq-font-meta);
+  font-size: 11px;
+  letter-spacing: var(--kmq-track-code);
+  color: var(--kmq-ink-35);
+  direction: ltr;
+  padding: 12px;
+  text-align: center;
+}
+
+.kmq-shot--tall { min-height: 300px; }
+.kmq-shot--branch { height: 180px; }
+.kmq-shot--article { height: 190px; }
+.kmq-shot--map { height: 320px; border: 1px solid var(--kmq-line); }
+
+/* ═══════════ Branch card ═══════════ */
+
+.kmq-branch {
+  border: 1px solid var(--kmq-line);
+  transition: border-color var(--kmq-lift), transform var(--kmq-lift);
+  display: flex;
+  flex-direction: column;
+}
+
+.kmq-branch:hover {
+  border-color: var(--kmq-gold-45);
+  transform: translateY(-6px);
+}
+
+.kmq-branch__body { padding: 30px 30px 34px; display: flex; flex-direction: column; flex: 1; }
+
+.kmq-branch__city {
+  font-family: var(--kmq-font-latin);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--kmq-gold);
+  margin-block-end: 12px;
+  direction: ltr;
+}
+
+.kmq-branch h3 { font-weight: 900; font-size: 23px; margin-block-end: 8px; }
+
+.kmq-branch__loc {
+  font-size: var(--kmq-small);
+  color: var(--kmq-ink-55);
+  margin-block-end: 22px;
+}
+
+.kmq-branch__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 16px;
+  border-block: 1px solid var(--kmq-line-soft);
+  margin-block-end: 24px;
+  font-size: 13px;
+}
+
+.kmq-branch__meta dt { color: var(--kmq-ink-45); }
+
+.kmq-branch__meta dd {
+  margin: 0;
+  font-family: var(--kmq-font-latin);
+  font-weight: 500;
+  font-size: var(--kmq-small);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* A branch whose phone or hours the client has not supplied says so, in the
+   reader's language, in the same slot. */
+.kmq-branch__meta dd[data-tbd="true"] {
+  font-family: var(--kmq-body-font);
+  color: var(--kmq-ink-45);
+  direction: inherit;
+  font-size: 13px;
+}
+
+.kmq-branch__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-block-start: auto;
+}
+
+.kmq-branch__actions > * { flex: 1; white-space: nowrap; font-size: 15px; padding: 15px 18px; }
+
+/* ═══════════ Panels ═══════════ */
+
+.kmq-panel {
+  padding: 40px clamp(20px, 6vw, 34px);
+  border: 1px solid var(--kmq-line);
+}
+
+.kmq-panel h3 { font-weight: 900; font-size: 22px; margin-block-end: 22px; }
+
+.kmq-panel--lit {
+  border-color: var(--kmq-gold-35);
+  background: var(--kmq-grad-panel);
+}
+
+.kmq-panel--card { background: var(--kmq-grad-card); }
+
+/* A prompt bar: headline on one side, CTA on the other. */
+.kmq-prompt {
+  padding: 40px clamp(20px, 6vw, 40px);
+  border: 1px solid var(--kmq-gold-35);
+  background: linear-gradient(120deg, var(--kmq-gold-wash), transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.kmq-prompt h3 { font-weight: 900; font-size: 26px; margin-block-end: 10px; }
+
+.kmq-prompt p { font-size: 15px; color: var(--kmq-ink-60); }
+
+/* ═══════════ Lists ═══════════ */
+
+.kmq-ticks { display: grid; gap: 12px; }
+
+.kmq-ticks li {
+  display: flex;
+  gap: 12px;
+  font-size: var(--kmq-small);
+  line-height: 1.85;
+  color: var(--kmq-ink-70);
+}
+
+.kmq-ticks li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-block-start: 10px;
+  background: var(--kmq-gold);
+  transform: rotate(45deg);
+}
+
+.kmq-ticks--muted li { color: var(--kmq-ink-60); }
+
+.kmq-ticks--muted li::before { background: var(--kmq-gold-70); }
+
+/* Exclusions get a dash rather than a diamond — the shape carries the
+   meaning for anyone scanning the two lists side by side. */
+.kmq-ticks--minus li::before {
+  width: 12px;
+  height: 1px;
+  margin-block-start: 13px;
+  background: var(--kmq-ink-35);
+  transform: none;
+}
+
+/* Key/value rows (film spec). */
+.kmq-spec { display: grid; }
+
+.kmq-spec > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 20px;
+  border-block-end: 1px solid rgba(245, 245, 240, .09);
+}
+
+.kmq-spec dt { font-size: 15px; color: var(--kmq-ink-55); }
+
+.kmq-spec dd {
+  margin: 0;
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 16px;
+  text-align: end;
+}
+
+/* ═══════════ FAQ ═══════════
+   <details> so it opens without JavaScript. The grid trick animates to the
+   answer's real height rather than a fixed max-height that clips. */
+
+.kmq-faq { display: grid; gap: 1px; background: var(--kmq-line); }
+
+.kmq-faq__item { background: var(--kmq-bg); }
+
+.kmq-section--raised .kmq-faq__item { background: var(--kmq-bg-raised); }
+
+.kmq-faq__q {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px clamp(18px, 4vw, 30px);
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.7;
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--kmq-quick);
+}
+
+.kmq-faq__q::-webkit-details-marker { display: none; }
+
+.kmq-faq__q:hover { color: var(--kmq-gold); }
+
+.kmq-faq__sign {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-block-start: 4px;
+  position: relative;
+  transition: transform var(--kmq-quick);
+}
+
+.kmq-faq__sign::before,
+.kmq-faq__sign::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--kmq-gold);
+}
+
+.kmq-faq__sign::after { transform: rotate(90deg); transition: opacity var(--kmq-quick); }
+
+.kmq-faq__item[open] .kmq-faq__sign::after { opacity: 0; }
+
+.kmq-faq__a {
+  display: grid;
+  grid-template-rows: 1fr;
+  padding-inline: clamp(18px, 4vw, 30px);
+  padding-block-end: 26px;
+}
+
+.kmq-faq__a > div { overflow: hidden; }
+
+.kmq-faq__a p {
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--kmq-ink-60);
+  max-width: var(--kmq-measure);
+}
+
+/* ═══════════ Blog ═══════════ */
+
+.kmq-bloglayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 50px;
+  align-items: start;
+}
+
+@media (max-width: 1023px) {
+  .kmq-bloglayout { grid-template-columns: 1fr; }
+}
+
+.kmq-feature {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+  color: inherit;
+  border: 1px solid var(--kmq-gold-45);
+  background: var(--kmq-grad-panel);
+  transition: border-color var(--kmq-lift);
+}
+
+.kmq-feature:hover { border-color: var(--kmq-gold); color: inherit; }
+
+.kmq-feature__body { padding: clamp(30px, 5vw, 56px); }
+
+.kmq-feature h2 {
+  font-weight: 900;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1.4;
+  margin-block-end: 18px;
+}
+
+.kmq-flag {
+  background: var(--kmq-grad-cta);
+  color: var(--kmq-bg);
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 11px;
+  padding: 5px 12px;
+}
+
+.kmq-post {
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  border: 1px solid rgba(245, 245, 240, .09);
+  transition: border-color var(--kmq-lift), transform var(--kmq-lift);
+}
+
+.kmq-post:hover {
+  border-color: var(--kmq-gold-45);
+  transform: translateY(-6px);
+  color: inherit;
+}
+
+.kmq-post__shot { position: relative; }
+
+.kmq-post__cat {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  background: rgba(13, 13, 13, .82);
+  backdrop-filter: blur(8px);
+  border-inline-end: 1px solid var(--kmq-gold-35);
+  border-block-end: 1px solid var(--kmq-gold-35);
+  font-family: var(--kmq-font-latin);
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--kmq-gold);
+  padding: 7px 12px;
+}
+
+.kmq-post__body { padding: 26px 26px 28px; display: flex; flex-direction: column; flex: 1; }
+
+.kmq-post h3 {
+  font-weight: 800;
+  font-size: 19px;
+  line-height: 1.6;
+  margin-block-end: 12px;
+  color: var(--kmq-ink);
+}
+
+.kmq-post__excerpt {
+  font-size: var(--kmq-small);
+  line-height: 1.9;
+  color: var(--kmq-ink-55);
+  margin-block-end: 22px;
+}
+
+.kmq-post__meta {
+  margin-block-start: auto;
+  padding-block-start: 18px;
+  border-block-start: 1px solid rgba(245, 245, 240, .08);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--kmq-micro);
+  color: var(--kmq-ink-45);
+}
+
+.kmq-byline {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--kmq-ink-45);
+}
+
+.kmq-byline__dot {
+  width: 4px;
+  height: 4px;
+  background: var(--kmq-gold-70);
+  transform: rotate(45deg);
+}
+
+/* Filter chips — real links, so the filter works without JavaScript. */
+.kmq-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+
+.kmq-chip {
+  background: transparent;
+  color: var(--kmq-ink-70);
+  border: 1px solid rgba(245, 245, 240, .16);
+  font-family: var(--kmq-head);
+  font-weight: 700;
+  font-size: var(--kmq-small);
+  padding: 10px 18px;
+  white-space: nowrap;
+  transition: border-color var(--kmq-quick), color var(--kmq-quick);
+}
+
+.kmq-chip:hover { border-color: var(--kmq-gold); color: var(--kmq-gold); }
+
+.kmq-chip[aria-current="true"] {
+  background: var(--kmq-grad-cta);
+  color: var(--kmq-bg);
+  border-color: rgba(201, 168, 76, .8);
+}
+
+.kmq-filterbar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-block-end: 34px;
+}
+
+.kmq-resultcount {
+  font-size: 13px;
+  color: var(--kmq-ink-45);
+  margin-block-end: 26px;
+}
+
+.kmq-empty {
+  padding: 70px 30px;
+  border: 1px dashed rgba(245, 245, 240, .16);
+  text-align: center;
+  font-size: 15px;
+  color: var(--kmq-ink-45);
+}
+
+.kmq-pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: 44px;
+  flex-wrap: wrap;
+}
+
+.kmq-pager a,
+.kmq-pager span {
+  min-width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--kmq-ink-70);
+  border: 1px solid rgba(245, 245, 240, .14);
+  font-family: var(--kmq-font-latin);
+  font-weight: 600;
+  font-size: var(--kmq-small);
+  padding-inline: 14px;
+}
+
+.kmq-pager a:hover { border-color: var(--kmq-gold); }
+
+.kmq-pager [aria-current="page"] {
+  background: var(--kmq-grad-cta);
+  color: var(--kmq-bg);
+  border-color: rgba(201, 168, 76, .8);
+}
+
+.kmq-pager span[aria-disabled="true"] { color: rgba(245, 245, 240, .28); }
+
+.kmq-aside { display: grid; gap: 22px; }
+
+.kmq-aside__card { padding: 30px 28px; border: 1px solid var(--kmq-line); }
+
+.kmq-aside__title {
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--kmq-gold);
+  margin-block-end: 22px;
+}
+
+.kmq-ranked { display: grid; gap: 20px; }
+
+.kmq-ranked a {
+  display: flex;
+  gap: 14px;
+  color: inherit;
+  align-items: flex-start;
+}
+
+.kmq-ranked a:hover { color: var(--kmq-gold); }
+
+.kmq-ranked__num {
+  font-family: var(--kmq-font-latin);
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(201, 168, 76, .4);
+  line-height: 1.2;
+  direction: ltr;
+}
+
+.kmq-ranked__title { font-size: var(--kmq-small); line-height: 1.8; }
+
+.kmq-catlist { display: grid; gap: 2px; }
+
+.kmq-catlist a {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-block-end: 1px solid var(--kmq-line-soft);
+  color: var(--kmq-ink-70);
+  font-size: var(--kmq-small);
+  padding-block: 13px;
+  text-align: start;
+}
+
+.kmq-catlist a:hover { color: var(--kmq-gold); }
+
+.kmq-catlist__count {
+  font-family: var(--kmq-font-latin);
+  color: rgba(201, 168, 76, .8);
+  direction: ltr;
+}
+
+.kmq-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.kmq-tags a {
+  border: 1px solid rgba(245, 245, 240, .14);
+  color: var(--kmq-ink-60);
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
+.kmq-tags a:hover { border-color: var(--kmq-gold); color: var(--kmq-gold); }
+
+/* ═══════════ Forms ═══════════ */
+
+/* Column flex, not grid: as a grid item the field stretches to the tallest
+   cell in its row, and grid rows would stretch the control with it. In a
+   column flex box the control keeps its own height and the slack falls to
+   the bottom, so every control in a row lines up. */
+.kmq-field { display: flex; flex-direction: column; gap: 9px; }
+
+.kmq-field__label {
+  font-family: var(--kmq-head);
+  font-weight: 700;
+  font-size: var(--kmq-small);
+  color: var(--kmq-ink-80);
+  letter-spacing: .01em;
+  /* Holds the baseline when a neighbouring label wraps to two lines. */
+  min-height: 1.4em;
+}
+
+.kmq-field__req { color: var(--kmq-gold); margin-inline-start: 4px; }
+
+.kmq-input,
+.kmq-select,
+.kmq-textarea {
+  width: 100%;
+  background: rgba(8, 8, 10, .62);
+  border: 1px solid var(--kmq-line);
+  /* Gold hairline on the inline-start edge, revealed on focus. */
+  box-shadow: inset 2px 0 0 -2px transparent;
+  color: var(--kmq-ink);
+  font-family: var(--kmq-body-font);
+  font-size: 16px;
+  padding: 0 18px;
+  height: 54px;
+  outline: none;
+  border-radius: var(--kmq-radius);
+  transition: border-color var(--kmq-quick), background var(--kmq-quick),
+              box-shadow var(--kmq-quick);
+}
+
+.kmq-input:hover,
+.kmq-select:hover,
+.kmq-textarea:hover { border-color: rgba(245, 245, 240, .22); }
+
+.kmq-input:focus,
+.kmq-select:focus,
+.kmq-textarea:focus {
+  border-color: var(--kmq-gold);
+  background: rgba(8, 8, 10, .85);
+  box-shadow: 0 0 0 3px var(--kmq-gold-18);
+}
+
+.kmq-input::placeholder,
+.kmq-textarea::placeholder { color: var(--kmq-ink-35); }
+
+.kmq-textarea {
+  height: auto;
+  min-height: 132px;
+  padding: 16px 18px;
+  resize: vertical;
+  line-height: 1.9;
+}
+
+/* Native arrow sits on the wrong side in RTL and cannot be moved; a
+   background chevron on the inline-end edge works in both directions. */
+.kmq-select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23C9A84C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5'/%3E%3C/svg%3E");
+  background-size: 12px 8px;
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  padding-inline-end: 46px;
+}
+
+[dir="rtl"] .kmq-select {
+  background-position: left 18px center;
+  padding-inline-end: 18px;
+  padding-inline-start: 46px;
+}
+
+.kmq-select option { background: var(--kmq-bg-raised); color: var(--kmq-ink); }
+
+/* Placeholder option reads as a prompt, not as a chosen value. */
+.kmq-select:invalid, .kmq-select option[value=""] { color: var(--kmq-ink-45); }
+
+.kmq-field--bad .kmq-input,
+.kmq-field--bad .kmq-select,
+.kmq-field--bad .kmq-textarea { border-color: #C25B5B; background: rgba(194, 91, 91, .06); }
+
+.kmq-field--bad .kmq-input:focus,
+.kmq-field--bad .kmq-select:focus,
+.kmq-field--bad .kmq-textarea:focus { box-shadow: 0 0 0 3px rgba(194, 91, 91, .16); }
+
+.kmq-field__error {
+  display: flex;
+  gap: 7px;
+  font-size: 13px;
+  color: #E08A8A;
+  line-height: 1.6;
+}
+
+.kmq-field__error::before {
+  content: "!";
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-block-start: 2px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 13px;
+  text-align: center;
+}
+
+.kmq-field__hint {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--kmq-ink-45);
+}
+
+.kmq-formgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 24px 22px;
+}
+
+.kmq-formgrid__wide { grid-column: 1 / -1; }
+
+/* ── The form as a panel ── */
+
+.kmq-formcard {
+  padding: 40px;
+  border: 1px solid var(--kmq-line);
+  border-block-start: 2px solid var(--kmq-gold-50);
+  background:
+    linear-gradient(180deg, var(--kmq-gold-wash), transparent 220px),
+    var(--kmq-bg-raised);
+}
+
+@media (max-width: 640px) { .kmq-formcard { padding: 28px 20px; } }
+
+.kmq-formcard__head { margin-block-end: 30px; }
+
+.kmq-formcard__head h2 {
+  font-weight: 900;
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.kmq-formcard__head p {
+  margin-block-start: 10px;
+  font-size: 15px;
+  color: var(--kmq-ink-60);
+}
+
+.kmq-formfoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin-block-start: 30px;
+  padding-block-start: 26px;
+  border-block-start: 1px solid var(--kmq-line);
+}
+
+.kmq-formfoot__note {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--kmq-ink-45);
+  max-width: 40ch;
+}
+
+@media (max-width: 640px) {
+  .kmq-formfoot { gap: 14px; }
+  .kmq-formfoot .kmq-btn { width: 100%; justify-content: center; }
+}
+
+/* Bot trap: off-screen but not display:none, which some bots skip. */
+.kmq-hp {
+  position: absolute;
+  inset-inline-start: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.kmq-notice {
+  padding: 24px 26px;
+  border: 1px solid var(--kmq-gold-45);
+  background: var(--kmq-grad-panel);
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.kmq-notice--bad {
+  border-color: rgba(194, 91, 91, .5);
+  background: linear-gradient(140deg, rgba(194, 91, 91, .10), transparent);
+}
+
+.kmq-inlineform {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.kmq-inlineform .kmq-input { flex: 1; min-width: 260px; width: auto; }
+
+.kmq-inlineform .kmq-btn { padding: 19px 38px; border: none; }
+
+/* ═══════════ Warranty result ═══════════ */
+
+.kmq-result {
+  margin-block-start: 28px;
+  padding: 32px 34px;
+  border: 1px solid var(--kmq-gold-45);
+  background: var(--kmq-grad-panel);
+}
+
+.kmq-result__status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block-end: 26px;
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 19px;
+  color: var(--kmq-gold);
+}
+
+.kmq-result__status::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  background: var(--kmq-gold);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.kmq-result--none { border-color: var(--kmq-line); background: none; }
+
+.kmq-result--none .kmq-result__status { color: var(--kmq-ink-70); }
+
+.kmq-result--none .kmq-result__status::before { background: var(--kmq-ink-35); }
+
+.kmq-result__rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 26px;
+}
+
+.kmq-result__rows dt {
+  font-size: 13px;
+  color: var(--kmq-ink-45);
+  margin-block-end: 8px;
+}
+
+.kmq-result__rows dd {
+  margin: 0;
+  font-family: var(--kmq-font-latin);
+  font-size: 17px;
+  font-weight: 600;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.kmq-note {
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--kmq-ink-45);
+  margin-block-start: 22px;
+}
+
+/* ═══════════ Closing CTA ═══════════ */
+
+.kmq-close { position: relative; overflow: hidden; }
+
+.kmq-close__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(80% 120% at 50% 120%, rgba(212, 175, 55, .22), transparent 60%);
+  pointer-events: none;
+}
+
+.kmq-close__body {
+  position: relative;
+  max-width: 900px;
+  margin-inline: auto;
+  padding: 140px var(--kmq-gutter);
+  text-align: center;
+}
+
+.kmq-close h2 {
+  font-weight: 900;
+  font-size: clamp(28px, 4.6vw, 62px);
+  line-height: 1.22;
+  margin-block-end: 22px;
+}
+
+.kmq-close p {
+  font-size: 18px;
+  line-height: 2;
+  color: var(--kmq-ink-70);
+  margin-block-end: 42px;
+}
+
+/* ═══════════ Footer ═══════════ */
+
+.kmq-footer {
+  border-block-start: 1px solid rgba(201, 168, 76, .18);
+  background: var(--kmq-bg-sunk);
+}
+
+.kmq-footer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 50px;
+  padding-block: 80px 40px;
+}
+
+.kmq-footer__title {
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  font-size: 15px;
+  margin-block-end: 20px;
+  color: var(--kmq-gold);
+}
+
+.kmq-footer__blurb {
+  font-size: var(--kmq-small);
+  line-height: 2;
+  color: var(--kmq-ink-45);
+}
+
+.kmq-footer__links { display: grid; gap: 12px; }
+
+.kmq-footer__links a { font-size: var(--kmq-small); color: var(--kmq-ink-60); }
+
+.kmq-footer__links a:hover { color: var(--kmq-gold); }
+
+.kmq-footer__phones { display: grid; gap: 12px; }
+
+.kmq-footer__phones > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kmq-footer__phones dt { font-size: 13px; color: var(--kmq-ink-55); }
+
+.kmq-footer__phones dd {
+  margin: 0;
+  font-family: var(--kmq-font-latin);
+  font-size: 13px;
+  color: var(--kmq-ink-80);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.kmq-footer__phones dd[data-tbd="true"] {
+  font-family: var(--kmq-body-font);
+  color: var(--kmq-ink-45);
+  direction: inherit;
+}
+
+.kmq-footer__hours {
+  font-size: var(--kmq-small);
+  line-height: 2;
+  color: var(--kmq-ink-60);
+  margin-block-end: 28px;
+}
+
+.kmq-social { display: flex; gap: 10px; }
+
+.kmq-social a {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(245, 245, 240, .18);
+  font-family: var(--kmq-font-latin);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--kmq-ink-70);
+  direction: ltr;
+}
+
+.kmq-social a:hover { border-color: var(--kmq-gold); color: var(--kmq-gold); }
+
+.kmq-footer__base {
+  padding: 26px var(--kmq-gutter) 40px;
+  border-block-start: 1px solid var(--kmq-line-soft);
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  max-width: var(--kmq-shell);
+  margin-inline: auto;
+}
+
+.kmq-footer__copy {
+  font-family: var(--kmq-font-latin);
+  font-size: var(--kmq-micro);
+  letter-spacing: .1em;
+  color: var(--kmq-ink-35);
+  direction: ltr;
+}
+
+.kmq-footer__pay { font-size: var(--kmq-micro); color: var(--kmq-ink-35); }
+
+/* ═══════════ Two-column prose ═══════════ */
+
+.kmq-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: clamp(40px, 5vw, 70px);
+  align-items: start;
+}
+
+.kmq-split--center { align-items: center; }
+
+.kmq-prose h2 { font-weight: 900; font-size: var(--kmq-h2-sm); margin-block-end: 26px; }
+
+.kmq-prose p {
+  font-size: var(--kmq-body);
+  line-height: 2.05;
+  color: var(--kmq-ink-60);
+  max-width: var(--kmq-measure);
+}
+
+.kmq-prose p + p { margin-block-start: 22px; }
+
+.kmq-prose h3 {
+  font-weight: 800;
+  font-size: 22px;
+  margin-block: 40px 16px;
+}
+
+.kmq-prose ul { display: grid; gap: 12px; margin-block: 20px; }
+
+.kmq-prose li {
+  display: flex;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--kmq-ink-60);
+}
+
+.kmq-prose li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-block-start: 11px;
+  background: var(--kmq-gold-70);
+  transform: rotate(45deg);
+}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ t.nav[4].label }} — KMQ{% endblock %}
+{% block description %}{{ t.warranty_page_title }}{% endblock %}
+
+{% block content %}
+
+{{ m.pagehead('WARRANTY', t.warranty_page_title) }}
+
+{# ---- Lookup ---- #}
+<section id="check" class="kmq-section kmq-section--raised" style="border-block-end:1px solid var(--kmq-gold-18)">
+  <div class="kmq-shell" style="max-width:1000px">
+    <h2 style="font-weight:900;font-size:30px;margin-block-end:12px">{{ t.war_check_title }}</h2>
+    <p style="font-size:15px;line-height:1.95;color:var(--kmq-ink-60);margin-block-end:32px">{{ t.war_check_sub }}</p>
+
+    {# POST, so a plate number never reaches a URL, an access log or a
+       Referer header. #}
+    <form class="kmq-inlineform" method="post" action="{{ url_for('site.warranty') }}#check" data-kmq-once>
+      <label class="kmq-sr" for="warranty-q">{{ t.war_placeholder }}</label>
+      <input class="kmq-input" id="warranty-q" name="q" type="text" value="{{ query }}"
+             placeholder="{{ t.war_placeholder }}" autocomplete="off"
+             enterkeyhint="search" maxlength="40">
+      <button class="kmq-btn kmq-btn--gold" type="submit">{{ t.war_check_btn }}</button>
+    </form>
+
+    {% if state == 'active' and result %}
+      <div class="kmq-result" role="status">
+        <div class="kmq-result__status">{{ t.war_found }}</div>
+        <dl class="kmq-result__rows">
+          <div><dt>{{ t.war_rows[0] }}</dt><dd>{{ result.warranty_number }}</dd></div>
+          <div><dt>{{ t.war_rows[1] }}</dt><dd>{{ result.service_type }}</dd></div>
+          <div><dt>{{ t.war_rows[2] }}</dt><dd>{{ result.activation_date.strftime('%Y / %m / %d') }}</dd></div>
+          <div><dt>{{ t.war_rows[3] }}</dt><dd>{{ result.expiry_date.strftime('%Y / %m / %d') }}</dd></div>
+        </dl>
+      </div>
+
+    {% elif state in ('expired', 'void') and result %}
+      <div class="kmq-result kmq-result--none" role="status">
+        <div class="kmq-result__status">{{ t.war_expired if state == 'expired' else t.war_void }}</div>
+        <dl class="kmq-result__rows">
+          <div><dt>{{ t.war_rows[0] }}</dt><dd>{{ result.warranty_number }}</dd></div>
+          <div><dt>{{ t.war_rows[1] }}</dt><dd>{{ result.service_type }}</dd></div>
+          <div><dt>{{ t.war_rows[2] }}</dt><dd>{{ result.activation_date.strftime('%Y / %m / %d') }}</dd></div>
+          <div><dt>{{ t.war_rows[3] }}</dt><dd>{{ result.expiry_date.strftime('%Y / %m / %d') }}</dd></div>
+        </dl>
+      </div>
+
+    {% elif state == 'none' %}
+      <div class="kmq-result kmq-result--none" role="status">
+        <div class="kmq-result__status">{{ t.war_none }}</div>
+        <p style="font-size:15px;line-height:1.9;color:var(--kmq-ink-60)">{{ t.war_none_body }}</p>
+        {% set link = wa(t.wa_contact) %}
+        <a class="kmq-btn kmq-btn--outline" style="margin-block-start:20px"
+           href="{{ link or url_for('site.contact') }}"
+           {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_whatsapp }}</a>
+      </div>
+
+    {% elif state == 'empty' %}
+      <div class="kmq-notice kmq-notice--bad" role="status" style="margin-block-start:28px">{{ t.war_empty_query }}</div>
+
+    {% elif state == 'unavailable' %}
+      <div class="kmq-notice kmq-notice--bad" role="status" style="margin-block-start:28px">
+        {{ t.war_none_body }}
+      </div>
+    {% endif %}
+
+    <p class="kmq-note">{{ t.war_note }}</p>
+  </div>
+</section>
+
+{# ---- What each warranty covers ---- #}
+<section class="kmq-shell" style="padding-block:100px 40px">
+  <div class="kmq-grid kmq-grid--wide">
+    {% for w in blocks %}
+      <article class="kmq-panel kmq-panel--card">
+        <h3>{{ w.title }}</h3>
+        <div class="kmq-ltr" style="font-family:var(--kmq-font-latin);font-size:40px;font-weight:600;color:var(--kmq-gold);margin-block-end:6px">{{ w.years }}</div>
+        <div style="font-size:14px;color:var(--kmq-ink-45);margin-block-end:30px">{{ w.years_label }}</div>
+        <div style="font-family:var(--kmq-head);font-weight:800;font-size:15px;margin-block-end:16px">{{ t.covered }}</div>
+        <ul class="kmq-ticks">
+          {% for c in w.covered %}<li>{{ c }}</li>{% endfor %}
+        </ul>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+{# ---- Exclusions, conditions, after-sales ---- #}
+<section class="kmq-shell" style="padding-block:60px 120px">
+  <div class="kmq-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))">
+    <div class="kmq-panel">
+      <h3>{{ t.not_covered_title }}</h3>
+      <ul class="kmq-ticks kmq-ticks--minus">
+        {% for c in t.not_covered %}<li>{{ c }}</li>{% endfor %}
+      </ul>
+    </div>
+
+    <div class="kmq-panel">
+      <h3>{{ t.conditions_title }}</h3>
+      <ul class="kmq-ticks kmq-ticks--muted">
+        {% for c in t.conditions %}<li>{{ c }}</li>{% endfor %}
+      </ul>
+    </div>
+
+    <div class="kmq-panel kmq-panel--lit">
+      <h3>{{ t.after_sales_title }}</h3>
+      <p style="font-size:15px;line-height:2;color:var(--kmq-ink-80)">{{ t.after_sales_body }}</p>
+    </div>
+  </div>
+
+  <p class="kmq-note" style="margin-block-start:34px">{{ t.no_maintenance_note }}</p>
+</section>
+
+{{ m.closing(t, wa) }}
+
+{% endblock %}

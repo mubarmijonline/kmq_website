@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ t.nav[3].label }} — KMQ{% endblock %}
+{% block description %}{{ t.packages_page_title }}{% endblock %}
+
+{% block content %}
+
+{{ m.pagehead('PACKAGES', t.packages_page_title) }}
+
+<section class="kmq-shell" style="padding-block:90px 40px">
+  <div class="kmq-grid kmq-grid--wide">
+    {% for p in packages %}
+      {{ m.package_card(p, t, wa, show_prices, t.order_on_whatsapp) }}
+    {% endfor %}
+  </div>
+</section>
+
+{# ---- Add-ons ---- #}
+<section class="kmq-shell" style="padding-block:70px 120px">
+  <h2 style="font-weight:900;font-size:32px;margin-block-end:32px">{{ t.addons_title }}</h2>
+  <div class="kmq-grid">
+    {% for a in t.addons %}
+      <div class="kmq-panel kmq-panel--card" style="padding:32px 30px">
+        <span class="kmq-iconframe" style="width:48px;height:48px;margin-block-end:26px">{{ m.icon(a.icon, 24) }}</span>
+        <p style="font-size:16px;line-height:1.9;color:var(--kmq-ink-80)">{{ a.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="kmq-prompt" style="margin-block-start:60px">
+    <div>
+      <h3>{{ t.unsure_title }}</h3>
+      <p>{{ t.unsure_body }}</p>
+    </div>
+    {% set link = wa(t.wa_default) %}
+    <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+       {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.ask_whatsapp }}</a>
+  </div>
+</section>
+
+{{ m.closing(t, wa) }}
+
+{% endblock %}

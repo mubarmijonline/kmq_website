@@ -1,0 +1,68 @@
+{% set endpoints = {
+  'home': 'site.home', 'about': 'site.about', 'services': 'site.services',
+  'packages': 'site.packages', 'warranty': 'site.warranty',
+  'branches': 'site.branches', 'blog': 'site.blog', 'contact': 'site.contact'
+} %}
+
+<footer class="kmq-footer">
+  <div class="kmq-shell kmq-footer__grid">
+
+    <div>
+      <a class="kmq-brand" href="{{ url_for('site.home') }}" style="margin-block-end:22px">
+        <span class="kmq-brand__mark" aria-hidden="true" style="width:32px;height:32px"></span>
+        <span class="kmq-brand__word" style="font-size:20px;letter-spacing:.22em">KMQ</span>
+      </a>
+      <p class="kmq-footer__blurb">{{ t.footer_blurb }}</p>
+    </div>
+
+    <div>
+      <h2 class="kmq-footer__title">{{ t.footer_nav }}</h2>
+      <nav class="kmq-footer__links" aria-label="{{ t.footer_nav }}">
+        {% for item in t.nav %}
+          <a href="{{ url_for(endpoints[item.key]) }}">{{ item.label }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+
+    <div>
+      <h2 class="kmq-footer__title">{{ t.footer_phones }}</h2>
+      {# Every branch number is still open in the content file's pending
+         list. Each row says so rather than showing an invented number. #}
+      <dl class="kmq-footer__phones">
+        {% for b in t.branches %}
+          <div>
+            <dt>{{ b.short }}</dt>
+            <dd {% if not b.phone %}data-tbd="true"{% endif %}>
+              {%- if b.phone %}{{ b.phone }}{% else %}{{ t.tbd }}{% endif -%}
+            </dd>
+          </div>
+        {% endfor %}
+      </dl>
+    </div>
+
+    <div>
+      <h2 class="kmq-footer__title">{{ t.footer_hours }}</h2>
+      <div class="kmq-footer__hours">
+        <div>{{ t.hours_week }}</div>
+        <div>{{ t.hours_fri }}</div>
+      </div>
+      <div class="kmq-social">
+        {% for s in t.social %}
+          {# No profile URLs supplied yet; render the tile without a link
+             rather than pointing it at "#". #}
+          {% if s.url %}
+            <a href="{{ s.url }}" title="{{ s.name }}" target="_blank" rel="noopener">{{ s.abbr }}</a>
+          {% else %}
+            <span class="kmq-social__soon" title="{{ s.name }} — {{ t.tbd }}"
+                  style="width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(245,245,240,.10);font-family:var(--kmq-font-latin);font-size:11px;font-weight:700;color:var(--kmq-ink-35)">{{ s.abbr }}</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="kmq-footer__base">
+    <span class="kmq-footer__copy">© {{ current_year }} KMQ. All rights reserved.</span>
+    <span class="kmq-footer__pay">{{ t.installments }}</span>
+  </div>
+</footer>

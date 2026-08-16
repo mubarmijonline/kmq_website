@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ service.name }} — KMQ{% endblock %}
+{% block description %}{{ service.lede[:180] }}{% endblock %}
+
+{% block content %}
+
+<section class="kmq-hero kmq-hero--short">
+  <div class="kmq-hero__layer kmq-hero__layer--weave" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--veil" aria-hidden="true"></div>
+
+  <div class="kmq-shell kmq-hero__body">
+    <div class="kmq-eyebrow">SERVICES / {{ service.slug | upper | replace('-', ' ') }}</div>
+    <h1 style="font-weight:900;font-size:clamp(30px,5.4vw,72px);line-height:1.18;margin-block-end:26px;max-width:900px">{{ service.name }} — {{ service.tagline }}</h1>
+    <p class="kmq-lede" style="margin-block-end:40px">{{ service.lede }}</p>
+    <div class="kmq-btn-row">
+      {% set link = wa(t.wa_order ~ service.name) %}
+      <a class="kmq-btn kmq-btn--gold kmq-btn--lg" href="{{ link or url_for('site.contact') }}"
+         {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
+      <a class="kmq-btn kmq-btn--ghost kmq-btn--lg" href="{{ url_for('site.packages') }}">{{ t.all_packages_link }}</a>
+    </div>
+  </div>
+</section>
+
+{# ---- What it gives you ---- #}
+<section class="kmq-shell kmq-section">
+  <div class="kmq-grid kmq-grid--hairline" style="grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr))">
+    {% for point in service.points %}
+      <div class="kmq-cell">
+        <div class="kmq-cell__num">0{{ loop.index }}</div>
+        <p style="font-family:var(--kmq-head);font-weight:700;font-size:18px;line-height:1.7;color:var(--kmq-ink)">{{ point }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<hr class="kmq-rule">
+
+{# ---- Film spec + the matching package ---- #}
+<section class="kmq-section kmq-section--raised">
+  <div class="kmq-shell kmq-split">
+    <div class="kmq-prose">
+      <div class="kmq-eyebrow">FILM SPEC</div>
+      <h2>{{ t.spec_title }}</h2>
+      <p>{{ t.spec_sub }}</p>
+      <dl class="kmq-spec" style="margin-block-start:30px">
+        {% for row in t.film_spec %}
+          <div><dt>{{ row.k }}</dt><dd>{{ row.v }}</dd></div>
+        {% endfor %}
+      </dl>
+    </div>
+    <div>
+      {% if package %}
+        {{ m.package_card(package, t, wa, show_prices, t.order_on_whatsapp) }}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{# ---- Warranty pointer ---- #}
+<section class="kmq-shell kmq-section">
+  <div class="kmq-prompt">
+    <div>
+      <h3>{{ t.warranty_label }}: {{ service.warranty }}</h3>
+      <p>{{ t.war_note }}</p>
+    </div>
+    <a class="kmq-btn kmq-btn--gold" href="{{ url_for('site.warranty') }}">{{ t.wb_cta }}</a>
+  </div>
+</section>
+
+{# ---- Other services ---- #}
+<section class="kmq-shell kmq-section" style="padding-block-start:0">
+  <h2 style="font-weight:900;font-size:clamp(30px,3.4vw,44px);margin-block-end:40px">{{ t.other_services_title }}</h2>
+  <div class="kmq-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))">
+    {% for s in others %}
+      <a class="kmq-panel" href="{{ url_for('site.service', slug=s.slug) }}"
+         style="color:inherit;display:block;transition:border-color var(--kmq-lift),transform var(--kmq-lift)">
+        <div class="kmq-card__code">S/0{{ loop.index }}</div>
+        <h3 style="font-size:21px;font-weight:800;margin-block-end:12px">{{ s.name }}</h3>
+        <p style="font-size:14px;line-height:1.9;color:var(--kmq-ink-60)">{{ s.tagline }}</p>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+{{ m.closing(t, wa) }}
+
+{% endblock %}

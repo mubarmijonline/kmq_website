@@ -1,0 +1,179 @@
+/* Document defaults. Everything here is direction-agnostic: the only thing
+   that changes between Arabic and English is <html dir> and two font
+   variables set on <html> by the base template. */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  /* Set per-locale by the template. Defaults are the Arabic pair, because
+     Arabic is the default locale. */
+  --kmq-head: var(--kmq-font-ar-head);
+  --kmq-body-font: var(--kmq-font-ar-body);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Header is sticky and 84px tall; anchor targets must clear it. */
+  scroll-padding-block-start: 100px;
+}
+
+html[lang="en"] {
+  --kmq-head: var(--kmq-font-latin);
+  --kmq-body-font: var(--kmq-font-latin);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--kmq-bg);
+  color: var(--kmq-ink);
+  font-family: var(--kmq-body-font);
+  font-size: var(--kmq-body);
+  line-height: var(--kmq-leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* The source sets this on its root div; hero decorations overflow the
+     inline axis and would otherwise scroll the page sideways in RTL. */
+  overflow-x: clip;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--kmq-head);
+  line-height: var(--kmq-leading-tight);
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0; }
+
+a {
+  color: var(--kmq-gold);
+  text-decoration: none;
+  transition: color var(--kmq-quick);
+}
+
+a:hover { color: var(--kmq-gold-hi); }
+
+img,
+svg { max-width: 100%; }
+
+img { height: auto; }
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; }
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+::selection {
+  background: var(--kmq-gold);
+  color: var(--kmq-bg);
+}
+
+/* Keyboard focus. The design source has no focus style at all — on a site
+   whose entire purpose is starting a conversation, every CTA must be
+   reachable without a mouse. */
+:focus-visible {
+  outline: 2px solid var(--kmq-gold-bright);
+  outline-offset: 3px;
+}
+
+:focus:not(:focus-visible) { outline: none; }
+
+.kmq-skip {
+  position: absolute;
+  inset-inline-start: var(--kmq-gutter);
+  inset-block-start: -100vh;
+  z-index: 100;
+  background: var(--kmq-gold-bright);
+  color: var(--kmq-bg);
+  font-family: var(--kmq-head);
+  font-weight: 800;
+  padding: 14px 22px;
+}
+
+.kmq-skip:focus {
+  inset-block-start: 12px;
+  color: var(--kmq-bg);
+}
+
+/* Screen-reader-only, but still focusable. */
+.kmq-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Shell ------------------------------------------------------------- */
+
+.kmq-shell {
+  max-width: var(--kmq-shell);
+  margin-inline: auto;
+  padding-inline: var(--kmq-gutter);
+  width: 100%;
+}
+
+.kmq-section { padding-block: var(--kmq-section); }
+
+.kmq-section--raised { background: var(--kmq-bg-raised); }
+
+.kmq-section--accent { background: var(--kmq-bg-accent); }
+
+/* The gold hairline the source drops between several sections. */
+.kmq-rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--kmq-grad-rule);
+}
+
+/* Latin runs inside Arabic text — codes, phone numbers, dates, prices.
+   The source marks each of these dir="ltr" individually; this is that,
+   as a class. */
+.kmq-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* ---- Motion ------------------------------------------------------------
+   Two halves, and both are needed. Killing the duration alone retires a
+   finite animation instantly but makes an infinite one loop at ~1MHz —
+   i.e. vibrate at full speed, exactly backwards from what the setting asks
+   for. Capping the iteration count is the other half. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html { scroll-behavior: auto; }
+
+  /* Purely decorative loops rest in their natural position rather than at
+     their final keyframe. */
+  .kmq-hero__content { animation: none !important; }
+}
+
+@keyframes kmqFade {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}

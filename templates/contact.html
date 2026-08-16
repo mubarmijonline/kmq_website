@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ t.nav[7].label }} — KMQ{% endblock %}
+{% block description %}{{ t.contact_sub }}{% endblock %}
+
+{% block content %}
+
+{{ m.pagehead('CONTACT', t.contact_title, t.contact_sub) }}
+
+{# Only pad when there is something to show — an unconfigured WhatsApp number
+   used to leave an empty section holding 110px of dead space. #}
+{% set link = wa(t.wa_contact) %}
+{% if link %}
+  <section class="kmq-shell" style="padding-block:70px 0">
+    <div class="kmq-prompt">
+      <div>
+        <h3>{{ t.cta_whatsapp }}</h3>
+        <p>{{ t.final_sub }}</p>
+      </div>
+      <a class="kmq-btn kmq-btn--gold" href="{{ link }}" target="_blank" rel="noopener">{{ t.cta_whatsapp }}</a>
+    </div>
+  </section>
+{% endif %}
+
+<section class="kmq-shell" style="padding-block:70px 120px">
+  <div class="kmq-bloglayout">
+
+    <div>
+      {% if sent %}
+        <div class="kmq-notice" role="status">
+          <strong style="font-family:var(--kmq-head);font-size:19px">{{ t.contact_ok_title }}</strong>
+          <p style="margin-block-start:10px">{{ t.contact_ok_body }}</p>
+        </div>
+      {% else %}
+        <div class="kmq-formcard">
+        <div class="kmq-formcard__head">
+          <h2>{{ t.contact_form_title }}</h2>
+          <p>{{ t.contact_form_sub }}</p>
+        </div>
+
+        {% if form and form.errors %}
+          <div class="kmq-notice kmq-notice--bad" role="alert" style="margin-block-end:28px">
+            {%- if form.errors.get('__all__') -%}
+              {{ errors_for_locale[form.errors['__all__']] }}
+            {%- else -%}
+              {{ t.contact_bad }}
+            {%- endif -%}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('site.contact') }}" novalidate data-kmq-once>
+          {# Honeypot. Real visitors never see it, so never fill it. #}
+          <div class="kmq-hp" aria-hidden="true">
+            <label for="company">Company</label>
+            <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="kmq-formgrid">
+            {% for field in lead_fields %}
+              {% set name = field.name %}
+              {% set err = form.error_for(name) if form else none %}
+              {% set value = form.value_for(name) if form else '' %}
+
+              <div class="kmq-field {% if err %}kmq-field--bad{% endif %} {% if field.type == 'textarea' %}kmq-formgrid__wide{% endif %}">
+                <label class="kmq-field__label" for="f-{{ name }}">
+                  {{ lead_labels[name] }}
+                  {% if field.required %}<span class="kmq-field__req" aria-hidden="true">*</span>
+                    <span class="kmq-sr">({{ t.required_mark }})</span>
+                  {% else %}<span style="color:var(--kmq-ink-45);font-weight:400"> — {{ t.optional_mark }}</span>{% endif %}
+                </label>
+
+                {% if field.type == 'select' %}
+                  <select class="kmq-select" id="f-{{ name }}" name="{{ name }}"
+                          {% if field.required %}required{% endif %}
+                          {% if err %}aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>
+                    <option value="">{{ t.choose }}</option>
+                    {% for opt_value, opt_label in lead_options[name] %}
+                      <option value="{{ opt_value }}" {% if value == opt_value %}selected{% endif %}>{{ opt_label }}</option>
+                    {% endfor %}
+                  </select>
+
+                {% elif field.type == 'textarea' %}
+                  <textarea class="kmq-textarea" id="f-{{ name }}" name="{{ name }}"
+                            maxlength="{{ field.maxlength }}"
+                            {% if err %}aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>{{ value }}</textarea>
+
+                {% else %}
+                  <input class="kmq-input" id="f-{{ name }}" name="{{ name }}"
+                         type="{{ field.type }}" value="{{ value }}"
+                         {% if field.maxlength %}maxlength="{{ field.maxlength }}"{% endif %}
+                         {% if field.autocomplete %}autocomplete="{{ field.autocomplete }}"{% endif %}
+                         {% if field.inputmode %}inputmode="{{ field.inputmode }}"{% endif %}
+                         {% if field.dir %}dir="{{ field.dir }}"{% endif %}
+                         {% if field.required %}required{% endif %}
+                         {% if err %}aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>
+                {% endif %}
+
+                {% if lead_hints.get(name) and not err %}
+                  <p class="kmq-field__hint">{{ lead_hints[name] }}</p>
+                {% endif %}
+                {% if err %}
+                  <p class="kmq-field__error" id="e-{{ name }}">{{ err }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="kmq-formfoot">
+            <button class="kmq-btn kmq-btn--gold" type="submit">{{ t.contact_submit }}</button>
+            <p class="kmq-formfoot__note">{{ t.contact_form_note }}</p>
+          </div>
+        </form>
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="kmq-aside">
+      <div class="kmq-aside__card">
+        <h2 class="kmq-aside__title">{{ t.contact_phones_title }}</h2>
+        <dl class="kmq-footer__phones">
+          {% for b in t.branches %}
+            <div>
+              <dt>{{ b.short }}</dt>
+              <dd {% if not b.phone %}data-tbd="true"{% endif %}>
+                {%- if b.phone %}{{ b.phone }}{% else %}{{ t.tbd }}{% endif -%}
+              </dd>
+            </div>
+          {% endfor %}
+        </dl>
+      </div>
+
+      <div class="kmq-aside__card">
+        <h2 class="kmq-aside__title">{{ t.footer_hours }}</h2>
+        <div class="kmq-footer__hours" style="margin:0">
+          <div>{{ t.hours_week }}</div>
+          <div>{{ t.hours_fri }}</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% endblock %}

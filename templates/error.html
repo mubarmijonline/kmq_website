@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "partials/macros.html" as m %}
+
+{% block title %}{{ (t.not_found_title if code == 404 else t.error_title) }} — KMQ{% endblock %}
+
+{% block content %}
+
+<section class="kmq-hero kmq-hero--short" style="min-height:60vh">
+  <div class="kmq-hero__layer kmq-hero__layer--weave" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
+  <div class="kmq-hero__layer kmq-hero__layer--veil" aria-hidden="true"></div>
+
+  <div class="kmq-shell kmq-hero__body" style="padding-block:80px">
+    <div class="kmq-eyebrow">{{ code }}</div>
+    <h1 style="font-weight:900;font-size:var(--kmq-h1-page);margin-block-end:22px">
+      {{ t.not_found_title if code == 404 else t.error_title }}
+    </h1>
+    <p class="kmq-lede" style="margin-block-end:40px">
+      {{ t.not_found_body if code == 404 else t.error_body }}
+    </p>
+    <div class="kmq-btn-row">
+      <a class="kmq-btn kmq-btn--gold" href="{{ url_for('site.home') }}">{{ t.nav[0].label }}</a>
+      <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.contact') }}">{{ t.cta_contact }}</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

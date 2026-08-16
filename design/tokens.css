@@ -1,0 +1,115 @@
+/* KMQ design tokens.
+   Every value here appears in "KMQ Website.dc.html" as a literal in a style
+   attribute. Nothing is invented; nothing in the source is left out. */
+
+:root {
+  /* ---- Surfaces --------------------------------------------------------
+     Five distinct backgrounds in the source, in depth order.            */
+  --kmq-bg:          #0D0D0D;  /* page                                    */
+  --kmq-bg-sunk:     #0A0A0C;  /* footer, warranty band                   */
+  --kmq-bg-raised:   #111218;  /* alternating sections                    */
+  --kmq-bg-raised-2: #16161D;  /* process-step hover                      */
+  --kmq-bg-accent:   #1C1C2E;  /* before/after proof band                 */
+  --kmq-bg-hover:    #131319;  /* why-KMQ cell hover                      */
+
+  /* ---- Ink ------------------------------------------------------------- */
+  --kmq-ink:         #F5F5F0;
+  --kmq-ink-80:      rgba(245, 245, 240, .78);
+  --kmq-ink-70:      rgba(245, 245, 240, .68);
+  --kmq-ink-60:      rgba(245, 245, 240, .60);
+  --kmq-ink-55:      rgba(245, 245, 240, .55);
+  --kmq-ink-45:      rgba(245, 245, 240, .45);
+  --kmq-ink-35:      rgba(245, 245, 240, .35);
+
+  /* ---- Gold ------------------------------------------------------------
+     Four stops. --gold is the resting accent, --gold-bright the gradient
+     head, --gold-hi the hover, --gold-deep the gradient tail.           */
+  --kmq-gold:        #C9A84C;
+  --kmq-gold-bright: #D4AF37;
+  --kmq-gold-hi:     #E4C674;
+  --kmq-gold-deep:   #B4913C;
+
+  --kmq-gold-70:     rgba(201, 168, 76, .70);
+  --kmq-gold-50:     rgba(201, 168, 76, .50);
+  --kmq-gold-45:     rgba(201, 168, 76, .45);
+  --kmq-gold-35:     rgba(201, 168, 76, .35);
+  --kmq-gold-18:     rgba(201, 168, 76, .18);
+  --kmq-gold-wash:   rgba(212, 175, 55, .07);
+
+  /* ---- Hairlines ------------------------------------------------------- */
+  --kmq-line:        rgba(245, 245, 240, .10);
+  --kmq-line-soft:   rgba(245, 245, 240, .07);
+  --kmq-line-gold:   rgba(201, 168, 76, .16);
+
+  /* ---- Gradients ------------------------------------------------------- */
+  --kmq-grad-cta:    linear-gradient(135deg, #D4AF37, #B4913C);
+  --kmq-grad-head:   linear-gradient(120deg, #F2DC9B, #C9A84C 60%, #8F7431);
+  --kmq-grad-stat:   linear-gradient(160deg, #F2DC9B, #C9A84C 60%, #8F7431);
+  --kmq-grad-numeral:linear-gradient(160deg, #F7E8B4, #D4AF37 45%, #8A6E2A);
+  --kmq-grad-card:   linear-gradient(165deg, rgba(255,255,255,.055), rgba(255,255,255,.012));
+  --kmq-grad-card-lit: linear-gradient(165deg, rgba(212,175,55,.10), rgba(255,255,255,.02));
+  --kmq-grad-panel:  linear-gradient(140deg, rgba(212,175,55,.08), transparent);
+  --kmq-grad-rule:   linear-gradient(90deg, transparent, rgba(201,168,76,.75), transparent);
+
+  /* Diagonal pin-stripe used behind hero, branch and article placeholders. */
+  --kmq-weave:       repeating-linear-gradient(115deg, #16161A 0 2px, #0F0F12 2px 9px);
+  --kmq-weave-soft:  repeating-linear-gradient(115deg, #191920 0 2px, #131318 2px 9px);
+  --kmq-weave-fine:  repeating-linear-gradient(112deg, rgba(255,255,255,.022) 0 1px, transparent 1px 12px);
+
+  /* ---- Type ------------------------------------------------------------
+     The source picks a font stack per language. Templates set --kmq-head
+     and --kmq-body on <html> from the active locale; these are the pools. */
+  --kmq-font-ar-head: Tajawal, system-ui, sans-serif;
+  --kmq-font-ar-body: Almarai, system-ui, sans-serif;
+  --kmq-font-latin:   'Space Grotesk', system-ui, sans-serif;
+
+  /* Meta labels, numerals and codes are Latin in both locales — the source
+     marks each of them dir="ltr" and uses Space Grotesk regardless.      */
+  --kmq-font-meta:    'Space Grotesk', ui-monospace, monospace;
+
+  /* Fluid heading sizes, lifted from the source's clamp() calls. */
+  --kmq-h1:      clamp(34px, 6.2vw, 80px);
+  --kmq-h1-page: clamp(30px, 5.2vw, 68px);
+  --kmq-h2:      clamp(28px, 4vw, 56px);
+  --kmq-h2-sm:   clamp(28px, 3.6vw, 46px);
+  --kmq-h3:      24px;
+
+  --kmq-body:    16px;
+  --kmq-lede:    19px;
+  --kmq-small:   14px;
+  --kmq-micro:   12px;
+
+  /* The source sets line-height 2 on body copy throughout — generous
+     leading is what makes dense Arabic readable at these sizes. */
+  --kmq-leading-body: 2;
+  --kmq-leading-tight: 1.2;
+
+  --kmq-track-meta: .3em;   /* section eyebrows            */
+  --kmq-track-code: .12em;  /* codes, city names, wordmark */
+
+  /* ---- Measure and rhythm ---------------------------------------------- */
+  --kmq-shell:    1320px;
+  --kmq-gutter:   clamp(16px, 5vw, 32px);
+  --kmq-section:  clamp(80px, 9vw, 130px);
+  --kmq-measure:  66ch;
+
+  /* ---- Depth ------------------------------------------------------------ */
+  --kmq-shadow-card: 0 30px 70px rgba(0, 0, 0, .55);
+  --kmq-shadow-head: 0 18px 50px rgba(0, 0, 0, .45);
+  --kmq-shadow-fab:  0 18px 40px rgba(0, 0, 0, .60);
+
+  /* ---- Motion -----------------------------------------------------------
+     Three speeds in the source: .25s links, .3s nav, .35s cards, .4s header.
+     Collapsed to two plus the header's own.                              */
+  --kmq-ease:      cubic-bezier(.4, 0, .2, 1);
+  --kmq-quick:     .25s var(--kmq-ease);
+  --kmq-lift:      .35s var(--kmq-ease);
+  --kmq-header:    .4s var(--kmq-ease);
+
+  /* The source uses square corners almost everywhere; CTAs get 2px. */
+  --kmq-radius:    2px;
+
+  /* Single breakpoint. The source switched to the mobile header at
+     window.innerWidth < 1024 in JavaScript; here it is a media query. */
+  --kmq-bp-nav:    1024px;
+}
