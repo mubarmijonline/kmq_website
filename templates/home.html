@@ -6,24 +6,76 @@
 
 {% block content %}
 
-{# ═══════════ Hero ═══════════ #}
-<section class="kmq-hero">
-  <div class="kmq-hero__layer kmq-hero__layer--weave" aria-hidden="true"></div>
-  <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
-  <div class="kmq-hero__layer kmq-hero__layer--veil" aria-hidden="true"></div>
-  <div class="kmq-hero__layer kmq-hero__layer--sheen" aria-hidden="true"></div>
-  <p class="kmq-shotnote" aria-hidden="true">{{ t.hero_shot }}</p>
+{# ═══════════ Hero: protection stack ═══════════
+   A 480vh track with a pinned frame. Scroll drives four stages; each coating
+   is a filtered copy of the same cutout, so the PNG's own alpha confines it to
+   the silhouette. Without JS the first caption and the bare car still show. #}
+{% set car = url_for('static', filename='img/car.png') %}
+<section class="kmq-stack" data-kmq-stack>
+  <div class="kmq-stack__pin">
+    <div class="kmq-hero__layer kmq-hero__layer--weave" aria-hidden="true"></div>
+    <div class="kmq-stack__glow" aria-hidden="true"></div>
+    <div class="kmq-stack__veil" aria-hidden="true"></div>
 
-  <div class="kmq-shell kmq-hero__body">
-    <div class="kmq-hero__content">
-      <div class="kmq-hero__kicker"><span>{{ t.hero_kicker }}</span></div>
-      <h1>{{ t.hero_a }} <span class="kmq-hero__accent">{{ t.hero_b }}</span></h1>
-      <p class="kmq-hero__sub">{{ t.hero_sub }}</p>
-      <div class="kmq-btn-row">
-        {% set link = wa(t.wa_default) %}
-        <a class="kmq-btn kmq-btn--gold kmq-btn--lg" href="{{ link or url_for('site.contact') }}"
-           {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.hero_cta1 }}</a>
-        <a class="kmq-btn kmq-btn--ghost kmq-btn--lg" href="{{ url_for('site.packages') }}">{{ t.hero_cta2 }}</a>
+    <div class="kmq-stack__grid">
+      <div class="kmq-stack__kicker">
+        <span dir="ltr">{{ t.stack_kicker }}</span><i aria-hidden="true"></i>
+      </div>
+
+      <div class="kmq-stack__stage">
+        <div class="kmq-stack__car" data-kmq-car>
+          {# The two rim glows sit behind the car: brightness(0) makes them a
+             black silhouette, and only their drop-shadows should be visible. #}
+          <div class="kmq-coat-wrap" data-kmq-layer="1a">
+            <img class="kmq-coat kmq-coat--rim-silver" src="{{ car }}" alt="" aria-hidden="true">
+          </div>
+          <div class="kmq-coat-wrap" data-kmq-layer="3a">
+            <img class="kmq-coat kmq-coat--rim-gold" src="{{ car }}" alt="" aria-hidden="true">
+          </div>
+
+          <img src="{{ car }}" alt="{{ t.stack_shot }}" loading="eager" decoding="async">
+          <img class="kmq-coat kmq-coat--dull" src="{{ car }}" alt="" aria-hidden="true" data-kmq-dull>
+
+          <div class="kmq-coat-wrap" data-kmq-layer="1b">
+            <img class="kmq-coat kmq-coat--ppf" src="{{ car }}" alt="" aria-hidden="true">
+          </div>
+          <div class="kmq-coat-wrap" data-kmq-layer="2">
+            <img class="kmq-coat kmq-coat--tint" src="{{ car }}" alt="" aria-hidden="true">
+            <img class="kmq-coat kmq-coat--tint-rim" src="{{ car }}" alt="" aria-hidden="true">
+          </div>
+          <div class="kmq-coat-wrap" data-kmq-layer="3b">
+            <img class="kmq-coat kmq-coat--ceramic" src="{{ car }}" alt="" aria-hidden="true">
+          </div>
+        </div>
+      </div>
+
+      <div class="kmq-stack__foot">
+        <div class="kmq-stack__caps">
+          {% for s in t.stack %}
+            <div class="kmq-stack__cap" data-kmq-cap="{{ loop.index0 }}">
+              <h1>{{ s.a }} <span class="kmq-hero__accent">{{ s.b }}</span></h1>
+              <p>{{ s.body }}</p>
+              {% if loop.last %}
+                <div class="kmq-btn-row">
+                  {% set link = wa(t.wa_default) %}
+                  <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+                     {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.hero_cta1 }}</a>
+                  <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.packages') }}">{{ t.hero_cta2 }}</a>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="kmq-stack__rail">
+          {% for s in t.stack %}
+            <div class="kmq-stack__step">
+              <span class="kmq-stack__dot" data-kmq-dot="{{ loop.index0 }}"></span>
+              <span class="kmq-stack__label" dir="ltr" data-kmq-lbl="{{ loop.index0 }}">{{ s.code }}</span>
+            </div>
+          {% endfor %}
+          <div class="kmq-stack__bar"><i data-kmq-bar></i></div>
+        </div>
       </div>
     </div>
   </div>

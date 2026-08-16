@@ -164,6 +164,22 @@ AR: dict[str, Any] = {
     "hero_cta2": "شاهد باقاتنا",
     "hero_shot": "[ hero image: PPF film being applied — dramatic side light, black Porsche ]",
 
+    # ---- Home: hero protection stack ----
+    # Scroll-driven build-up. The four rows are the four scroll stages, in
+    # order; "code" is the rail label and stays Latin in both locales.
+    "stack_kicker": "00 — PROTECTION STACK",
+    "stack": [
+        {"code": "01 BARE PAINT",   "a": "سيارتك كما",  "b": "خرجت من المصنع",
+         "body": "الطلاء الأصلي بلا حماية. مرّر للأسفل لترى الطبقات الثلاث التي نضيفها."},
+        {"code": "02 PPF FILM",     "a": "فيلم الحماية", "b": "PPF",
+         "body": "طبقة شفافة ذاتية الالتئام تمتص الخدوش وحصى الطريق قبل أن تصل إلى الطلاء."},
+        {"code": "03 THERMAL TINT", "a": "التظليل",      "b": "الحراري",
+         "body": "يحجب الأشعة فوق البنفسجية ويخفض حرارة المقصورة، بمواصفات مطابقة للنظام السعودي."},
+        {"code": "04 CERAMIC COAT", "a": "العازل",       "b": "السيراميكي",
+         "body": "لمعان زجاجي يصدّ الماء والأتربة، ويجعل الغسيل أسرع والسيارة أنظف لوقت أطول."},
+    ],
+    "stack_shot": "سيارة جانبية",
+
     # ---- Home: trust strip ----
     "trust": [
         {"title": "ضمان يصل إلى 10 سنوات", "meta": "UP TO 10 YEARS", "icon": ICONS["shield"]},
@@ -600,6 +616,17 @@ EN: dict[str, Any] = {
     "hero_cta1": "Book a free inspection on WhatsApp",
     "hero_cta2": "See our packages",
     "hero_shot": "[ hero image: PPF film being applied — dramatic side light, black Porsche ]",
+
+    # TODO: English copy for the protection stack has not been delivered.
+    # These markers render on /en/ — replace before the English page ships.
+    "stack_kicker": "00 — PROTECTION STACK",
+    "stack": [
+        {"code": "01 BARE PAINT",   "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
+        {"code": "02 PPF FILM",     "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
+        {"code": "03 THERMAL TINT", "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
+        {"code": "04 CERAMIC COAT", "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
+    ],
+    "stack_shot": "Side profile of a car",
 
     "trust": [
         {"title": "Warranty up to 10 years", "meta": "UP TO 10 YEARS", "icon": ICONS["shield"]},

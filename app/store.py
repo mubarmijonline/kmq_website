@@ -51,6 +51,7 @@ NATURAL_KEYS = {
     "nav": "key",
     "social": "name",
     "film_spec": "k",
+    "stack": "code",
 }
 
 #: Scalar lists — list[str] rather than list[dict]. Stored as {"value": ...}.

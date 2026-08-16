@@ -1944,3 +1944,305 @@
   background: var(--kmq-gold-70);
   transform: rotate(45deg);
 }
+
+/* ═══════════ Hero protection stack ═══════════
+
+   A 480vh track with a sticky 100vh frame. design/app.js maps scroll progress
+   onto four stages; each coating is a filtered copy of static/img/car.png, so
+   the PNG's own alpha confines it to the silhouette and no mask asset is
+   needed. The clip-path polygon and the sweep percentages below are measured
+   against that exact cutout at 1181x384 — regenerate both if the photo is
+   swapped. */
+
+/* Pulled up under the sticky transparent header, the same trick .kmq-hero
+   uses. Without it the track starts 91px down, so the pin does not reach
+   top:0 until you have already scrolled past the header and the frame visibly
+   jumps on the first wheel click. .kmq-stack__grid pads the content back down. */
+.kmq-stack {
+  position: relative;
+  height: 480vh;
+  margin-block-start: -100px;
+}
+
+.kmq-stack__pin {
+  position: sticky;
+  inset-block-start: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The shared weave layer is full strength elsewhere; the stack sits it back. */
+.kmq-stack .kmq-hero__layer--weave { opacity: .5; }
+
+/* inset + margin:auto rather than a 50% offset with a translate: centring must
+   not flip with dir, and this file carries no physical sides. */
+.kmq-stack__glow {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1200px;
+  height: 1200px;
+  opacity: .5;
+  background: radial-gradient(circle, rgba(212, 175, 55, .16), transparent 62%);
+  pointer-events: none;
+}
+
+.kmq-stack__veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13,13,13,.88) 0%, rgba(13,13,13,.15) 45%, rgba(13,13,13,.96) 100%);
+}
+
+/* Top padding clears the sticky header, which stays over this frame for the
+   whole track and would otherwise cover the kicker. Matches the 100px
+   .kmq-hero pads back and the scroll-padding-block-start in base.css. */
+.kmq-stack__grid {
+  position: relative;
+  z-index: 4;
+  flex: 1;
+  min-height: 0;
+  max-width: var(--kmq-shell);
+  width: 100%;
+  margin-inline: auto;
+  padding: 100px var(--kmq-gutter) clamp(18px, 3.5vh, 40px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.kmq-stack__kicker { display: flex; align-items: center; gap: 16px; }
+
+.kmq-stack__kicker span {
+  font-family: var(--kmq-font-meta);
+  font-size: 11px;
+  letter-spacing: var(--kmq-track-meta);
+  color: var(--kmq-gold);
+  white-space: nowrap;
+}
+
+.kmq-stack__kicker i { flex: 1; height: 1px; background: var(--kmq-grad-rule); }
+
+.kmq-stack__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+/* Aspect ratio must match the cutout exactly, or the coatings drift off it. */
+.kmq-stack__car {
+  position: relative;
+  width: min(1020px, 92vw);
+  aspect-ratio: 1181 / 384;
+}
+
+.kmq-stack__car > img,
+.kmq-coat {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.kmq-coat-wrap { position: absolute; inset: 0; clip-path: inset(0 0 0 100%); }
+
+.kmq-coat--dull { filter: brightness(0) invert(1); mix-blend-mode: screen; opacity: 0; }
+
+/* The two rim glows are black silhouettes behind the car — only their
+   drop-shadows show, as a halo. They must stay above .kmq-stack__car > img. */
+.kmq-coat--rim-silver {
+  filter: brightness(0)
+          drop-shadow(0 0 5px rgba(245, 245, 240, .55))
+          drop-shadow(0 0 16px rgba(245, 245, 240, .22));
+}
+
+.kmq-coat--rim-gold {
+  filter: brightness(0)
+          drop-shadow(0 0 7px rgba(212, 175, 55, .85))
+          drop-shadow(0 0 26px rgba(212, 175, 55, .40));
+}
+
+.kmq-coat--ppf,
+.kmq-coat--ceramic {
+  mix-blend-mode: screen;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.kmq-coat--ppf {
+  filter: brightness(0) invert(1);
+  opacity: .35;
+  -webkit-mask-image:
+    linear-gradient(101deg, transparent 29.5%, #000 30.8%, transparent 32.2%),
+    linear-gradient(180deg, #000 0 56%, transparent 74%);
+  mask-image:
+    linear-gradient(101deg, transparent 29.5%, #000 30.8%, transparent 32.2%),
+    linear-gradient(180deg, #000 0 56%, transparent 74%);
+}
+
+.kmq-coat--ceramic {
+  filter: brightness(0) invert(1) sepia(.5) saturate(3);
+  opacity: .5;
+  -webkit-mask-image:
+    linear-gradient(99deg, transparent 39.5%, #000 41%, #000 42%, transparent 43.5%),
+    linear-gradient(180deg, #000 0 56%, transparent 74%);
+  mask-image:
+    linear-gradient(99deg, transparent 39.5%, #000 41%, #000 42%, transparent 43.5%),
+    linear-gradient(180deg, #000 0 56%, transparent 74%);
+}
+
+/* Greenhouse outline, traced on static/img/car.png at 1181x384. Percentages
+   are of the .kmq-stack__car box, which the cutout fills exactly — so a new
+   photo means re-tracing this, not rescaling it. Overshooting the roofline is
+   harmless (nothing there to darken); overshooting onto a body panel is not. */
+.kmq-coat--tint,
+.kmq-coat--tint-rim {
+  clip-path: polygon(35.8% 30.8%, 39.5% 17%, 44% 10%, 51% 6.4%, 60% 5%,
+                     67% 6%, 72.5% 9.2%, 77.5% 15%, 79.8% 25%, 58% 30.6%);
+}
+
+.kmq-coat--tint { filter: brightness(0); }
+
+.kmq-coat--tint-rim {
+  filter: brightness(0) invert(1) sepia(1) saturate(6) hue-rotate(-6deg);
+  mix-blend-mode: screen;
+  opacity: .42;
+  -webkit-mask-image: linear-gradient(118deg, #000 6%, transparent 30%);
+  mask-image: linear-gradient(118deg, #000 6%, transparent 30%);
+}
+
+.kmq-stack__foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(20px, 4vw, 56px);
+  align-items: end;
+}
+
+.kmq-stack__caps { position: relative; min-height: clamp(130px, 24vh, 210px); }
+
+.kmq-stack__cap {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 0;
+  max-width: 640px;
+  transition: opacity .4s var(--kmq-ease), transform .4s var(--kmq-ease),
+              visibility .4s var(--kmq-ease);
+}
+
+/* Without JS the first caption stands on its own. visibility, not opacity
+   alone, keeps the other three out of the accessibility tree — otherwise a
+   screen reader meets four <h1>s at once. The [data-lit] pair comes last so
+   the scroll state wins on equal specificity. */
+.kmq-stack__cap:not(:first-child),
+.kmq-stack__cap[data-lit="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.kmq-stack__cap[data-lit="true"] { opacity: 1; visibility: visible; pointer-events: auto; }
+
+.kmq-stack__cap h1 {
+  font-weight: 900;
+  font-size: clamp(28px, min(5.6vw, 5.6vh), 72px);
+  line-height: 1.15;
+  margin-block-end: 10px;
+}
+
+.kmq-stack__cap p {
+  font-family: var(--kmq-body-font);
+  font-size: clamp(14px, 1.9vh, 18px);
+  line-height: 1.9;
+  color: var(--kmq-ink-70);
+  max-width: 50ch;
+}
+
+.kmq-stack__cap .kmq-btn-row { margin-block-start: 18px; }
+
+/* Bottom padding keeps the rail clear of the floating WhatsApp button. */
+.kmq-stack__rail {
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding-block-end: 76px;
+}
+
+.kmq-stack__step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding-block: clamp(7px, 1.2vh, 12px);
+  border-block-start: 1px solid var(--kmq-line);
+}
+
+.kmq-stack__step:last-of-type { border-block-end: 1px solid var(--kmq-line); }
+
+.kmq-stack__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kmq-ink-35);
+  transition: background var(--kmq-quick), box-shadow var(--kmq-quick);
+}
+
+.kmq-stack__dot[data-state="done"] { background: var(--kmq-gold); }
+
+.kmq-stack__dot[data-state="now"] {
+  background: var(--kmq-gold);
+  box-shadow: 0 0 0 5px var(--kmq-gold-18);
+}
+
+.kmq-stack__label {
+  font-family: var(--kmq-font-latin);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--kmq-ink-35);
+  transition: color var(--kmq-quick);
+}
+
+.kmq-stack__label[data-state="done"] { color: var(--kmq-ink-55); }
+.kmq-stack__label[data-state="now"]  { color: var(--kmq-ink); }
+
+.kmq-stack__bar { margin-block-start: 14px; height: 2px; background: var(--kmq-line); }
+
+.kmq-stack__bar i { display: block; height: 100%; width: 0; background: var(--kmq-grad-cta); }
+
+/* Phones: the rail cannot share a row with the caption at this width — the
+   caption grows past its reserved box and lands on the car. One column, and
+   the numbered steps go with it; the caption already names the stage, so only
+   the progress bar is doing work the copy is not. */
+@media (max-width: 700px) {
+  .kmq-stack__foot { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .kmq-stack__step { display: none; }
+  .kmq-stack__rail { min-width: 0; }
+  .kmq-stack__bar { margin-block-start: 0; }
+
+  /* The lit caption goes back into flow and the rest leave the box entirely,
+     so the row sizes to whichever caption is showing. Reserving a fixed height
+     instead means guessing: too little and the caption climbs onto the car on
+     a short phone, too much and the hero carries a dead band. Losing the
+     cross-fade overlap here costs nothing — one caption is on screen at a time. */
+  .kmq-stack__caps { min-height: 0; }
+  .kmq-stack__cap { position: static; }
+  .kmq-stack__cap:not(:first-child),
+  .kmq-stack__cap[data-lit="false"] { display: none; }
+  .kmq-stack__cap[data-lit="true"] { display: block; }
+}
+
+/* No scroll sequence without JS or with reduced motion: show the finished
+   car and the last caption, and drop the tall track to one screen.
+   :last-child, not the bare class — it has to outrank the :not(:first-child)
+   rule above, and a media query adds no specificity of its own. */
+@media (prefers-reduced-motion: reduce) {
+  .kmq-stack { height: auto; }
+  .kmq-stack__pin { position: static; height: auto; min-height: 100vh; }
+  .kmq-coat-wrap { clip-path: none; }
+  .kmq-stack__cap:not(:last-child) { display: none; }
+  .kmq-stack__cap:last-child {
+    display: block;
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}

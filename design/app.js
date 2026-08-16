@@ -227,4 +227,86 @@
       });
     });
   }());
+
+  /* ---- Hero protection stack -------------------------------------------
+     Scroll drives four coating stages, then the car leaves and hands the page
+     to the Trust strip. Nothing here is required to read the section: the CSS
+     leaves the bare car and the first caption standing when this does not run,
+     and the reduced-motion rules collapse the track to one screen. */
+
+  (function stack() {
+    var track = d.querySelector('[data-kmq-stack]');
+    if (!track || reduce) return;
+
+    var car = track.querySelector('[data-kmq-car]');
+    var dull = track.querySelector('[data-kmq-dull]');
+    var bar = track.querySelector('[data-kmq-bar]');
+    var glow = track.querySelector('.kmq-stack__glow');
+    var grid = track.querySelector('.kmq-stack__grid');
+    if (!car || !dull || !bar || !glow || !grid) return;
+
+    var caps = track.querySelectorAll('[data-kmq-cap]');
+    var dots = track.querySelectorAll('[data-kmq-dot]');
+    var lbls = track.querySelectorAll('[data-kmq-lbl]');
+
+    /* Stage 2 and 4 each wipe two layers at once: a rim glow and a coating. */
+    var groups = [['1a', '1b'], ['2'], ['3a', '3b']].map(function (ids) {
+      return ids.map(function (id) {
+        return track.querySelector('[data-kmq-layer="' + id + '"]');
+      });
+    });
+
+    var HOLD = 0.08;   /* stage 0 dwell */
+    var BUILD = 0.70;  /* three wipes finish here */
+    var EXIT = 0.86;   /* car starts leaving */
+    var frame = 0;
+
+    function paint() {
+      var rect = track.getBoundingClientRect();
+      var span = Math.max(1, track.offsetHeight - window.innerHeight);
+      var p = Math.min(1, Math.max(0, -rect.top / span));
+      var t = Math.min(1, Math.max(0, (p - HOLD) / (BUILD - HOLD)));
+      var seg = t * 3;
+
+      groups.forEach(function (els, i) {
+        var local = Math.min(1, Math.max(0, seg - i));
+        var e = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
+        var clip = 'inset(0 0 0 ' + ((1 - e) * 100).toFixed(2) + '%)';
+        els.forEach(function (el) { if (el) el.style.clipPath = clip; });
+      });
+
+      var active = Math.min(3, Math.floor(seg + 0.35));
+
+      function mark(el, i) {
+        el.setAttribute('data-state', i === active ? 'now' : i < active ? 'done' : 'next');
+      }
+
+      caps.forEach(function (c, i) {
+        c.setAttribute('data-lit', i === active ? 'true' : 'false');
+        c.style.transform = i === active ? 'translateY(0)' : 'translateY(20px)';
+      });
+      dots.forEach(mark);
+      lbls.forEach(mark);
+
+      /* Unprotected paint reads flat, then each coating lifts it back. */
+      dull.style.opacity = (0.17 * Math.min(1, p / HOLD) * (1 - Math.min(1, Math.max(0, seg)))).toFixed(3);
+      bar.style.width = (p * 100).toFixed(2) + '%';
+      glow.style.opacity = (0.5 + 0.5 * t).toFixed(3);
+
+      var x = Math.min(1, Math.max(0, (p - EXIT) / (1 - EXIT)));
+      var xe = x * x;
+      car.style.transform = 'translateY(' + (xe * 62).toFixed(2) + 'vh) scale(' + (1 - xe * 0.12).toFixed(3) + ')';
+      car.style.opacity = (1 - xe * 0.9).toFixed(3);
+      grid.style.opacity = (1 - Math.min(1, xe * 1.15)).toFixed(3);
+    }
+
+    function sync() {
+      if (frame) return;
+      frame = window.requestAnimationFrame(function () { frame = 0; paint(); });
+    }
+
+    on(window, 'scroll', sync, { passive: true });
+    on(window, 'resize', sync);
+    paint();
+  }());
 }());
