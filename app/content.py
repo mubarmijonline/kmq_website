@@ -617,14 +617,16 @@ EN: dict[str, Any] = {
     "hero_cta2": "See our packages",
     "hero_shot": "[ hero image: PPF film being applied — dramatic side light, black Porsche ]",
 
-    # TODO: English copy for the protection stack has not been delivered.
-    # These markers render on /en/ — replace before the English page ships.
     "stack_kicker": "00 — PROTECTION STACK",
     "stack": [
-        {"code": "01 BARE PAINT",   "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
-        {"code": "02 PPF FILM",     "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
-        {"code": "03 THERMAL TINT", "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
-        {"code": "04 CERAMIC COAT", "a": "TBD —", "b": "EN copy", "body": "TBD — EN copy"},
+        {"code": "01 BARE PAINT",   "a": "Your car as it",      "b": "left the factory",
+         "body": "The original paint, with nothing protecting it. Scroll down to see the three layers we add."},
+        {"code": "02 PPF FILM",     "a": "Paint protection",    "b": "film PPF",
+         "body": "A clear self-healing layer that takes the scratches and the road stones before they reach the paint."},
+        {"code": "03 THERMAL TINT", "a": "Thermal",             "b": "tint",
+         "body": "Blocks ultraviolet light and brings the cabin temperature down, at a specification that meets the Saudi regulation."},
+        {"code": "04 CERAMIC COAT", "a": "Ceramic",             "b": "coating",
+         "body": "A glass-like gloss that repels water and dust, so washing is quicker and the car stays clean for longer."},
     ],
     "stack_shot": "Side profile of a car",
 
