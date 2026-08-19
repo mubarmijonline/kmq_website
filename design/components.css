@@ -2113,15 +2113,22 @@
    photo means re-tracing this, not rescaling it. Overshooting the roofline is
    harmless (alpha discards it); overshooting onto a body panel is not.
    The three-quarter view puts windscreen and side glass in one run, so this is
-   a single loop: roofline left to right, down the near A-pillar, back along the
-   scuttle, then the belt line. It stays above the door mirror at 17-26%, which
-   is body coloured and must not darken. */
+   a single loop: roofline left to right, down the far A-pillar, back along the
+   scuttle to the hood's trailing edge, then the belt line.
+
+   The lower edge hugs the glass much further down than the silhouette suggests
+   at a glance. Read small it looks like the tint should stop around 20%, but
+   the belt line is at 26-27% and the scuttle at 28-29%; stopping short left the
+   bottom third of every window bare with a straight edge across it. The notch
+   at 17-25% steps up and over the door mirror, which sits in front of the lower
+   glass in this view and is body coloured, so it must not darken. */
 .kmq-coat--tint,
 .kmq-coat--tint-rim {
   clip-path: polygon(12.5% 9%, 22% 4.5%, 34% 2.5%, 52% 1.8%, 66% 2.5%,
-                     71% 8%, 74% 16%, 73.6% 20.5%, 60% 24%, 46% 26%,
-                     38% 25%, 31% 24%, 26.5% 21.5%, 17% 20.8%, 11% 20.5%,
-                     8.8% 16%);
+                     71% 7.5%, 75% 15%, 77.3% 21.5%, 73% 23.5%, 67% 25.2%,
+                     58% 27.2%, 50% 28.4%, 42% 29.2%, 35% 29.5%, 32% 28.5%,
+                     29% 27%, 26.2% 25.2%, 25% 21.8%, 21.2% 21.3%, 17.3% 24.1%,
+                     16.3% 27%, 13% 27%, 9.6% 26%, 8.4% 21.5%);
 }
 
 .kmq-coat--tint { filter: brightness(0); opacity: .84; }
