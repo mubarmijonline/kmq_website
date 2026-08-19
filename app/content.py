@@ -178,7 +178,7 @@ AR: dict[str, Any] = {
         {"code": "04 CERAMIC COAT", "a": "العازل",       "b": "السيراميكي",
          "body": "لمعان زجاجي يصدّ الماء والأتربة، ويجعل الغسيل أسرع والسيارة أنظف لوقت أطول."},
     ],
-    "stack_shot": "سيارة جانبية",
+    "stack_shot": "سيارة دفع رباعي من زاوية أمامية جانبية",
 
     # ---- Home: trust strip ----
     "trust": [
@@ -628,7 +628,7 @@ EN: dict[str, Any] = {
         {"code": "04 CERAMIC COAT", "a": "Ceramic",             "b": "coating",
          "body": "A glass-like gloss that repels water and dust, so washing is quicker and the car stays clean for longer."},
     ],
-    "stack_shot": "Side profile of a car",
+    "stack_shot": "Three-quarter front view of an SUV",
 
     "trust": [
         {"title": "Warranty up to 10 years", "meta": "UP TO 10 YEARS", "icon": ICONS["shield"]},

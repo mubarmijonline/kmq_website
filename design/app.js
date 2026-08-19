@@ -294,8 +294,11 @@
       dots.forEach(mark);
       lbls.forEach(mark);
 
-      /* Unprotected paint reads flat, then each coating lifts it back. */
-      dull.style.opacity = (0.17 * Math.min(1, p / HOLD) * (1 - Math.min(1, Math.max(0, seg)))).toFixed(3);
+      /* Unprotected paint reads flat, then each coating lifts it back. The
+         ceiling is high because the dull pass now cross-fades to a flat grey
+         copy rather than screening white over black paint; at 0.17 the swap to
+         a silver car left it invisible. */
+      dull.style.opacity = (0.55 * Math.min(1, p / HOLD) * (1 - Math.min(1, Math.max(0, seg)))).toFixed(3);
       bar.style.width = (p * 100).toFixed(2) + '%';
       glow.style.opacity = (0.5 + 0.5 * t).toFixed(3);
 

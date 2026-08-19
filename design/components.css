@@ -1948,11 +1948,12 @@
 /* ═══════════ Hero protection stack ═══════════
 
    A 480vh track with a sticky 100vh frame. design/app.js maps scroll progress
-   onto four stages; each coating is a filtered copy of static/img/car.png, so
+   onto four stages; each coating is a filtered copy of static/img/car-suv.png, so
    the PNG's own alpha confines it to the silhouette and no mask asset is
    needed. The clip-path polygon and the sweep percentages below are measured
-   against that exact cutout at 1181x384 — regenerate both if the photo is
-   swapped. */
+   against that exact cutout at 1150x718 — regenerate both if the photo is
+   swapped. scripts/trace_car.py measures a replacement and draws the grid the
+   greenhouse polygon is traced on. */
 
 /* Pulled up under the sticky transparent header, the same trick .kmq-hero
    uses. Without it the track starts 91px down, so the pin does not reach
@@ -2030,11 +2031,20 @@
   min-height: 0;
 }
 
-/* Aspect ratio must match the cutout exactly, or the coatings drift off it. */
+/* Aspect ratio must match the cutout exactly, or the coatings drift off it:
+   object-fit would letterbox inside a mismatched box and every percentage
+   below is of the box, not the image.
+
+   The calc term is what actually binds on a short viewport. The rest of the
+   pin costs a roughly fixed ~420px (the 100px header pad, the kicker, the
+   caption block and the rail), so the height left for the car is an offset off
+   100vh rather than a fraction of it — a plain vh cap overflowed the stage row
+   at 1280x680. 1.6018 converts that height back to a width at the cutout's
+   ratio, so the box scales without ever letterboxing. */
 .kmq-stack__car {
   position: relative;
-  width: min(1020px, 92vw);
-  aspect-ratio: 1181 / 384;
+  width: min(940px, 92vw, calc((100vh - 440px) * 1.6018));
+  aspect-ratio: 1150 / 718;
 }
 
 .kmq-stack__car > img,
@@ -2049,7 +2059,11 @@
 
 .kmq-coat-wrap { position: absolute; inset: 0; clip-path: inset(0 0 0 100%); }
 
-.kmq-coat--dull { filter: brightness(0) invert(1); mix-blend-mode: screen; opacity: 0; }
+/* Unprotected paint. The old black car was dulled by screening white over it;
+   a silver body has nowhere to go that way and just blows out, so the light
+   equivalent is to flatten it instead — a plain cross-fade to a grey, low
+   contrast copy of the same cutout. No blend mode: it replaces, not lifts. */
+.kmq-coat--dull { filter: grayscale(1) brightness(.74) contrast(.72); opacity: 0; }
 
 /* The two rim glows are black silhouettes behind the car — only their
    drop-shadows show, as a halo. They must stay above .kmq-stack__car > img. */
@@ -2076,35 +2090,41 @@
   filter: brightness(0) invert(1);
   opacity: .35;
   -webkit-mask-image:
-    linear-gradient(101deg, transparent 29.5%, #000 30.8%, transparent 32.2%),
-    linear-gradient(180deg, #000 0 56%, transparent 74%);
+    linear-gradient(101deg, transparent 25%, rgba(0,0,0,.5) 29%, #000 31%, rgba(0,0,0,.5) 33%, transparent 37%),
+    linear-gradient(180deg, #000 0 58%, transparent 86%);
   mask-image:
-    linear-gradient(101deg, transparent 29.5%, #000 30.8%, transparent 32.2%),
-    linear-gradient(180deg, #000 0 56%, transparent 74%);
+    linear-gradient(101deg, transparent 25%, rgba(0,0,0,.5) 29%, #000 31%, rgba(0,0,0,.5) 33%, transparent 37%),
+    linear-gradient(180deg, #000 0 58%, transparent 86%);
 }
 
 .kmq-coat--ceramic {
   filter: brightness(0) invert(1) sepia(.5) saturate(3);
   opacity: .5;
   -webkit-mask-image:
-    linear-gradient(99deg, transparent 39.5%, #000 41%, #000 42%, transparent 43.5%),
-    linear-gradient(180deg, #000 0 56%, transparent 74%);
+    linear-gradient(99deg, transparent 33%, rgba(0,0,0,.45) 38%, #000 42%, rgba(0,0,0,.45) 46%, transparent 51%),
+    linear-gradient(180deg, #000 0 58%, transparent 86%);
   mask-image:
-    linear-gradient(99deg, transparent 39.5%, #000 41%, #000 42%, transparent 43.5%),
-    linear-gradient(180deg, #000 0 56%, transparent 74%);
+    linear-gradient(99deg, transparent 33%, rgba(0,0,0,.45) 38%, #000 42%, rgba(0,0,0,.45) 46%, transparent 51%),
+    linear-gradient(180deg, #000 0 58%, transparent 86%);
 }
 
-/* Greenhouse outline, traced on static/img/car.png at 1181x384. Percentages
+/* Greenhouse outline, traced on static/img/car-suv.png at 1150x718. Percentages
    are of the .kmq-stack__car box, which the cutout fills exactly — so a new
    photo means re-tracing this, not rescaling it. Overshooting the roofline is
-   harmless (nothing there to darken); overshooting onto a body panel is not. */
+   harmless (alpha discards it); overshooting onto a body panel is not.
+   The three-quarter view puts windscreen and side glass in one run, so this is
+   a single loop: roofline left to right, down the near A-pillar, back along the
+   scuttle, then the belt line. It stays above the door mirror at 17-26%, which
+   is body coloured and must not darken. */
 .kmq-coat--tint,
 .kmq-coat--tint-rim {
-  clip-path: polygon(35.8% 30.8%, 39.5% 17%, 44% 10%, 51% 6.4%, 60% 5%,
-                     67% 6%, 72.5% 9.2%, 77.5% 15%, 79.8% 25%, 58% 30.6%);
+  clip-path: polygon(12.5% 9%, 22% 4.5%, 34% 2.5%, 52% 1.8%, 66% 2.5%,
+                     71% 8%, 74% 16%, 73.6% 20.5%, 60% 24%, 46% 26%,
+                     38% 25%, 31% 24%, 26.5% 21.5%, 17% 20.8%, 11% 20.5%,
+                     8.8% 16%);
 }
 
-.kmq-coat--tint { filter: brightness(0); }
+.kmq-coat--tint { filter: brightness(0); opacity: .84; }
 
 .kmq-coat--tint-rim {
   filter: brightness(0) invert(1) sepia(1) saturate(6) hue-rotate(-6deg);
