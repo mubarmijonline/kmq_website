@@ -553,10 +553,14 @@ AR: dict[str, Any] = {
     "hours_week": "السبت — الخميس: 10:00 ص — 11:00 م",
     "hours_fri": "الجمعة: 4:00 م — 11:00 م",
     "installments": "تقسيط عبر تابي وتمارا وإمكان",
+    # `icon` names a glyph in partials/icons.html, all four of them from the
+    # client's own kit. Facebook joins the list because the kit ships that
+    # glyph too; like the other three, its URL is still pending.
     "social": [
-        {"name": "إنستجرام", "abbr": "IG", "url": TBD},
-        {"name": "تيك توك", "abbr": "TT", "url": TBD},
-        {"name": "سناب شات", "abbr": "SC", "url": TBD},
+        {"name": "إنستجرام", "icon": "instagram", "url": TBD},
+        {"name": "تيك توك", "icon": "tiktok", "url": TBD},
+        {"name": "سناب شات", "icon": "snapchat", "url": TBD},
+        {"name": "فيسبوك", "icon": "facebook", "url": TBD},
     ],
     "skip_link": "تخطَّ إلى المحتوى",
     "menu_label": "القائمة",
@@ -982,9 +986,10 @@ EN: dict[str, Any] = {
     "hours_fri": "Friday: 4:00 PM — 11:00 PM",
     "installments": "Instalments via Tabby, Tamara and Emkan",
     "social": [
-        {"name": "Instagram", "abbr": "IG", "url": TBD},
-        {"name": "TikTok", "abbr": "TT", "url": TBD},
-        {"name": "Snapchat", "abbr": "SC", "url": TBD},
+        {"name": "Instagram", "icon": "instagram", "url": TBD},
+        {"name": "TikTok", "icon": "tiktok", "url": TBD},
+        {"name": "Snapchat", "icon": "snapchat", "url": TBD},
+        {"name": "Facebook", "icon": "facebook", "url": TBD},
     ],
     "skip_link": "Skip to content",
     "menu_label": "Menu",

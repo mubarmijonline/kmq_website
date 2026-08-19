@@ -161,9 +161,9 @@ load-bearing:
 And four that are not:
 
 - Before/after photography for the home page.
-- Brand visual identity — logo files, palette, typography. The header and
-  footer draw the diamond mark as inline SVG, ported faithfully from the
-  prototype, which is all the design project actually contains.
+- ~~Brand visual identity — logo files~~. **Delivered 2026-08-19**, in
+  `WEBSITE/header - footer/`. See "The brand kit" below. Palette and
+  typography are still the prototype's.
 - Confirmation on pickup and delivery coverage in Jeddah.
 - Warranty coverage terms per service — the document supplies these for PPF,
   nano ceramic and tint, so this appears to be already resolved.
@@ -172,11 +172,57 @@ And four that are not:
 `/blog/<slug>` renders the title, the excerpt and a plain statement that the
 text is being written, rather than generated copy nobody at KMQ has approved.
 
-**Photography.** Every image slot renders the prototype's own art-direction
-note (`[ branch photo ]`, `[ hero image: PPF film being applied … ]`) as a
-labelled placeholder. They are a brief for the photographer and should not
-survive launch.
+**Photography.** The delivered photographs now fill the about page, the
+branch cards and all eight article slots — `static/img/`, resized to 1080px
+and saved progressive, one file per article named after its slug. The article
+alt text is the article's own title, so the retired `[ article thumbnail ]`
+placeholder string is gone from both locales.
+
+One slot is still a placeholder: the branch map on `/branches`, which renders
+`t.map_shot` as a labelled block. It is waiting on the same pending item as
+the "Directions" links — the exact address of each branch.
 
 **Self-hosted fonts.** Tajawal, Almarai and Space Grotesk load from Google
 Fonts, as the prototype specifies. Self-hosting is the better answer for a
 Saudi audience — one less cross-origin dependency and one less round trip.
+
+## The brand kit
+
+`WEBSITE/header - footer/` — ten files, all of them Illustrator exports. The
+folder is gitignored with the rest of the client source; what ships is under
+`static/img/`.
+
+| Source file | Became |
+|---|---|
+| `Logo Dark mode.svg` | `static/img/brand/kmq-logo.svg` — the header and footer mark |
+| `Logo Light mode.svg` | `static/img/brand/kmq-logo-light.svg` — the favicon |
+| `H instagram.svg`, `H tiktok.svg`, `H snap.svg`, `H facebook.svg` | the four social tiles in the footer |
+| `H whatsapp.svg` | the floating WhatsApp button, replacing the glyph ported from the prototype |
+| `H clock.svg`, `H mobile.svg` | the footer's "Working hours" and "Branch phones" headings |
+| `location.svg` | not used yet — it belongs on the branch cards, which are waiting on the addresses |
+
+**The two cuts are not interchangeable.** Both draw the same lockup, but the
+dark cut's white letters overhang the shield, so on a light ground the parts
+outside the silhouette disappear — the K's stem, the S and the D of SHIELD.
+That is what the light cut's blue keyline is for. Every surface on this site is
+#0D0D0D, so the dark cut is the site logo. The browser tab is not ours to
+colour, so the favicon is the light one.
+
+**Both are cropped.** The delivered files centre a 320×332 mark in a 512
+square, so sizing by the box renders the artwork at 62% of the height asked
+for and pads the header with dead space the gutter cannot see. Each copy's
+`viewBox` is narrowed to its own `getBBox()` plus 6 units — `90 83 332 345`
+dark, `84 78 342 355` light. Nothing else in either file is touched.
+
+**The glyphs are re-emitted, not copied.** `templates/partials/icons.html`
+holds the eight paths behind a `brand_icon(name, size)` macro. Two changes from
+the kit: the wrapping `<defs>`/`<style>`/`<g>` are dropped, carrying the one
+`fill-rule: evenodd` they held onto the paths that need it; and every glyph is
+`fill="currentColor"`. The kit paints them #00B3FF, which is the logo's blue —
+right on the logo, wrong on a gold section heading and wrong on a green
+WhatsApp button.
+
+Facebook joined `social` in `content.py` on the strength of the kit shipping
+that glyph. Its URL is `TBD` like the other three, so all four render as
+unlinked tiles. The `abbr` key — the "IG"/"TT"/"SC" two-letter stand-ins the
+tiles used to show — is gone, replaced by `icon`.

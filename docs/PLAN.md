@@ -106,6 +106,12 @@ stylesheets, one script, concatenated and fingerprinted by
   filter/search, FAQ. Roughly 6 KB; every behaviour is an
   enhancement over markup that already works.
 
+The admin is a fourth file, `admin.css`, bundled separately with `tokens.css`
+and nothing else. Two bundles rather than one because the two audiences share
+a palette and no components: a visitor should never download the staff
+interface, and staff editing a string should not wait for 56 KB of public-site
+components.
+
 **Logical properties throughout.** The design source computes `startSide` /
 `endSide` in JavaScript and writes `left:` / `right:`. This port uses
 `padding-inline`, `border-inline-start`, `inset-inline-end`, `text-align:
@@ -138,7 +144,9 @@ template → accessor → overlay cache → DB rows      (when present and reach
                                    ↘ AR/EN dicts   (fallback, always)
 ```
 
-The dicts stay in the repository as both the seed and the fallback. This is
+The dicts stay in the repository as both the seed and the fallback, reachable
+as `content.shipped()` — the overlay and the seeder read through that, and
+everything else keeps reading through `content()`. This is
 load-bearing, not sentimental: `db.py` opens its pool with `open=False`
 specifically so that a Postgres outage never stops the site serving its static
 pages. An admin that made content a hard database dependency would throw that
@@ -281,6 +289,17 @@ are heavy; Arabic diacritics and the `text-wrap: balance` in the source
 headings need checking on real strings, not lorem. Verified per page in
 milestone 03.
 
-**No brand assets.** There is no logo file. The header and footer draw the
-diamond mark from the design source as inline SVG, which is a faithful port of
-what the design actually contains — but if a real logo exists it supersedes it.
+**Brand assets — delivered 2026-08-19.** The client's kit arrived as
+`WEBSITE/header - footer/`: the logo in a dark-mode and a light-mode cut, plus
+eight glyphs. It supersedes the ported diamond mark, which is gone from both
+the header and the footer. The site wears the dark cut, because every surface
+it sits on is `--kmq-bg` #0D0D0D; the light cut is the favicon, since a browser
+tab is white as often as not. Both are cropped to their artwork — the delivered
+files sit in a 512-square with a fifth of the height as padding, which sizes
+the mark by its whitespace instead of by itself. The glyphs are re-emitted as
+`templates/partials/icons.html` with `fill="currentColor"`, so they take the
+gold of whatever they label rather than the kit's #00B3FF.
+
+Still open: palette and typography. The logo's blue (#0C6BBF → #2EA8E5) is not
+in the token set and has not been asked to be — the site's accent is still
+gold, and the logo is the only place the blue appears.

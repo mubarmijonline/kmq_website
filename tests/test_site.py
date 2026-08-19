@@ -385,6 +385,35 @@ def test_bundle_is_fingerprinted_and_served(client):
     assert client.get(match.group(1)).status_code == 200
 
 
+def test_every_brand_image_resolves(client):
+    """A 404 on an <img> is silent — the header just goes blank."""
+    html = client.get("/ar/").get_data(as_text=True)
+    srcs = set(re.findall(r'"(/static/img/brand/[^"]+)"', html))
+    assert srcs, "no brand image in the page"
+    for src in srcs:
+        assert client.get(src).status_code == 200, src
+
+
+def test_the_site_wears_the_dark_cut(client):
+    """The light cut loses the letters that overhang the shield on #0D0D0D's
+    opposite; it is the favicon and nothing else."""
+    html = client.get("/ar/").get_data(as_text=True)
+    brand = re.search(r'<a class="kmq-brand.*?</a>', html, re.DOTALL)
+    assert brand and "img/brand/kmq-logo.svg" in brand.group(0)
+    assert "kmq-logo-light.svg" not in brand.group(0)
+    assert 'rel="icon"' in html and "kmq-logo-light.svg" in html
+
+
+def test_every_social_glyph_is_one_the_kit_supplies(client):
+    """`icon` names a branch of brand_icon(); a typo renders an empty tile."""
+    macro = (Path(__file__).resolve().parent.parent
+             / "templates" / "partials" / "icons.html").read_text()
+    known = set(re.findall(r'name == "([a-z]+)"', macro))
+    for lang in LOCALES:
+        for s in C.content(lang)["social"]:
+            assert s["icon"] in known, s["icon"]
+
+
 def test_no_style_attribute_uses_a_physical_side():
     """RTL depends on logical properties; a stray left/right breaks Arabic."""
     css = (Path(__file__).resolve().parent.parent / "design" / "components.css").read_text()

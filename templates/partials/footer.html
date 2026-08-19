@@ -1,3 +1,5 @@
+{% from "partials/icons.html" import brand_icon %}
+
 {% set endpoints = {
   'home': 'site.home', 'about': 'site.about', 'services': 'site.services',
   'packages': 'site.packages', 'warranty': 'site.warranty',
@@ -8,9 +10,10 @@
   <div class="kmq-shell kmq-footer__grid">
 
     <div>
-      <a class="kmq-brand" href="{{ url_for('site.home') }}" style="margin-block-end:22px">
-        <span class="kmq-brand__mark" aria-hidden="true" style="width:32px;height:32px"></span>
-        <span class="kmq-brand__word" style="font-size:20px;letter-spacing:.22em">KMQ</span>
+      <a class="kmq-brand kmq-brand--footer" href="{{ url_for('site.home') }}" aria-label="KMQ">
+        <img class="kmq-brand__logo"
+             src="{{ url_for('static', filename='img/brand/kmq-logo.svg') }}"
+             alt="" width="332" height="345" loading="lazy" decoding="async">
       </a>
       <p class="kmq-footer__blurb">{{ t.footer_blurb }}</p>
     </div>
@@ -25,7 +28,7 @@
     </div>
 
     <div>
-      <h2 class="kmq-footer__title">{{ t.footer_phones }}</h2>
+      <h2 class="kmq-footer__title">{{ brand_icon("phone", 15) }}{{ t.footer_phones }}</h2>
       {# Every branch number is still open in the content file's pending
          list. Each row says so rather than showing an invented number. #}
       <dl class="kmq-footer__phones">
@@ -41,7 +44,7 @@
     </div>
 
     <div>
-      <h2 class="kmq-footer__title">{{ t.footer_hours }}</h2>
+      <h2 class="kmq-footer__title">{{ brand_icon("clock", 15) }}{{ t.footer_hours }}</h2>
       <div class="kmq-footer__hours">
         <div>{{ t.hours_week }}</div>
         <div>{{ t.hours_fri }}</div>
@@ -49,12 +52,14 @@
       <div class="kmq-social">
         {% for s in t.social %}
           {# No profile URLs supplied yet; render the tile without a link
-             rather than pointing it at "#". #}
+             rather than pointing it at "#". The glyph is the client's own,
+             from the same kit as the logo. #}
           {% if s.url %}
-            <a href="{{ s.url }}" title="{{ s.name }}" target="_blank" rel="noopener">{{ s.abbr }}</a>
+            <a href="{{ s.url }}" title="{{ s.name }}" aria-label="{{ s.name }}"
+               target="_blank" rel="noopener">{{ brand_icon(s.icon, 19) }}</a>
           {% else %}
             <span class="kmq-social__soon" title="{{ s.name }} — {{ t.tbd }}"
-                  style="width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(245,245,240,.10);font-family:var(--kmq-font-latin);font-size:11px;font-weight:700;color:var(--kmq-ink-35)">{{ s.abbr }}</span>
+                  role="img" aria-label="{{ s.name }} — {{ t.tbd }}">{{ brand_icon(s.icon, 19) }}</span>
           {% endif %}
         {% endfor %}
       </div>

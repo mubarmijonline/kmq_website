@@ -13,9 +13,14 @@
 <header class="kmq-header" data-kmq-header>
   <div class="kmq-header__bar">
 
+    {# The client's own logo, dark-mode cut — the site is #0D0D0D throughout,
+       so the light-mode file (same mark, blue keyline) is never the right one
+       here. It is a combination mark: the wordmark is inside the artwork, so
+       there is no separate text beside it, and the link carries the name. #}
     <a class="kmq-brand" href="{{ url_for('site.home') }}" aria-label="KMQ">
-      <span class="kmq-brand__mark" aria-hidden="true"></span>
-      <span class="kmq-brand__word">KMQ</span>
+      <img class="kmq-brand__logo"
+           src="{{ url_for('static', filename='img/brand/kmq-logo.svg') }}"
+           alt="" width="332" height="345" decoding="async">
     </a>
 
     <nav class="kmq-nav" aria-label="{{ t.footer_nav }}">
