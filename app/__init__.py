@@ -60,7 +60,6 @@ def create_app(config: dict | None = None) -> Flask:
         # rather than opening a chat with a stranger.
         WHATSAPP_NUMBER=os.environ.get("KMQ_WHATSAPP", "").strip(),
         SHOW_PRICES=_env_flag("KMQ_SHOW_PRICES", True),
-        SHOW_BEFORE_AFTER=_env_flag("KMQ_SHOW_BEFORE_AFTER", True),
         ENV_NAME=os.environ.get("KMQ_ENV", "dev"),
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
@@ -172,7 +171,6 @@ def _wire_context(app: Flask) -> None:
             "wa": _whatsapp_url,
             "wa_configured": bool(app.config["WHATSAPP_NUMBER"]),
             "show_prices": app.config["SHOW_PRICES"],
-            "show_before_after": app.config["SHOW_BEFORE_AFTER"],
             "current_year": date.today().year,
             "icons": C.ICONS,
             # The lead form is described once, in content.py, and rendered by

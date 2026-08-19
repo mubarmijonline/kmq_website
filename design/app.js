@@ -114,20 +114,6 @@
     sections.forEach(function (s) { io.observe(s); });
   }());
 
-  /* ---- Before / after slider ------------------------------------------
-     Drives --kmq-reveal. The input carries value="50" in the markup, so the
-     split renders correctly before this runs. */
-
-  (function compare() {
-    d.querySelectorAll('[data-kmq-compare]').forEach(function (box) {
-      var range = box.querySelector('input[type="range"]');
-      if (!range) return;
-      function sync() { box.style.setProperty('--kmq-reveal', range.value + '%'); }
-      on(range, 'input', sync);
-      sync();
-    });
-  }());
-
   /* ---- Blog filter and search ------------------------------------------
      The chips are links and the search box sits in a GET form, so both work
      with the script absent. With it, typing filters in place — one request

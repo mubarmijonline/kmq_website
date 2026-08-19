@@ -193,40 +193,11 @@
   </div>
 </section>
 
-{# ═══════════ Before / after ═══════════
-   The design also carried three Google review scores here. They are not
-   imported: the content file lists review data as pending, and a fabricated
-   third-party rating on a live commercial site is not a placeholder. #}
-{% if show_before_after %}
-<section class="kmq-section kmq-section--accent">
-  <div class="kmq-shell">
-    <div class="kmq-sectionhead kmq-sectionhead--split">
-      <div>
-        <div class="kmq-eyebrow">04 — PROOF</div>
-        <h2>{{ t.proof_title }}</h2>
-      </div>
-      <p style="font-size:14px;color:var(--kmq-ink-55);max-width:320px;line-height:1.9">{{ t.proof_sub }}</p>
-    </div>
-
-    <div class="kmq-compare" data-kmq-compare>
-      <div class="kmq-compare__before">
-        <span class="kmq-compare__tag">{{ t.proof_before }}</span>
-      </div>
-      <div class="kmq-compare__after">
-        <span class="kmq-compare__tag kmq-compare__tag--after">{{ t.proof_after }}</span>
-      </div>
-      <input class="kmq-compare__range" type="range" min="0" max="100" value="50"
-             aria-label="{{ t.proof_sub }}">
-    </div>
-  </div>
-</section>
-{% endif %}
-
 {# ═══════════ Branches ═══════════ #}
 <section class="kmq-shell kmq-section" data-kmq-section="branches">
   <div class="kmq-sectionhead kmq-sectionhead--split">
     <div>
-      <div class="kmq-eyebrow">05 — BRANCHES</div>
+      <div class="kmq-eyebrow">04 — BRANCHES</div>
       <h2>{{ t.branches_title }}</h2>
     </div>
     <a class="kmq-link" href="{{ url_for('site.branches') }}">{{ t.all_branches_link }}</a>
@@ -234,7 +205,7 @@
   <div class="kmq-grid kmq-grid--wide">
     {% for b in t.branches %}
       <a class="kmq-branch" href="{{ url_for('site.branches') }}" style="color:inherit">
-        {{ m.shot(t.branch_shot, 'kmq-shot--branch') }}
+        {{ m.shot(t.branch_shot, 'kmq-shot--branch', 'img/branch-entrance.jpg') }}
         <div class="kmq-branch__body">
           <div class="kmq-branch__city">{{ b.city_en }}</div>
           <h3>{{ b.name }}</h3>
@@ -251,7 +222,7 @@
 <section class="kmq-section kmq-section--raised" data-kmq-section="blog">
   <div class="kmq-shell">
     <div class="kmq-sectionhead">
-      <div class="kmq-eyebrow">06 — JOURNAL</div>
+      <div class="kmq-eyebrow">05 — JOURNAL</div>
       <h2 style="margin-block-end:18px">{{ t.blog_title }}</h2>
       <a class="kmq-link" href="{{ url_for('site.blog') }}">{{ t.all_blog_link }}</a>
     </div>
@@ -267,7 +238,7 @@
    Section 10 of the content file. The design had no FAQ at all. #}
 <section class="kmq-shell kmq-section">
   <div class="kmq-sectionhead">
-    <div class="kmq-eyebrow">07 — FAQ</div>
+    <div class="kmq-eyebrow">06 — FAQ</div>
     <h2>{{ t.faq_title }}</h2>
   </div>
   <div class="kmq-faq" data-kmq-faq>

@@ -40,7 +40,7 @@ targets.
 
 | # | Page | URL | What it does |
 |---|---|---|---|
-| 1 | Home | `/` | Hero, trust strip, four service cards, three package cards, why-KMQ, warranty pitch, before/after proof, branches, journal teaser, FAQ, closing CTA |
+| 1 | Home | `/` | Hero, trust strip, four service cards, three package cards, why-KMQ, warranty pitch, branches, journal teaser, FAQ, closing CTA |
 | 2 | About us | `/about-us` | Who KMQ is, values, film specification table |
 | 3 | Services | `/services` | Index of the five services |
 | 3a–e | A service | `/services/<slug>` | One page each for PPF gloss, PPF matte, nano ceramic, window tint, colour change |
@@ -92,7 +92,7 @@ brand/model, preferred branch, timing, notes. All required except notes.
 
 **Facts that are not yet decided are not invented.** The content file ends with
 seven pending items — branch phone numbers, exact addresses and hours, final
-prices, before/after photography, brand assets. Wherever one of those is
+prices, photography, brand assets. Wherever one of those is
 missing the page says "to be confirmed" in the visitor's language. The site
 never displays a placeholder phone number, a stand-in review score, or a
 specimen warranty record as though it were real.
@@ -134,9 +134,8 @@ any other admin page until it has changed the password.
 **What is editable.** Everything the public site renders as copy or as a
 record: the flat page strings in both languages, the five services, the five
 packages and their prices, the six branches, articles and their categories, the
-warranty page's blocks, the FAQ, and the three settings that are deployment
-flags today — the WhatsApp number, whether prices are shown, whether the
-before/after block is shown.
+warranty page's blocks, the FAQ, and the two settings that are deployment
+flags today — the WhatsApp number and whether prices are shown.
 
 **Articles gain a body.** Articles previously carried a title and excerpt only,
 and the article page said so in place of body copy. An article now has a body,
@@ -171,8 +170,8 @@ it returns; the admin itself is unavailable.
 - **Revision history.** Changes are logged and attributed, but there is no
   version history, no draft/preview of an unpublished revision, and no
   scheduled publishing.
-- **Media management.** There is no image upload; before/after photography and
-  brand assets remain pending client deliverables.
+- **Media management.** There is no image upload; photography and brand assets
+  remain pending client deliverables.
 - **The five pending facts** listed above, until the client supplies them.
 
 ## How "done" is verified

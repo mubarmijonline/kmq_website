@@ -12,7 +12,7 @@ words.
   to `active` / `expired` / `void`. Plate and invoice are normalised through
   `text.normalise_lookup` on write, exactly as the lookup normalises its query,
   so admin-created records are findable.
-- **Settings.** `WHATSAPP_NUMBER`, `SHOW_PRICES`, `SHOW_BEFORE_AFTER` move to
+- **Settings.** `WHATSAPP_NUMBER` and `SHOW_PRICES` move to
   `site_setting`. An environment variable, where set, still wins — a deploy can
   pin a value the admin cannot override.
 - **Users.** Owner only: invite, change role, disable. An account is disabled,

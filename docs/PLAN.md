@@ -103,7 +103,7 @@ stylesheets, one script, concatenated and fingerprinted by
 - `components.css` — header, nav, buttons, cards, package cards, tables,
   accordion, blog grid, forms, footer.
 - `app.js` — mobile menu, language persistence, scroll-spy, blog
-  filter/search, before/after slider, FAQ. Roughly 6 KB; every behaviour is an
+  filter/search, FAQ. Roughly 6 KB; every behaviour is an
   enhancement over markup that already works.
 
 **Logical properties throughout.** The design source computes `startSide` /
@@ -165,10 +165,9 @@ already declared.
 strings (`contact_title`, `hero_sub`, …). Grouped in the UI by the page that
 uses them.
 
-**`site_setting`** — `key` → `value`. The three settings that are environment
-variables today (`WHATSAPP_NUMBER`, `SHOW_PRICES`, `SHOW_BEFORE_AFTER`) become
-editable. Environment keeps precedence where set, so a deploy can still pin
-them.
+**`site_setting`** — `key` → `value`. The two settings that are environment
+variables today (`WHATSAPP_NUMBER`, `SHOW_PRICES`) become editable.
+Environment keeps precedence where set, so a deploy can still pin them.
 
 **`branch`** and **`warranty`** keep their existing typed columns. They have
 real constraints (E.164 checks, the status foreign key, the normalisation

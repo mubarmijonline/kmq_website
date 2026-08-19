@@ -62,7 +62,6 @@ SCALAR_KINDS = ("war_rows", "not_covered", "conditions", "tags")
 SETTINGS = {
     "whatsapp_number": "KMQ_WHATSAPP",
     "show_prices": "KMQ_SHOW_PRICES",
-    "show_before_after": "KMQ_SHOW_BEFORE_AFTER",
 }
 
 

@@ -22,7 +22,7 @@
 {# ---- Featured ---- #}
 <section class="kmq-shell" style="padding-block:70px 0">
   <a class="kmq-feature" href="{{ url_for('site.article', slug=featured.slug) }}">
-    {{ m.shot(t.article_shot, 'kmq-shot--tall') }}
+    {{ m.shot(featured.title, 'kmq-shot--tall', featured.image) }}
     <div class="kmq-feature__body">
       <div style="display:flex;align-items:center;gap:12px;margin-block-end:22px;flex-wrap:wrap">
         <span class="kmq-flag">{{ t.featured }}</span>

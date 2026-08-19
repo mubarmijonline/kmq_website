@@ -110,9 +110,12 @@ def _branch(bid: str, name: str, city: str, location: str, short: str,
 
 def _post(slug: str, title: str, excerpt: str, category: str, date: str,
           minutes: int, author: str) -> dict[str, Any]:
+    # Every article ships with one photograph, named after its slug and shared
+    # by both locales: the subject is the same car, only the caption changes.
     return {
         "slug": slug, "title": title, "excerpt": excerpt, "category": category,
         "date": date, "minutes": minutes, "author": author,
+        "image": f"img/blog/{slug}.jpg",
     }
 
 
@@ -316,12 +319,6 @@ AR: dict[str, Any] = {
     "wb_cta": "اقرأ تفاصيل الضمان",
     "wb_cta2": "تحقق من ضمانك",
 
-    # ---- Proof ----
-    "proof_title": "قبل وبعد الحماية",
-    "proof_sub": "اسحب المؤشر لمقارنة سطح السيارة قبل التركيب وبعده",
-    "proof_before": "[ before — dull, swirl-marked paint ]",
-    "proof_after": "[ after — KMQ gloss PPF, mirror finish ]",
-
     # ---- Branches ----
     "branches_title": "زورونا في أقرب فرع",
     "branch_page_title": "زورونا في أقرب فرع لك",
@@ -340,7 +337,7 @@ AR: dict[str, Any] = {
     "map_shot": "[ map: 6 KMQ branches — Riyadh ×3, Jeddah ×1, Dammam ×2 ]",
     "pickup_title": "لا يوجد فرع قريب؟ نوصّل ونستلم سيارتك مجانًا ضمن نطاق محدد",
     "pickup_cta": "اطلب الاستلام على واتساب ←",
-    "branch_shot": "[ branch photo ]",
+    "branch_shot": "مدخل فرع KMQ شيلد — واجهة المعرض وبورشه 911 عند البوابة",
 
     # ---- Warranty page ----
     "warranty_page_title": "ضمان KMQ — شفافية كاملة فيما يغطيه الضمان",
@@ -445,7 +442,7 @@ AR: dict[str, Any] = {
         {"value": "7.5", "label": "مللي سماكة الفيلم المستخدم"},
     ],
     "about_cta": "تعرف علينا من قرب — زر أقرب فرع",
-    "about_shot": "[ workshop photo — technicians at work ]",
+    "about_shot": "صالة عرض KMQ شيلد — بورشه 911 GT3 زرقاء بعد تركيب فيلم الحماية",
 
     # ---- FAQ. Section 10 of the document; the design file had no FAQ. ----
     "faq_title": "الأسئلة الشائعة",
@@ -760,11 +757,6 @@ EN: dict[str, Any] = {
     "wb_cta": "Read the warranty details",
     "wb_cta2": "Check your warranty",
 
-    "proof_title": "Before and after protection",
-    "proof_sub": "Drag the handle to compare the paint surface before and after installation",
-    "proof_before": "[ before — dull, swirl-marked paint ]",
-    "proof_after": "[ after — KMQ gloss PPF, mirror finish ]",
-
     "branches_title": "Visit your nearest branch",
     "branch_page_title": "Visit your nearest branch",
     "all_branches_link": "All branches →",
@@ -782,7 +774,7 @@ EN: dict[str, Any] = {
     "map_shot": "[ map: 6 KMQ branches — Riyadh ×3, Jeddah ×1, Dammam ×2 ]",
     "pickup_title": "No branch nearby? We collect and deliver your car free within a set radius",
     "pickup_cta": "Request pickup on WhatsApp →",
-    "branch_shot": "[ branch photo ]",
+    "branch_shot": "The entrance to a KMQ Shield branch — the showroom facade with a Porsche 911 at the door",
 
     "warranty_page_title": "The KMQ warranty — full transparency on what is covered",
     "war_check_title": "Check your warranty",
@@ -884,7 +876,7 @@ EN: dict[str, Any] = {
         {"value": "7.5", "label": "mil thickness of the film we use"},
     ],
     "about_cta": "Get to know us in person — visit your nearest branch",
-    "about_shot": "[ workshop photo — technicians at work ]",
+    "about_shot": "The KMQ Shield showroom — a blue Porsche 911 GT3 after paint protection film",
 
     "faq_title": "Frequently asked questions",
     "faq": [

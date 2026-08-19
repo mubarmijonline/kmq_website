@@ -86,7 +86,6 @@ confirmed" — in the same slot, so the card keeps its shape.
 | Sticky header | `state.scrolled`, re-rendering the header | `data-scrolled` attribute, CSS transition |
 | Blog filter, search, pagination | `state.blogCat`, `blogSearch`, `blogPage`, re-rendering the list | Query parameters, filtered server-side; JS narrows in place and syncs the URL |
 | FAQ | did not exist | `<details>`/`<summary>`, animated on `grid-template-rows` |
-| Before/after slider | `state.reveal` driving an inline width | A range input driving `--kmq-reveal` via `clip-path` |
 | Warranty check | `onWarrantyCheck` setting a flag that revealed a constant | `POST /warranty`, a real query, four outcomes |
 
 ## Deliberate divergences
@@ -127,9 +126,11 @@ confirmed" — in the same slot, so the card keeps its shape.
    silently discards an email address is worse than no form; it returns when
    there is somewhere to send it.
 
-10. **Prices and the before/after band are switches.** The prototype exposed
-    `showPrices` and `showBeforeAfter` as design settings; they are
-    `KMQ_SHOW_PRICES` and `KMQ_SHOW_BEFORE_AFTER`.
+10. **Prices are a switch; the before/after band is gone.** The prototype
+    exposed `showPrices` and `showBeforeAfter` as design settings. Prices
+    became `KMQ_SHOW_PRICES`. The before/after slider was dropped from the
+    homepage: it only ever compared two CSS gradients, and the photography
+    that would make it a real proof block is still a pending deliverable.
 
 ## Two contradictions inside the client's own document
 

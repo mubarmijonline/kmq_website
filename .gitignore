@@ -7,3 +7,6 @@ logs/*.log
 _incoming/
 .pytest_cache/
 logs/
+
+# Client source assets, not served.
+WEBSITE/

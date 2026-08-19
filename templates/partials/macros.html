@@ -1,9 +1,15 @@
 {# Pieces that appear on more than one page. #}
 
-{% macro shot(label, extra='') -%}
+{% macro shot(label, extra='', src='') -%}
+  {%- if src %}
+  <div class="kmq-shot kmq-shot--filled {{ extra }}">
+    <img src="{{ url_for('static', filename=src) }}" alt="{{ label }}" loading="lazy" decoding="async">
+  </div>
+  {%- else %}
   <div class="kmq-shot {{ extra }}" role="img" aria-label="{{ label }}">
     <span class="kmq-shot__label" aria-hidden="true">{{ label }}</span>
   </div>
+  {%- endif %}
 {%- endmacro %}
 
 
@@ -45,9 +51,9 @@
 {%- endmacro %}
 
 
-{% macro branch_card(b, t, wa, shot_label) -%}
+{% macro branch_card(b, t, wa, shot_label, shot_src='img/branch-entrance.jpg') -%}
   <article class="kmq-branch">
-    {{ shot(shot_label, 'kmq-shot--branch') }}
+    {{ shot(shot_label, 'kmq-shot--branch', shot_src) }}
     <div class="kmq-branch__body">
       <div class="kmq-branch__city">{{ b.city_en }}</div>
       <h3>{{ b.name }}</h3>
@@ -81,7 +87,9 @@
   <a class="kmq-post" href="{{ url_for('site.article', slug=p.slug) }}"
      data-kmq-post="{{ p.title }} {{ p.excerpt }}">
     <div class="kmq-post__shot">
-      {{ shot(t.article_shot, 'kmq-shot--article') }}
+      {# The title carries the alt text: the photo illustrates the article,
+         so its subject is the article. #}
+      {{ shot(p.title, 'kmq-shot--article', p.image) }}
       <span class="kmq-post__cat">{{ cat_label }}</span>
     </div>
     <div class="kmq-post__body">
