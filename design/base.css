@@ -47,12 +47,12 @@ h1, h2, h3, h4 {
 p { margin: 0; }
 
 a {
-  color: var(--kmq-gold);
+  color: var(--kmq-blue);
   text-decoration: none;
   transition: color var(--kmq-quick);
 }
 
-a:hover { color: var(--kmq-gold-hi); }
+a:hover { color: var(--kmq-blue-hi); }
 
 img,
 svg { max-width: 100%; }
@@ -76,7 +76,7 @@ ul, ol {
 }
 
 ::selection {
-  background: var(--kmq-gold);
+  background: var(--kmq-blue);
   color: var(--kmq-bg);
 }
 
@@ -84,7 +84,7 @@ ul, ol {
    whose entire purpose is starting a conversation, every CTA must be
    reachable without a mouse. */
 :focus-visible {
-  outline: 2px solid var(--kmq-gold-bright);
+  outline: 2px solid var(--kmq-blue-bright);
   outline-offset: 3px;
 }
 
@@ -95,7 +95,7 @@ ul, ol {
   inset-inline-start: var(--kmq-gutter);
   inset-block-start: -100vh;
   z-index: 100;
-  background: var(--kmq-gold-bright);
+  background: var(--kmq-blue-bright);
   color: var(--kmq-bg);
   font-family: var(--kmq-head);
   font-weight: 800;
@@ -135,7 +135,7 @@ ul, ol {
 
 .kmq-section--accent { background: var(--kmq-bg-accent); }
 
-/* The gold hairline the source drops between several sections. */
+/* The accent hairline the source drops between several sections. */
 .kmq-rule {
   height: 1px;
   border: 0;

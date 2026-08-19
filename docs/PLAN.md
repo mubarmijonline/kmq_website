@@ -300,6 +300,9 @@ the mark by its whitespace instead of by itself. The glyphs are re-emitted as
 `templates/partials/icons.html` with `fill="currentColor"`, so they take the
 gold of whatever they label rather than the kit's #00B3FF.
 
-Still open: palette and typography. The logo's blue (#0C6BBF → #2EA8E5) is not
-in the token set and has not been asked to be — the site's accent is still
-gold, and the logo is the only place the blue appears.
+**Recoloured 2026-08-19.** The accent is now the logo's blue and the gold is
+gone from the source tree entirely — tokens, the 23 declarations that hardcoded
+it, the `.kmq-btn--gold` class name in eight templates, the select chevron's
+data URI, and the two hero filter chains that made gold out of a silhouette
+rather than out of a colour value. `docs/recolour-brief.md` carries the
+reasoning and the measurements. Typography is the last open brand item.

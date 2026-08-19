@@ -161,9 +161,9 @@ load-bearing:
 And four that are not:
 
 - Before/after photography for the home page.
-- ~~Brand visual identity — logo files~~. **Delivered 2026-08-19**, in
-  `WEBSITE/header - footer/`. See "The brand kit" below. Palette and
-  typography are still the prototype's.
+- ~~Brand visual identity — logo files, palette~~. **Delivered 2026-08-19**,
+  in `WEBSITE/header - footer/`. See "The brand kit" and "The recolour" below.
+  Typography is still the prototype's.
 - Confirmation on pickup and delivery coverage in Jeddah.
 - Warranty coverage terms per service — the document supplies these for PPF,
   nano ceramic and tint, so this appears to be already resolved.
@@ -226,3 +226,59 @@ Facebook joined `social` in `content.py` on the strength of the kit shipping
 that glyph. Its URL is `TBD` like the other three, so all four render as
 unlinked tiles. The `abbr` key — the "IG"/"TT"/"SC" two-letter stand-ins the
 tiles used to show — is gone, replaced by `icon`.
+
+## The recolour
+
+The prototype's accent was gold — `#C9A84C` and three neighbours. The logo is
+blue. Rather than leave the logo as the one blue object on a gold page, the
+accent moved to the logo's own colour on 2026-08-19. The reasoning, the
+measurements and the traps are in `docs/recolour-brief.md`; what actually
+shipped:
+
+| Was | Is | Contrast on `--kmq-bg` |
+|---|---|---|
+| `--kmq-gold` `#C9A84C` | `--kmq-blue` `#2EA8E5` — the logo's light blue | 8.50 → 7.26 |
+| `--kmq-gold-bright` `#D4AF37` | `--kmq-blue-bright` `#57BFEE` | 9.24 → 9.34 |
+| `--kmq-gold-hi` `#E4C674` | `--kmq-blue-hi` `#7ACDF5` | 11.69 → 10.99 |
+| `--kmq-gold-deep` `#B4913C` | `--kmq-blue-deep` `#1B8FD6` | 6.53 → 5.50 |
+| `--kmq-line-gold` | deleted — it had no references | — |
+
+**The logo's other blue is not in the palette.** `#0C6BBF` measures 3.58 on
+`#0D0D0D`, which fails AA at any body size. The one role it could plausibly
+fill is the CTA gradient's tail, and that is precisely where the failure would
+land — on a button label. Reusing the logo's gradient end to end leaves no
+label colour that survives it: dark ink reads 7.26 at one end and 3.58 at the
+other, white reads 5.42 and 2.68 the other way. `--kmq-grad-cta` therefore
+stops at `--kmq-blue-deep`, worst case 5.50.
+
+**23 declarations hardcoded gold rather than referencing a token**, and would
+have survived a token-only swap. Twenty-one were `rgba()` literals in
+`components.css`; the other two were easy to miss — an inline
+`rgba(201,168,76,.9)` on the featured category label in `blog.html`, and a
+URL-encoded `%23C9A84C` inside the select chevron's `data:image/svg+xml` URI,
+which no search for `#C9A84C` will ever find. All are tokens now.
+
+**The hero's coat layers had no colour to swap.** The protection-stack
+animation tints a black silhouette with `sepia()` and `saturate()`, so the gold
+was a filter chain, not a value. Both chains were re-derived by measuring the
+colour they actually produce on a canvas: the ceramic wash was `hsv(60, 9%)`
+and is now `hsv(198, 9%)` — the same strength at the logo's hue. The tint rim
+was `hsv(58, 35%)` and reaches `hsv(198, 31%)`; blue saturation clips there,
+because the blue channel is already at 255, so `saturate()` above 18 changes
+nothing. That four-point shortfall is the only place the recolour could not
+match the original exactly.
+
+**`.kmq-btn--gold` became `.kmq-btn--blue`** across eight templates and the
+stylesheet, 17 occurrences, and `.kmq-coat--rim-gold` became
+`.kmq-coat--rim-blue`. A class named for a colour it no longer has is worse
+than no name at all.
+
+**The admin panel shares `tokens.css`**, so its ten token references moved with
+everything else. It could not be rendered for review here — `/admin/login`
+returns 503 without a database — but its bundle resolves every custom property
+it uses.
+
+Verified with a sweep over every route in both locales: no warm colour survives
+in any computed style, and every text node on a flat background clears its WCAG
+AA floor. The CTA family sits on the gradient and was checked against both of
+its stops.

@@ -40,7 +40,7 @@
   <div class="kmq-prompt" style="margin-block-start:50px">
     <h3 style="margin:0">{{ t.article_cta }}</h3>
     {% set link = wa(t.wa_default) %}
-    <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+    <a class="kmq-btn kmq-btn--blue" href="{{ link or url_for('site.contact') }}"
        {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_whatsapp }}</a>
   </div>
 

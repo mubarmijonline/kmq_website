@@ -21,35 +21,53 @@
   --kmq-ink-45:      rgba(245, 245, 240, .45);
   --kmq-ink-35:      rgba(245, 245, 240, .35);
 
-  /* ---- Gold ------------------------------------------------------------
-     Four stops. --gold is the resting accent, --gold-bright the gradient
-     head, --gold-hi the hover, --gold-deep the gradient tail.           */
-  --kmq-gold:        #C9A84C;
-  --kmq-gold-bright: #D4AF37;
-  --kmq-gold-hi:     #E4C674;
-  --kmq-gold-deep:   #B4913C;
+  /* ---- Blue -------------------------------------------------------------
+     The accent, taken from the logo, which contains exactly two blues:
+     #0C6BBF and #2EA8E5. Three stops, matched to the gold ramp they
+     replace by contrast on --kmq-bg rather than by hue:
 
-  --kmq-gold-70:     rgba(201, 168, 76, .70);
-  --kmq-gold-50:     rgba(201, 168, 76, .50);
-  --kmq-gold-45:     rgba(201, 168, 76, .45);
-  --kmq-gold-35:     rgba(201, 168, 76, .35);
-  --kmq-gold-18:     rgba(201, 168, 76, .18);
-  --kmq-gold-wash:   rgba(212, 175, 55, .07);
+         --blue         #2EA8E5   7.26 : 1   (gold was 8.50)
+         --blue-bright  #57BFEE   9.34 : 1   (gold was 9.24)
+         --blue-hi      #7ACDF5  10.99 : 1   (gold was 11.69)
+         --blue-deep    #1B8FD6   5.50 : 1   (gold was 6.53)
+
+     The logo's other blue, #0C6BBF, is deliberately not a token. On this
+     ground it measures 3.58, which fails AA at any body size, and the one
+     role it could fill — the CTA gradient's tail — is exactly where that
+     failure would land on a button label. --blue-deep stops short of it.  */
+  --kmq-blue:        #2EA8E5;
+  --kmq-blue-bright: #57BFEE;
+  --kmq-blue-hi:     #7ACDF5;
+  --kmq-blue-deep:   #1B8FD6;
+
+  --kmq-blue-70:     rgba(46, 168, 229, .70);
+  --kmq-blue-50:     rgba(46, 168, 229, .50);
+  --kmq-blue-45:     rgba(46, 168, 229, .45);
+  --kmq-blue-35:     rgba(46, 168, 229, .35);
+  --kmq-blue-18:     rgba(46, 168, 229, .18);
+  --kmq-blue-wash:   rgba(87, 191, 238, .07);
 
   /* ---- Hairlines ------------------------------------------------------- */
   --kmq-line:        rgba(245, 245, 240, .10);
   --kmq-line-soft:   rgba(245, 245, 240, .07);
-  --kmq-line-gold:   rgba(201, 168, 76, .16);
 
   /* ---- Gradients ------------------------------------------------------- */
-  --kmq-grad-cta:    linear-gradient(135deg, #D4AF37, #B4913C);
-  --kmq-grad-head:   linear-gradient(120deg, #F2DC9B, #C9A84C 60%, #8F7431);
-  --kmq-grad-stat:   linear-gradient(160deg, #F2DC9B, #C9A84C 60%, #8F7431);
-  --kmq-grad-numeral:linear-gradient(160deg, #F7E8B4, #D4AF37 45%, #8A6E2A);
+  /* The CTA sweep is deliberately short. The logo's own gradient — its two
+     blues end to end — cannot carry a label: dark ink reads 7.26 at the
+     #2EA8E5 end and 3.58 at the #0C6BBF end, and white reads 5.42 and 2.68
+     the other way round. No one colour survives it. Stopping at --blue-deep
+     keeps the dark label above AA across the whole sweep, 5.50 at worst. */
+  --kmq-grad-cta:    linear-gradient(135deg, var(--kmq-blue), var(--kmq-blue-deep));
+
+  /* Clipped to text. Each stop matches the gold stop it replaces to within
+     half a point of contrast, so headings keep their weight. */
+  --kmq-grad-head:   linear-gradient(120deg, #BEE6FB, #2EA8E5 60%, #1477B8);
+  --kmq-grad-stat:   linear-gradient(160deg, #BEE6FB, #2EA8E5 60%, #1477B8);
+  --kmq-grad-numeral:linear-gradient(160deg, #CCEBFC, #57BFEE 45%, #1477B8);
   --kmq-grad-card:   linear-gradient(165deg, rgba(255,255,255,.055), rgba(255,255,255,.012));
-  --kmq-grad-card-lit: linear-gradient(165deg, rgba(212,175,55,.10), rgba(255,255,255,.02));
-  --kmq-grad-panel:  linear-gradient(140deg, rgba(212,175,55,.08), transparent);
-  --kmq-grad-rule:   linear-gradient(90deg, transparent, rgba(201,168,76,.75), transparent);
+  --kmq-grad-card-lit: linear-gradient(165deg, rgba(87,191,238,.10), rgba(255,255,255,.02));
+  --kmq-grad-panel:  linear-gradient(140deg, rgba(87,191,238,.08), transparent);
+  --kmq-grad-rule:   linear-gradient(90deg, transparent, rgba(46,168,229,.75), transparent);
 
   /* Diagonal pin-stripe used behind hero, branch and article placeholders. */
   --kmq-weave:       repeating-linear-gradient(115deg, #16161A 0 2px, #0F0F12 2px 9px);

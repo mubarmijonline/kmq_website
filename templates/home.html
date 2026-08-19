@@ -30,7 +30,7 @@
             <img class="kmq-coat kmq-coat--rim-silver" src="{{ car }}" alt="" aria-hidden="true">
           </div>
           <div class="kmq-coat-wrap" data-kmq-layer="3a">
-            <img class="kmq-coat kmq-coat--rim-gold" src="{{ car }}" alt="" aria-hidden="true">
+            <img class="kmq-coat kmq-coat--rim-blue" src="{{ car }}" alt="" aria-hidden="true">
           </div>
 
           <img src="{{ car }}" alt="{{ t.stack_shot }}" loading="eager" decoding="async">
@@ -58,7 +58,7 @@
               {% if loop.last %}
                 <div class="kmq-btn-row">
                   {% set link = wa(t.wa_default) %}
-                  <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+                  <a class="kmq-btn kmq-btn--blue" href="{{ link or url_for('site.contact') }}"
                      {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.hero_cta1 }}</a>
                   <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.packages') }}">{{ t.hero_cta2 }}</a>
                 </div>
@@ -171,7 +171,7 @@
         {% endfor %}
       </ul>
       <div class="kmq-btn-row">
-        <a class="kmq-btn kmq-btn--gold" href="{{ url_for('site.warranty') }}">{{ t.wb_cta }}</a>
+        <a class="kmq-btn kmq-btn--blue" href="{{ url_for('site.warranty') }}">{{ t.wb_cta }}</a>
         <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.warranty') }}#check">{{ t.wb_cta2 }}</a>
       </div>
     </div>

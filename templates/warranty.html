@@ -9,7 +9,7 @@
 {{ m.pagehead('WARRANTY', t.warranty_page_title) }}
 
 {# ---- Lookup ---- #}
-<section id="check" class="kmq-section kmq-section--raised" style="border-block-end:1px solid var(--kmq-gold-18)">
+<section id="check" class="kmq-section kmq-section--raised" style="border-block-end:1px solid var(--kmq-blue-18)">
   <div class="kmq-shell" style="max-width:1000px">
     <h2 style="font-weight:900;font-size:30px;margin-block-end:12px">{{ t.war_check_title }}</h2>
     <p style="font-size:15px;line-height:1.95;color:var(--kmq-ink-60);margin-block-end:32px">{{ t.war_check_sub }}</p>
@@ -21,7 +21,7 @@
       <input class="kmq-input" id="warranty-q" name="q" type="text" value="{{ query }}"
              placeholder="{{ t.war_placeholder }}" autocomplete="off"
              enterkeyhint="search" maxlength="40">
-      <button class="kmq-btn kmq-btn--gold" type="submit">{{ t.war_check_btn }}</button>
+      <button class="kmq-btn kmq-btn--blue" type="submit">{{ t.war_check_btn }}</button>
     </form>
 
     {% if state == 'active' and result %}
@@ -75,7 +75,7 @@
     {% for w in blocks %}
       <article class="kmq-panel kmq-panel--card">
         <h3>{{ w.title }}</h3>
-        <div class="kmq-ltr" style="font-family:var(--kmq-font-latin);font-size:40px;font-weight:600;color:var(--kmq-gold);margin-block-end:6px">{{ w.years }}</div>
+        <div class="kmq-ltr" style="font-family:var(--kmq-font-latin);font-size:40px;font-weight:600;color:var(--kmq-blue);margin-block-end:6px">{{ w.years }}</div>
         <div style="font-size:14px;color:var(--kmq-ink-45);margin-block-end:30px">{{ w.years_label }}</div>
         <div style="font-family:var(--kmq-head);font-weight:800;font-size:15px;margin-block-end:16px">{{ t.covered }}</div>
         <ul class="kmq-ticks">

@@ -17,7 +17,7 @@
     <p class="kmq-lede" style="margin-block-end:40px">{{ service.lede }}</p>
     <div class="kmq-btn-row">
       {% set link = wa(t.wa_order ~ service.name) %}
-      <a class="kmq-btn kmq-btn--gold kmq-btn--lg" href="{{ link or url_for('site.contact') }}"
+      <a class="kmq-btn kmq-btn--blue kmq-btn--lg" href="{{ link or url_for('site.contact') }}"
          {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
       <a class="kmq-btn kmq-btn--ghost kmq-btn--lg" href="{{ url_for('site.packages') }}">{{ t.all_packages_link }}</a>
     </div>
@@ -66,7 +66,7 @@
       <h3>{{ t.warranty_label }}: {{ service.warranty }}</h3>
       <p>{{ t.war_note }}</p>
     </div>
-    <a class="kmq-btn kmq-btn--gold" href="{{ url_for('site.warranty') }}">{{ t.wb_cta }}</a>
+    <a class="kmq-btn kmq-btn--blue" href="{{ url_for('site.warranty') }}">{{ t.wb_cta }}</a>
   </div>
 </section>
 

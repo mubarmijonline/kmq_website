@@ -19,7 +19,7 @@
       {{ t.not_found_body if code == 404 else t.error_body }}
     </p>
     <div class="kmq-btn-row">
-      <a class="kmq-btn kmq-btn--gold" href="{{ url_for('site.home') }}">{{ t.nav[0].label }}</a>
+      <a class="kmq-btn kmq-btn--blue" href="{{ url_for('site.home') }}">{{ t.nav[0].label }}</a>
       <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.contact') }}">{{ t.cta_contact }}</a>
     </div>
   </div>

@@ -15,7 +15,7 @@
 
 {% macro icon(path, size=26, width=1.4) -%}
   <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none"
-       stroke="#C9A84C" stroke-width="{{ width }}" stroke-linecap="round"
+       stroke="#2EA8E5" stroke-width="{{ width }}" stroke-linecap="round"
        stroke-linejoin="round" aria-hidden="true"><path d="{{ path }}"></path></svg>
 {%- endmacro %}
 
@@ -68,7 +68,7 @@
 
       <div class="kmq-branch__actions">
         {% set link = wa(t.wa_book ~ b.name) %}
-        <a class="kmq-btn kmq-btn--gold" href="{{ link or url_for('site.contact') }}"
+        <a class="kmq-btn kmq-btn--blue" href="{{ link or url_for('site.contact') }}"
            {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.branch_wa }}</a>
         {# No map link until the client supplies each branch's exact address. #}
         {% if b.map_url %}
@@ -111,7 +111,7 @@
       <h2>{{ title or t.final_title }}</h2>
       {% if sub is not none or title is none %}<p>{{ sub or t.final_sub }}</p>{% endif %}
       {% set link = wa(t.wa_default) %}
-      <a class="kmq-btn kmq-btn--gold kmq-btn--lg"
+      <a class="kmq-btn kmq-btn--blue kmq-btn--lg"
          href="{{ link or url_for('site.contact') }}"
          {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_whatsapp }}</a>
     </div>

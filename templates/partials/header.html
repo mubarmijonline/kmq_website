@@ -36,7 +36,7 @@
        hreflang="{{ t.other_lang }}" lang="{{ t.other_lang }}"
        aria-label="{{ t.other_label }}">{{ t.other_label }}</a>
 
-    <a class="kmq-btn kmq-btn--gold kmq-header__cta"
+    <a class="kmq-btn kmq-btn--blue kmq-header__cta"
        href="{{ wa(t.wa_default) or url_for('site.contact') }}"
        {% if wa(t.wa_default) %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
 
@@ -59,7 +59,7 @@
     <div class="kmq-mobilenav__foot">
       <a class="kmq-langbtn" href="{{ other_url }}" data-kmq-lang="{{ t.other_lang }}"
          hreflang="{{ t.other_lang }}" lang="{{ t.other_lang }}">{{ t.other_label }}</a>
-      <a class="kmq-btn kmq-btn--gold"
+      <a class="kmq-btn kmq-btn--blue"
          href="{{ wa(t.wa_default) or url_for('site.contact') }}"
          {% if wa(t.wa_default) %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
     </div>
