@@ -230,12 +230,10 @@
     var track = d.querySelector('[data-kmq-stack]');
     if (!track) return;
 
-    var car = track.querySelector('[data-kmq-car]');
     var dull = track.querySelector('[data-kmq-dull]');
     var bar = track.querySelector('[data-kmq-bar]');
     var glow = track.querySelector('.kmq-stack__glow');
-    var grid = track.querySelector('.kmq-stack__grid');
-    if (!car || !dull || !bar || !glow || !grid) return;
+    if (!dull || !bar || !glow) return;
 
     var caps = track.querySelectorAll('[data-kmq-cap]');
     var dots = track.querySelectorAll('[data-kmq-dot]');
@@ -248,14 +246,15 @@
       });
     });
 
-    /* Sixths of the track, matching the six scroll steps --kmq-stack-step cuts
-       it into: one on the bare car, three wipes, one dwelling on the finished
-       car so the buttons can be read, one for the exit. Fractions, not
-       distances — retiming the hero is a one-line change in the stylesheet and
-       these follow it. */
-    var HOLD = 1 / 6;   /* stage 0 dwell */
-    var BUILD = 4 / 6;  /* three wipes finish here */
-    var EXIT = 5 / 6;   /* car starts leaving */
+    /* Fifths of the track, matching the five scroll steps --kmq-stack-step
+       cuts it into: one on the bare car, three wipes, one dwelling on the
+       finished car so the buttons can be read. Fractions, not distances —
+       retiming the hero is a one-line change in the stylesheet and these
+       follow it. Nothing runs the frame out: the pin's own release scrolls
+       the finished car away, so the hero hands over to the section below
+       without a blank screen in between. */
+    var HOLD = 1 / 5;   /* stage 0 dwell */
+    var BUILD = 4 / 5;  /* three wipes finish here, then the frame dwells */
     var frame = 0;
 
     function paint() {
@@ -268,8 +267,10 @@
       groups.forEach(function (els, i) {
         var local = Math.min(1, Math.max(0, seg - i));
         var e = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
-        var clip = 'inset(0 0 0 ' + ((1 - e) * 100).toFixed(2) + '%)';
-        els.forEach(function (el) { if (el) el.style.clipPath = clip; });
+        /* A fraction, not a clip-path: the stylesheet turns it into one, so
+           the halo the cut has to clear stays a CSS number. 1 is hidden. */
+        var wipe = (1 - e).toFixed(4);
+        els.forEach(function (el) { if (el) el.style.setProperty('--kmq-wipe', wipe); });
       });
 
       var active = Math.min(3, Math.floor(seg + 0.35));
@@ -292,14 +293,6 @@
       dull.style.opacity = (0.55 * Math.min(1, p / HOLD) * (1 - Math.min(1, Math.max(0, seg)))).toFixed(3);
       bar.style.width = (p * 100).toFixed(2) + '%';
       glow.style.opacity = (0.5 + 0.5 * t).toFixed(3);
-
-      var x = Math.min(1, Math.max(0, (p - EXIT) / (1 - EXIT)));
-      var xe = x * x;
-      if (!reduce) {
-        car.style.transform = 'translateY(' + (xe * 62).toFixed(2) + 'vh) scale(' + (1 - xe * 0.12).toFixed(3) + ')';
-      }
-      car.style.opacity = (1 - xe * 0.9).toFixed(3);
-      grid.style.opacity = (1 - Math.min(1, xe * 1.15)).toFixed(3);
     }
 
     function sync() {

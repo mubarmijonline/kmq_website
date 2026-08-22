@@ -2214,19 +2214,27 @@
    jumps on the first wheel click. .kmq-stack__grid pads the content back down. */
 .kmq-stack {
   /* One step is one scroll: a wheel flick on a desktop, a swipe on a phone.
-     The track is six of them — the bare car, the three coating wipes, a dwell
-     on the finished car so the buttons can be read and clicked, then the exit.
-     The hero used to run 480vh, which is roughly four screens of scrolling to
-     get past four captions; this is the same sequence at a step a gesture.
+     The track is five of them — the bare car, the three coating wipes, and a
+     dwell on the finished car so the buttons can be read and clicked. The
+     hero used to run 480vh, which is roughly four screens of scrolling to get
+     past four captions; this is the same sequence at a step a gesture.
+
+     There was a sixth step, an exit that slid the car off and faded the frame
+     to nothing. It was one step too many: the pin still has its own screen to
+     travel after the track runs out, so emptying the frame first bought a
+     blank screen between the hero and the strip below and made the hero read
+     as a black box sitting on the page. The frame now keeps the finished car
+     to the last pixel and the sticky release carries it off, which is the
+     same exit for free and one gesture shorter.
 
      A distance rather than a fraction of the viewport, because the gesture is
      a fixed distance: a wheel notch is ~100px whatever the screen, so a vh
      figure paced the same hero briskly on a laptop and slowly on a monitor.
-     app.js splits its stages on sixths of the track, so retuning this value
+     app.js splits its stages on fifths of the track, so retuning this value
      retimes the whole sequence and nothing else needs to move. */
   --kmq-stack-step: 190px;
   position: relative;
-  height: calc(100vh + 6 * var(--kmq-stack-step));
+  height: calc(100vh + 5 * var(--kmq-stack-step));
   margin-block-start: -100px;
 }
 
@@ -2322,7 +2330,28 @@
   display: block;
 }
 
-.kmq-coat-wrap { position: absolute; inset: 0; clip-path: inset(0 0 0 100%); }
+/* The wipe that reveals each coating. clip-path cuts to the element's own
+   box, and the rim glows are drop-shadows that spill about 26px past it — so
+   with the cutout all but filling its frame, the halo was sliced off in a
+   straight line down every side and the hero read as a lit rectangle laid on
+   the page instead of a car standing in it.
+
+   The cut is therefore taken --kmq-coat-halo outside the box on three sides,
+   and the reveal edge travels that same distance further at each end, so the
+   sweep still begins with the layer wholly hidden (no glow sliver parked off
+   the right edge) and ends with it wholly shown. app.js sets --kmq-wipe, a
+   plain 1-to-0 fraction; the 1 fallback is the no-JS state, hidden. */
+.kmq-coat-wrap {
+  --kmq-coat-halo: 40px;
+  position: absolute;
+  inset: 0;
+  clip-path: inset(
+    calc(-1 * var(--kmq-coat-halo))
+    calc(-1 * var(--kmq-coat-halo))
+    calc(-1 * var(--kmq-coat-halo))
+    calc(-1 * var(--kmq-coat-halo) + var(--kmq-wipe, 1) * (100% + 2 * var(--kmq-coat-halo)))
+  );
+}
 
 /* Unprotected paint. The old black car was dulled by screening white over it;
    a silver body has nowhere to go that way and just blows out, so the light
@@ -2548,6 +2577,6 @@
    everyone with the OS setting on a hero with no sequence in it at all.
    The build is scroll-driven — the visitor moves it, nothing moves on its
    own — so it stays. What goes is the travel: app.js skips the caption slide
-   and the exit translate and scale under the setting, leaving a plain swap,
-   and the global rule in base.css already flattens every duration to nothing.
+   under the setting, leaving a plain swap, and the global rule in base.css
+   already flattens every duration to nothing.
    Coating reveal and caption order survive; only the movement is gone. */
