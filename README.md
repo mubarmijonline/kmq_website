@@ -117,9 +117,25 @@ KMQ_ENV=prod SECRET_KEY=local-verify-only \
 A plain dev server against this working tree rebuilds `static/build/` whenever
 a `design/` mtime moves — no `build_assets.py`, no intent required — and that
 rebuild deletes the fingerprint the production workers are serving just as a
-manual build does. `KMQ_ENV=prod` turns the rebuild hook off, so the server
-reads the existing manifest and never writes. Prod also refuses to boot
-without `SECRET_KEY`, hence the throwaway one above.
+manual build does. It cuts the other way too: because the rebuild writes a new
+`manifest.json`, a forgotten dev server is also a silent *publisher*, staging
+whatever happens to be in `design/` at that moment for the next restart to
+pick up. `KMQ_ENV=prod` turns the rebuild hook off, so the server reads the
+existing manifest and never writes. Prod also refuses to boot without
+`SECRET_KEY`, hence the throwaway one above.
+
+### File modes in `static/build/`
+
+Build output must stay group-writable. `static/build/` is setgid and both
+`omar_ashraf` and the interactive accounts are in `developers`, so either can
+create or delete there — but a fingerprint left at `0644` by one account
+cannot be overwritten by the other. That matters in one specific way: if
+`manifest.json` ever goes missing, `_wire_assets` calls `build()` inside
+`create_app`, in the worker, as `omar_ashraf`. If the hashes are unchanged it
+tries to overwrite the existing files, and a `PermissionError` there is not a
+failed build — it is gunicorn failing to boot. `scripts/build_assets.py` sets
+`umask(0o002)` so new files land `0664`; if you see `0644` appear again,
+something built with a stricter umask.
 
 ### Before and after
 
