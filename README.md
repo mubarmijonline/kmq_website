@@ -42,15 +42,134 @@ cp .env.example .env
 whenever a file under `design/` changes; set `KMQ_ENV=prod` to turn that off
 and build explicitly with `scripts/build_assets.py`.
 
+The icon partial is generated too, but only when the client sends new artwork:
+
+```bash
+.venv/bin/python scripts/build_icons.py
+```
+
+It reads `WEBSITE/`, drops the Illustrator wrappers, turns the kit's #00B3FF
+into `currentColor` and writes `templates/partials/icons.html`. Never edit
+that file by hand.
+
+Tamara's mark arrives as a PNG rather than as kit SVG, so it has its own
+one-liner. It lifts the wordmark off the brand's rainbow pill and writes
+`static/img/pay/tamara-mark.png` on transparency:
+
+```bash
+.venv/bin/pip install Pillow && .venv/bin/python scripts/build_paymarks.py
+```
+
+Pillow is a build-time dependency only, which is why it is not in
+`requirements.txt`; the script says so if it is missing.
+
 The site runs **without a database**. Forty of the forty-two pages never touch
 one; the warranty lookup and the lead form degrade to a notice that points the
 visitor at WhatsApp.
+
+## Deploying
+
+**One session owns the deploy. Do not run `scripts/build_assets.py`, and do
+not restart the service, unless you are that session.**
+
+The site is served straight out of this directory — there is no copy step and
+no separate release. `deploy/kmq.service` runs gunicorn from
+`/projects/kmq_website` and nginx serves `static/` from the same path, so
+publishing sends up whatever is on disk at that moment, including anyone
+else's half-written file.
+
+Publishing is two commands, in this order, back to back:
+
+```bash
+.venv/bin/python scripts/build_assets.py
+sudo systemctl restart kmq
+```
+
+Both steps are required, and the order is not negotiable:
+
+- **Build without restart is the origin 404.** In prod the manifest is read
+  once at boot into `app.extensions["kmq_assets"]` and never re-read, while
+  `build()` deletes every fingerprint that is not in the manifest it just
+  wrote. So a build under a running service leaves the app emitting HTML that
+  names a file the build has just deleted. The CDN keeps serving its cached
+  copy for a while, which is what makes this easy to miss — check the origin
+  directly, with a cache-busting query string.
+- **Restart without build silently ships nothing.** `create_app` calls
+  `_wire_assets(app, rebuild=not is_prod)`; under `KMQ_ENV=prod` that is
+  `rebuild=False`, and `_wire_assets` builds only when `manifest.json` is
+  missing entirely. The mtime-driven rebuild hook is registered in dev only.
+  A restart therefore publishes template and Python changes but keeps serving
+  whatever bundle `manifest.json` already names, so a `design/` change looks
+  deployed and is not.
+
+Do not "fix" the second point by deleting `manifest.json` to force a boot-time
+build. `deploy/gunicorn.conf.py` runs 2 workers with `preload_app=False`, so
+`create_app` runs once per worker and both would build at once, each deleting
+what the other just wrote.
+
+### Run local servers with `KMQ_ENV=prod`
+
+```bash
+KMQ_ENV=prod SECRET_KEY=local-verify-only \
+  .venv/bin/python -m flask --app wsgi:application run --port 5200
+```
+
+A plain dev server against this working tree rebuilds `static/build/` whenever
+a `design/` mtime moves — no `build_assets.py`, no intent required — and that
+rebuild deletes the fingerprint the production workers are serving just as a
+manual build does. `KMQ_ENV=prod` turns the rebuild hook off, so the server
+reads the existing manifest and never writes. Prod also refuses to boot
+without `SECRET_KEY`, hence the throwaway one above.
+
+### Before and after
+
+Sweep every public page in both locales before restarting — the routes are
+cheap to walk in-process with `app.test_client()`. Afterwards, confirm the
+page and the bundle agree: fetch the fingerprint the live HTML names, with a
+cache-busting query, straight from the origin rather than through the CDN.
 
 ## Test it
 
 ```bash
 .venv/bin/python -m pytest tests/ -q
 ```
+
+The admin and overlay tests need a database and skip without one. They write
+to it, so point them at a development copy and never at production:
+
+```bash
+KMQ_TEST_DATABASE_URL=postgresql:///kmq_dev .venv/bin/python -m pytest tests/ -q
+```
+
+## The admin
+
+`/admin` edits the copy the public site renders. It needs the migration, the
+content seeded from `app/content.py`, and one account:
+
+```bash
+psql -q -v ON_ERROR_STOP=1 -d kmq -f db/migrations/002_admin.sql -f db/migrations/003_branch_editable.sql
+```
+
+```bash
+.venv/bin/python -m flask --app wsgi:application seed-content
+```
+
+```bash
+.venv/bin/python -m flask --app wsgi:application create-owner you@example.com "Your Name"
+```
+
+`create-owner` prints a password once and stores only its hash; the account
+cannot reach anything until it has been changed. `reset-password` issues a new
+one and signs that account out everywhere. Seeding is idempotent — re-running
+it leaves edits alone, and `--force` (which discards them) asks first.
+
+Branches are the one exception to "content is a document": they stay in the
+`branch` table, where the E.164 and HTTPS checks live and where every lead and
+warranty points, and the overlay builds the branches list out of it.
+
+Stored content is layered *over* the copy in `app/content.py`, never in place
+of it: a database that is down means edits stop applying, not that the site
+stops. Deleting a `copy_string` row is the revert.
 
 ## Verify the schema
 
