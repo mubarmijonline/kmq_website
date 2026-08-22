@@ -449,7 +449,12 @@
   border-block-end: 1px solid var(--kmq-blue-18);
 }
 
-.kmq-pagehead__body { position: relative; padding-block: 110px 90px; }
+/* Fluid so a phone does not open every page on a screen and a half of empty
+   ground above the heading; the top figure also clears the 84px sticky header. */
+.kmq-pagehead__body {
+  position: relative;
+  padding-block: clamp(76px, 11vw, 110px) clamp(48px, 9vw, 90px);
+}
 
 .kmq-pagehead h1 {
   font-weight: 900;
@@ -1186,6 +1191,13 @@
   .kmq-bloglayout { grid-template-columns: 1fr; }
 }
 
+/* Once the aside is a row below the list rather than a column beside it, the
+   50px column gap is reading as a section break. */
+@media (max-width: 640px) {
+  .kmq-bloglayout { gap: 34px; }
+  .kmq-aside__card { padding: 26px 22px; }
+}
+
 .kmq-feature {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
@@ -1319,6 +1331,45 @@
   flex-wrap: wrap;
   align-items: center;
   margin-block-end: 34px;
+}
+
+/* The search field shares the bar's line on a wide screen, so it sizes to its
+   content rather than to the 100% every other input takes. */
+.kmq-filterbar__search { flex: 0 1 auto; }
+
+.kmq-filterbar__search .kmq-input {
+  min-width: 200px;
+  width: auto;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* Phones: the field's 200px floor eats the row, leaving the chip track a few
+   dozen pixels — every chip then lands on a line of its own and the bar runs
+   taller than the article list it filters. Stack the two instead: a
+   full-width field over a chip track that wraps at the shell's own width,
+   search first because it is the faster way to a specific article. */
+@media (max-width: 640px) {
+  .kmq-filterbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-block-end: 24px;
+  }
+
+  .kmq-filterbar__search { order: -1; width: 100%; }
+
+  .kmq-filterbar__search .kmq-input {
+    width: 100%;
+    min-width: 0;
+    /* iOS zooms the page whenever a focused field measures under 16px, and
+       the zoom does not come back on blur. */
+    font-size: 16px;
+  }
+
+  /* Three chips a row at 375px rather than two, without dropping below the
+     44px touch target the height still clears. */
+  .kmq-chip { padding: 10px 14px; font-size: 13px; }
 }
 
 .kmq-resultcount {
