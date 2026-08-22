@@ -1958,21 +1958,37 @@
 
 /* ═══════════ Hero protection stack ═══════════
 
-   A 480vh track with a sticky 100vh frame. design/app.js maps scroll progress
-   onto four stages; each coating is a filtered copy of static/img/car-suv.png, so
-   the PNG's own alpha confines it to the silhouette and no mask asset is
-   needed. The clip-path polygon and the sweep percentages below are measured
-   against that exact cutout at 1150x718 — regenerate both if the photo is
-   swapped. scripts/trace_car.py measures a replacement and draws the grid the
-   greenhouse polygon is traced on. */
+   A track of six scroll steps with a sticky 100vh frame. design/app.js maps
+   scroll progress onto four stages; each coating is a filtered copy of
+   static/img/car-suv.png, so the PNG's own alpha confines it to the
+   silhouette. The thermal tint is the exception — glass is not the whole car,
+   so it carries a mask of its own, and that mask is generated from the photo
+   rather than drawn.
+
+   Every sweep percentage below is measured against that exact cutout at
+   1150x718. scripts/trace_car.py measures a replacement and writes both the
+   glass mask and the grid the rest is checked against, so a swapped photo is
+   one command, not a re-trace. */
 
 /* Pulled up under the sticky transparent header, the same trick .kmq-hero
    uses. Without it the track starts 91px down, so the pin does not reach
    top:0 until you have already scrolled past the header and the frame visibly
    jumps on the first wheel click. .kmq-stack__grid pads the content back down. */
 .kmq-stack {
+  /* One step is one scroll: a wheel flick on a desktop, a swipe on a phone.
+     The track is six of them — the bare car, the three coating wipes, a dwell
+     on the finished car so the buttons can be read and clicked, then the exit.
+     The hero used to run 480vh, which is roughly four screens of scrolling to
+     get past four captions; this is the same sequence at a step a gesture.
+
+     A distance rather than a fraction of the viewport, because the gesture is
+     a fixed distance: a wheel notch is ~100px whatever the screen, so a vh
+     figure paced the same hero briskly on a laptop and slowly on a monitor.
+     app.js splits its stages on sixths of the track, so retuning this value
+     retimes the whole sequence and nothing else needs to move. */
+  --kmq-stack-step: 190px;
   position: relative;
-  height: 480vh;
+  height: calc(100vh + 6 * var(--kmq-stack-step));
   margin-block-start: -100px;
 }
 
@@ -2123,27 +2139,29 @@
     linear-gradient(180deg, #000 0 58%, transparent 86%);
 }
 
-/* Greenhouse outline, traced on static/img/car-suv.png at 1150x718. Percentages
-   are of the .kmq-stack__car box, which the cutout fills exactly — so a new
-   photo means re-tracing this, not rescaling it. Overshooting the roofline is
-   harmless (alpha discards it); overshooting onto a body panel is not.
-   The three-quarter view puts windscreen and side glass in one run, so this is
-   a single loop: roofline left to right, down the far A-pillar, back along the
-   scuttle to the hood's trailing edge, then the belt line.
+/* Thermal tint. This is the one coating the silhouette cannot place on its
+   own: it belongs on the glass, not on the whole car, and the PNG's alpha
+   knows only car from background.
 
-   The lower edge hugs the glass much further down than the silhouette suggests
-   at a glance. Read small it looks like the tint should stop around 20%, but
-   the belt line is at 26-27% and the scuttle at 28-29%; stopping short left the
-   bottom third of every window bare with a straight edge across it. The notch
-   at 17-25% steps up and over the door mirror, which sits in front of the lower
-   glass in this view and is body coloured, so it must not darken. */
+   static/img/car-suv-glass.png is that missing outline — an alpha cut of the
+   greenhouse written by scripts/trace_car.py. It is thresholded off the photo
+   rather than traced by hand, so it lands on the real window edges: it follows
+   the curve of the windscreen, keeps the door mirror and the mirror's shadow
+   on the door out of the darkening, and stops at the belt line instead of
+   running onto the hood the way a straight-sided polygon did. A swapped photo
+   means re-running the script, not re-measuring anything in this file.
+
+   mask-size is spelled out because the mask has an intrinsic size: left at
+   auto it would be laid in at 1150x718 CSS pixels while the box around it
+   scales with the viewport, and the glass would drift off the windows. */
 .kmq-coat--tint,
 .kmq-coat--tint-rim {
-  clip-path: polygon(12.5% 9%, 22% 4.5%, 34% 2.5%, 52% 1.8%, 66% 2.5%,
-                     71% 7.5%, 75% 15%, 77.3% 21.5%, 73% 23.5%, 67% 25.2%,
-                     58% 27.2%, 50% 28.4%, 42% 29.2%, 35% 29.5%, 32% 28.5%,
-                     29% 27%, 26.2% 25.2%, 25% 21.8%, 21.2% 21.3%, 17.3% 24.1%,
-                     16.3% 27%, 13% 27%, 9.6% 26%, 8.4% 21.5%);
+  -webkit-mask-image: url("../img/car-suv-glass.png");
+  mask-image: url("../img/car-suv-glass.png");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .kmq-coat--tint { filter: brightness(0); opacity: .84; }
@@ -2156,8 +2174,14 @@
   filter: brightness(0) invert(1) sepia(1) saturate(18) hue-rotate(170deg);
   mix-blend-mode: screen;
   opacity: .42;
-  -webkit-mask-image: linear-gradient(118deg, #000 6%, transparent 30%);
-  mask-image: linear-gradient(118deg, #000 6%, transparent 30%);
+  /* Two layers intersected: the glass cut, and the leading-edge sweep that
+     puts the sheen on the windscreen's near corner rather than every pane. */
+  -webkit-mask-image: url("../img/car-suv-glass.png"),
+                      linear-gradient(118deg, #000 6%, transparent 30%);
+  mask-image: url("../img/car-suv-glass.png"),
+              linear-gradient(118deg, #000 6%, transparent 30%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .kmq-stack__foot {
@@ -2174,8 +2198,10 @@
   inset-inline-start: 0;
   inset-block-end: 0;
   max-width: 640px;
-  transition: opacity .4s var(--kmq-ease), transform .4s var(--kmq-ease),
-              visibility .4s var(--kmq-ease);
+  /* Shorter than the .4s this ran at: a step is now one gesture, so a fade
+     that long was still finishing as the next caption was called for. */
+  transition: opacity .26s var(--kmq-ease), transform .26s var(--kmq-ease),
+              visibility .26s var(--kmq-ease);
 }
 
 /* Without JS the first caption stands on its own. visibility, not opacity
@@ -2258,6 +2284,10 @@
    the numbered steps go with it; the caption already names the stage, so only
    the progress bar is doing work the copy is not. */
 @media (max-width: 700px) {
+  /* A thumb swipe travels further than a wheel flick and the pin is shorter,
+     so a step that reads as one gesture here is a shorter one. */
+  .kmq-stack { --kmq-stack-step: 150px; }
+
   .kmq-stack__foot { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .kmq-stack__step { display: none; }
   .kmq-stack__rail { min-width: 0; }

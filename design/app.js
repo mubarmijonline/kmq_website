@@ -248,9 +248,14 @@
       });
     });
 
-    var HOLD = 0.08;   /* stage 0 dwell */
-    var BUILD = 0.70;  /* three wipes finish here */
-    var EXIT = 0.86;   /* car starts leaving */
+    /* Sixths of the track, matching the six scroll steps --kmq-stack-step cuts
+       it into: one on the bare car, three wipes, one dwelling on the finished
+       car so the buttons can be read, one for the exit. Fractions, not
+       distances — retiming the hero is a one-line change in the stylesheet and
+       these follow it. */
+    var HOLD = 1 / 6;   /* stage 0 dwell */
+    var BUILD = 4 / 6;  /* three wipes finish here */
+    var EXIT = 5 / 6;   /* car starts leaving */
     var frame = 0;
 
     function paint() {

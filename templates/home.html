@@ -7,9 +7,11 @@
 {% block content %}
 
 {# ═══════════ Hero: protection stack ═══════════
-   A 480vh track with a pinned frame. Scroll drives four stages; each coating
-   is a filtered copy of the same cutout, so the PNG's own alpha confines it to
-   the silhouette. Without JS the first caption and the bare car still show. #}
+   A six-step track with a pinned frame — one scroll gesture a step. Scroll
+   drives four stages; each coating is a filtered copy of the same cutout, so
+   the PNG's own alpha confines it to the silhouette. The tint is the exception:
+   glass is not the whole car, so it carries a mask of its own.
+   Without JS the first caption and the bare car still show. #}
 {% set car = url_for('static', filename='img/car-suv.png') %}
 <section class="kmq-stack" data-kmq-stack>
   <div class="kmq-stack__pin">

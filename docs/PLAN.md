@@ -103,8 +103,22 @@ stylesheets, one script, concatenated and fingerprinted by
 - `components.css` — header, nav, buttons, cards, package cards, tables,
   accordion, blog grid, forms, footer.
 - `app.js` — mobile menu, language persistence, scroll-spy, blog
-  filter/search, FAQ. Roughly 6 KB; every behaviour is an
-  enhancement over markup that already works.
+  filter/search, FAQ, and the home hero's protection stack. Roughly 6 KB;
+  every behaviour is an enhancement over markup that already works.
+
+**The hero's pace is one number.** `--kmq-stack-step` in `components.css` is
+the scroll distance of one stage — a wheel flick on a desktop, a swipe on a
+phone. The track is six of those (bare car, three coating wipes, a dwell on
+the finished car with the buttons, the exit) and `app.js` splits its stages on
+the same sixths, so retiming the sequence is that one declaration.
+
+**Two of the hero's assets are generated, not drawn.** The coatings are
+filtered copies of `static/img/car-suv.png` confined by its own alpha, but the
+thermal tint belongs on the glass alone, which the silhouette cannot tell it.
+`scripts/trace_car.py` writes `car-suv-glass.png` next to the photo — an alpha
+cut of the greenhouse thresholded off the image itself — and the grid overlay
+the cutout is measured on. Swapping the hero photograph means re-running that
+script, not re-tracing anything by hand.
 
 The admin is a fourth file, `admin.css`, bundled separately with `tokens.css`
 and nothing else. Two bundles rather than one because the two audiences share
