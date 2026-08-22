@@ -9,7 +9,7 @@
 {{ m.pagehead('PACKAGES', t.packages_page_title) }}
 
 <section class="kmq-shell" style="padding-block:90px 40px">
-  <div class="kmq-grid kmq-grid--wide">
+  <div class="kmq-grid kmq-grid--wide kmq-grid--pkgs">
     {% for p in packages %}
       {{ m.package_card(p, t, wa, show_prices, t.order_on_whatsapp) }}
     {% endfor %}

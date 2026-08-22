@@ -553,6 +553,10 @@
 
 .kmq-grid--narrow { grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); }
 
+/* Package cards carry a shadow, which needs more room between them than the
+   flat cards this grid was sized for. */
+.kmq-grid--pkgs { gap: clamp(22px, 2.4vw, 32px); }
+
 /* Hairline grid: 1px gap over a light background paints the rules. */
 .kmq-grid--hairline {
   gap: 1px;
@@ -660,58 +664,141 @@
 
 /* ═══════════ Package card ═══════════ */
 
+/* The cards are a comparison, so the eye needs to travel across them in
+   straight lines. Name and includes copy vary in length, and in English the
+   name wraps where the Arabic one doesn't, so the three things a visitor
+   actually compares — price, warranty, CTA — are pinned to the bottom of the
+   card as one block instead of floating on whatever the copy left behind. */
 .kmq-pkg {
   position: relative;
-  padding: 44px clamp(20px, 6vw, 34px) 38px;
-  background: var(--kmq-grad-card);
-  border: 1px solid var(--kmq-line);
-  transition: transform var(--kmq-lift);
+  isolation: isolate;
   display: flex;
   flex-direction: column;
+  padding: 46px clamp(22px, 6vw, 36px) 38px;
+  /* Three layers: a cool light spilling in from above, the card's own sheen,
+     and a translucent dark base. The base is what the shadows read against —
+     without it the card is the same value as the section behind it. */
+  background:
+    radial-gradient(120% 78% at 50% -14%, rgba(87, 191, 238, .085), transparent 62%),
+    var(--kmq-grad-card),
+    rgba(19, 20, 27, .72);
+  border: 1px solid var(--kmq-line);
+  box-shadow: var(--kmq-shadow-pkg);
+  transition:
+    transform var(--kmq-lift),
+    box-shadow var(--kmq-lift),
+    border-color var(--kmq-lift);
 }
 
-.kmq-pkg:hover { transform: translateY(-6px); }
+/* The lip. A card lit from above catches the light on its top edge only, and
+   brightest in the middle, which is why this is a gradient and not a border. */
+.kmq-pkg::before {
+  content: "";
+  position: absolute;
+  inset-block-start: -1px;
+  inset-inline: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 245, 240, .26), transparent);
+  pointer-events: none;
+}
+
+.kmq-pkg:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--kmq-shadow-pkg-hover);
+  border-color: var(--kmq-blue-35);
+}
 
 .kmq-pkg--featured {
-  background: var(--kmq-grad-card-lit);
-  border-color: rgba(46, 168, 229, .75);
-  box-shadow: var(--kmq-shadow-card);
+  background:
+    radial-gradient(120% 78% at 50% -14%, rgba(87, 191, 238, .16), transparent 64%),
+    var(--kmq-grad-card-lit),
+    rgba(20, 23, 32, .74);
+  border-color: var(--kmq-blue-70);
+  box-shadow: var(--kmq-shadow-pkg-lit);
+}
+
+.kmq-pkg--featured::before {
+  background: linear-gradient(90deg, transparent, var(--kmq-blue-hi), transparent);
+}
+
+.kmq-pkg--featured:hover {
+  border-color: var(--kmq-blue-bright);
+  box-shadow: var(--kmq-shadow-pkg-lit-hover);
+}
+
+/* Once the cards sit side by side, the recommended one stands proud of the
+   row rather than relying on its border to be noticed. Stacked, there is no
+   row to stand out of, so it stays flush. */
+@media (min-width: 900px) {
+  .kmq-pkg--featured {
+    margin-block: -16px;
+    padding-block: 62px 54px;
+  }
 }
 
 .kmq-pkg__flag {
   position: absolute;
-  inset-block-start: -1px;
-  inset-inline-start: 34px;
+  inset-block-start: 0;
+  inset-inline-start: clamp(22px, 6vw, 36px);
+  transform: translateY(-50%);
   background: var(--kmq-grad-cta);
+  box-shadow: var(--kmq-shadow-flag);
   color: var(--kmq-bg);
   font-family: var(--kmq-head);
   font-weight: 800;
   font-size: var(--kmq-micro);
-  padding: 6px 14px;
+  letter-spacing: .02em;
+  padding: 7px 16px;
+  border-radius: var(--kmq-radius);
 }
 
 .kmq-pkg h3 {
   font-weight: 900;
   font-size: 27px;
-  margin-block: 14px 10px;
+  line-height: 1.35;
+  margin-block: 0 12px;
 }
 
 .kmq-pkg__includes {
   font-size: var(--kmq-small);
   line-height: 1.9;
   color: var(--kmq-ink-60);
-  margin-block-end: 26px;
+  margin-block-end: 30px;
+  /* Two lines held open so the top of the card keeps its shape when one
+     package's includes line is shorter than its neighbours'. */
+  min-height: calc(2 * 1.9 * var(--kmq-small));
+}
+
+/* Currency sits directly under the price rather than beside it: every price
+   here is a range, and at this column width the pair breaks to two lines on
+   some cards and not others, which puts the numbers out of line across the
+   row. Stacked, they are one block on every card. */
+.kmq-pkg__pricerow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  margin-block-end: 32px;
 }
 
 .kmq-pkg__price {
   font-family: var(--kmq-font-latin);
-  font-size: 30px;
+  font-size: clamp(30px, 2.8vw, 36px);
   font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.015em;
+  font-variant-numeric: tabular-nums;
   color: var(--kmq-ink);
-  margin-block-end: 4px;
   direction: ltr;
   unicode-bidi: isolate;
   text-align: start;
+}
+
+.kmq-pkg--featured .kmq-pkg__price {
+  background: var(--kmq-grad-numeral);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* A package whose price is not agreed yet gets the same slot at a size that
@@ -719,23 +806,43 @@
 .kmq-pkg__price--tbd {
   font-family: var(--kmq-body-font);
   font-size: 19px;
+  letter-spacing: normal;
   color: var(--kmq-ink-55);
   direction: inherit;
+}
+
+.kmq-pkg--featured .kmq-pkg__price--tbd {
+  background: none;
+  color: var(--kmq-ink-55);
 }
 
 .kmq-pkg__currency {
   font-size: 13px;
   color: var(--kmq-ink-45);
-  margin-block-end: 26px;
 }
 
+/* Price, warranty and CTA travel together; the auto margin above them squares
+   off the bottom of the row. */
+.kmq-pkg__foot { margin-block-start: auto; }
+
+/* Boxed rather than ruled: two hairlines above and below made the warranty
+   look like a leftover row, a single inset panel makes it look like a term. */
 .kmq-pkg__warranty {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-block: 14px;
-  border-block: 1px solid var(--kmq-line);
-  margin-block-end: 28px;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--kmq-line-soft);
+  border-radius: var(--kmq-radius);
+  background: rgba(245, 245, 240, .022);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+.kmq-pkg--featured .kmq-pkg__warranty {
+  border-color: var(--kmq-blue-18);
+  background: var(--kmq-blue-wash);
 }
 
 .kmq-pkg__warranty dt {
@@ -751,23 +858,39 @@
   color: var(--kmq-blue);
 }
 
-.kmq-pkg .kmq-btn { margin-block-start: auto; }
-
 .kmq-pkg__cta {
+  display: block;
+  width: 100%;
   border-color: var(--kmq-blue-50);
-  background: transparent;
+  background: rgba(46, 168, 229, .07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
   color: var(--kmq-ink);
   padding: 17px;
+  transition:
+    background var(--kmq-quick),
+    border-color var(--kmq-quick),
+    box-shadow var(--kmq-quick),
+    filter var(--kmq-quick),
+    color var(--kmq-quick);
 }
 
-.kmq-pkg__cta:hover { filter: brightness(1.14); color: var(--kmq-ink); }
+.kmq-pkg__cta:hover {
+  border-color: var(--kmq-blue);
+  background: rgba(46, 168, 229, .16);
+  color: var(--kmq-ink);
+}
 
 .kmq-pkg--featured .kmq-pkg__cta {
   background: var(--kmq-grad-cta);
+  border-color: transparent;
+  box-shadow: var(--kmq-shadow-cta), inset 0 1px 0 rgba(255, 255, 255, .22);
   color: var(--kmq-bg);
 }
 
-.kmq-pkg--featured .kmq-pkg__cta:hover { color: var(--kmq-bg); }
+.kmq-pkg--featured .kmq-pkg__cta:hover {
+  filter: brightness(1.10);
+  color: var(--kmq-bg);
+}
 
 /* ═══════════ Warranty band ═══════════ */
 

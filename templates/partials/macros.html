@@ -27,26 +27,34 @@
     <h3>{{ p.name }}</h3>
     <p class="kmq-pkg__includes">{{ p.includes }}</p>
 
-    {% if show_prices %}
-      {% if p.price %}
-        <div class="kmq-pkg__price">{{ p.price }}</div>
-        <div class="kmq-pkg__currency">{{ t.sar }}</div>
-      {% else %}
-        {# Price not agreed with the client yet. The slot holds its shape
-           and says so, so the card never renders blank. #}
-        <div class="kmq-pkg__price kmq-pkg__price--tbd">{{ t.tbd }}</div>
-        <div class="kmq-pkg__currency">{{ t.sar }}</div>
+    {# Price, warranty and CTA are pinned to the bottom of the card as one
+       block, so those three lines up across the row however long the name and
+       the includes copy above them ran — an English name wraps to two lines
+       where the Arabic one does not, and the prices are what the visitor is
+       comparing. #}
+    <div class="kmq-pkg__foot">
+      {% if show_prices %}
+        <div class="kmq-pkg__pricerow">
+          {% if p.price %}
+            <div class="kmq-pkg__price">{{ p.price }}</div>
+          {% else %}
+            {# Price not agreed with the client yet. The slot holds its shape
+               and says so, so the card never renders blank. #}
+            <div class="kmq-pkg__price kmq-pkg__price--tbd">{{ t.tbd }}</div>
+          {% endif %}
+          <div class="kmq-pkg__currency">{{ t.sar }}</div>
+        </div>
       {% endif %}
-    {% endif %}
 
-    <dl class="kmq-pkg__warranty">
-      <dt>{{ t.warranty_label }}</dt>
-      <dd>{{ p.warranty }}</dd>
-    </dl>
+      <dl class="kmq-pkg__warranty">
+        <dt>{{ t.warranty_label }}</dt>
+        <dd>{{ p.warranty }}</dd>
+      </dl>
 
-    {% set link = wa(t.wa_order ~ p.name) %}
-    <a class="kmq-btn kmq-pkg__cta" href="{{ link or url_for('site.contact') }}"
-       {% if link %}target="_blank" rel="noopener"{% endif %}>{{ cta_label }}</a>
+      {% set link = wa(t.wa_order ~ p.name) %}
+      <a class="kmq-btn kmq-pkg__cta" href="{{ link or url_for('site.contact') }}"
+         {% if link %}target="_blank" rel="noopener"{% endif %}>{{ cta_label }}</a>
+    </div>
   </article>
 {%- endmacro %}
 

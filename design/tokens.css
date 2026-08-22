@@ -116,6 +116,41 @@
   --kmq-shadow-head: 0 18px 50px rgba(0, 0, 0, .45);
   --kmq-shadow-fab:  0 18px 40px rgba(0, 0, 0, .60);
 
+  /* Package cards. On a near-black ground one flat drop shadow reads as a
+     grey smudge, so each of these is built from three jobs done separately:
+     a hairline of light along the top edge, which is what actually says
+     "this has a lip"; a short contact shadow that pins the card down; and a
+     wide, heavily-negative-spread ambient one that separates it from the
+     section without fogging the gap between cards. The featured pair add a
+     fourth, tinted with the accent, so that card reads as lit rather than
+     merely outlined. */
+  --kmq-shadow-pkg:
+    inset 0 1px 0 rgba(255, 255, 255, .055),
+    0 2px 4px rgba(0, 0, 0, .40),
+    0 16px 32px -14px rgba(0, 0, 0, .62),
+    0 40px 74px -34px rgba(0, 0, 0, .78);
+  --kmq-shadow-pkg-hover:
+    inset 0 1px 0 rgba(255, 255, 255, .10),
+    0 3px 7px rgba(0, 0, 0, .46),
+    0 26px 50px -18px rgba(0, 0, 0, .70),
+    0 62px 96px -40px rgba(0, 0, 0, .85);
+  --kmq-shadow-pkg-lit:
+    inset 0 1px 0 rgba(174, 222, 248, .22),
+    0 2px 4px rgba(0, 0, 0, .40),
+    0 20px 40px -14px rgba(0, 0, 0, .66),
+    0 46px 84px -34px rgba(0, 0, 0, .80),
+    0 22px 64px -28px rgba(46, 168, 229, .34);
+  --kmq-shadow-pkg-lit-hover:
+    inset 0 1px 0 rgba(174, 222, 248, .30),
+    0 3px 7px rgba(0, 0, 0, .46),
+    0 30px 56px -18px rgba(0, 0, 0, .72),
+    0 66px 104px -40px rgba(0, 0, 0, .86),
+    0 30px 80px -28px rgba(46, 168, 229, .46);
+  --kmq-shadow-flag:
+    0 6px 16px -6px rgba(0, 0, 0, .80),
+    0 4px 14px -4px rgba(46, 168, 229, .50);
+  --kmq-shadow-cta:  0 12px 26px -12px rgba(46, 168, 229, .70);
+
   /* ---- Motion -----------------------------------------------------------
      Three speeds in the source: .25s links, .3s nav, .35s cards, .4s header.
      Collapsed to two plus the header's own.                              */
