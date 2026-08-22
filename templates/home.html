@@ -128,7 +128,7 @@
     </div>
     <div class="kmq-grid kmq-grid--wide kmq-grid--pkgs">
       {% for p in packages %}
-        {{ m.package_card(p, t, wa, show_prices, t.order_package) }}
+        {{ m.package_card(p, t, wa, show_prices, t.order_package, loop.index) }}
       {% endfor %}
     </div>
     <div style="text-align:center;margin-block-start:44px">

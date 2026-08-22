@@ -20,23 +20,55 @@
 {%- endmacro %}
 
 
-{# A package card. `wa`, `t` and `show_prices` come from the app context. #}
-{% macro package_card(p, t, wa, show_prices, cta_label) -%}
+{# A package card. `wa`, `t` and `show_prices` come from the app context.
+   `index` is the card's position in the row; pass `loop.index` where the
+   cards are listed, leave it out where one stands alone. #}
+{% macro package_card(p, t, wa, show_prices, cta_label, index=none) -%}
   <article class="kmq-pkg {% if p.featured %}kmq-pkg--featured{% endif %}">
     {% if p.featured %}<div class="kmq-pkg__flag">{{ t.most_chosen }}</div>{% endif %}
-    <h3>{{ p.name }}</h3>
-    <p class="kmq-pkg__includes">{{ p.includes }}</p>
+
+    <header class="kmq-pkg__head">
+      {# The code reads left to right in both locales, but sits on the side the
+         card is read from, so the isolation goes on the span and not the box. #}
+      {% if index %}<div class="kmq-pkg__code"><span dir="ltr">P/{{ "%02d"|format(index) }}</span></div>{% endif %}
+      <h3>{{ p.name }}</h3>
+    </header>
+
+    {# The includes line is written as one string with the parts joined by
+       " + ". Split on it and the card gets a spec list the eye can scan down
+       and compare across; a package written as a single phrase stays one
+       line, which is why this is a split and not a schema change. #}
+    <ul class="kmq-pkg__specs">
+      {% for item in p.includes.split(" + ") %}
+        <li>
+          <svg class="kmq-pkg__tick" width="13" height="13" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.4"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+               ><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span>{{ item }}</span>
+        </li>
+      {% endfor %}
+    </ul>
 
     {# Price, warranty and CTA are pinned to the bottom of the card as one
-       block, so those three lines up across the row however long the name and
-       the includes copy above them ran — an English name wraps to two lines
-       where the Arabic one does not, and the prices are what the visitor is
+       block, so those three line up across the row however long the name and
+       the spec list above them ran — an English name wraps to two lines where
+       the Arabic one does not, and the prices are what the visitor is
        comparing. #}
     <div class="kmq-pkg__foot">
       {% if show_prices %}
         <div class="kmq-pkg__pricerow">
           {% if p.price %}
-            <div class="kmq-pkg__price">{{ p.price }}</div>
+            {# Every agreed price is a range. The lower bound is what the
+               visitor is deciding on, so it carries the weight and the upper
+               bound trails it at meta size. #}
+            {% set bounds = p.price.split("–") %}
+            <div class="kmq-pkg__price" dir="ltr">
+              <span class="kmq-pkg__price-lo">{{ bounds[0]|trim }}</span>
+              {%- if bounds|length > 1 %}
+                <span class="kmq-pkg__price-hi">– {{ bounds[1]|trim }}</span>
+              {%- endif %}
+            </div>
           {% else %}
             {# Price not agreed with the client yet. The slot holds its shape
                and says so, so the card never renders blank. #}
@@ -53,7 +85,13 @@
 
       {% set link = wa(t.wa_order ~ p.name) %}
       <a class="kmq-btn kmq-pkg__cta" href="{{ link or url_for('site.contact') }}"
-         {% if link %}target="_blank" rel="noopener"{% endif %}>{{ cta_label }}</a>
+         {% if link %}target="_blank" rel="noopener"{% endif %}>
+        <span>{{ cta_label }}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true"
+             ><path d="M5 12h13M12 5.5l6.5 6.5L12 18.5"></path></svg>
+      </a>
     </div>
   </article>
 {%- endmacro %}
