@@ -276,6 +276,8 @@
     var timer = 0;
     var visible = true;
     var ready = false;
+    var running = false;
+    var generation = 0;
 
     function paint(next) {
       var previous = current;
@@ -311,18 +313,33 @@
     function stop() {
       window.clearTimeout(timer);
       timer = 0;
+      running = false;
+      /* Bumped so a hydrate() still in flight from the run being stopped
+         cannot paint into the next one. A boolean is not enough here: pause,
+         resume and a click can all overlap inside one image's decode. */
+      generation += 1;
       root.setAttribute('data-running', 'false');
     }
 
+    /* The transition waits for its own image rather than the cycle waiting
+       for every image up front. That is what keeps the second photograph off
+       the critical path — it has the whole 3.5s dwell to arrive — while still
+       guaranteeing that nothing fades into an undecoded bitmap. */
     function tick() {
+      var era = generation;
       timer = window.setTimeout(function () {
-        paint((current + 1) % states.length);
-        tick();
+        var next = (current + 1) % states.length;
+        hydrate(next).then(function () {
+          if (era !== generation || !running) return;
+          paint(next);
+          tick();
+        });
       }, HOLD + FADE);
     }
 
     function start() {
-      if (timer || reduce || !ready || !visible || d.hidden) return;
+      if (running || reduce || !ready || !visible || d.hidden) return;
+      running = true;
       root.setAttribute('data-running', 'true');
       tick();
     }
@@ -406,9 +423,12 @@
       start();
     }
 
-    // State 1 is already live in the markup; state 2 is the only one the
-    // first transition needs, so it is the only one the start waits on.
-    Promise.all([hydrate(0), hydrate(1)]).then(go);
+    /* Only the first state gates the start. The second is fetched right
+       away but nothing waits on it: the first transition is 3.5s out and
+       tick() waits for its own image anyway, so putting state 2's decode in
+       front of the cycle only delayed the cycle. */
+    hydrate(0).then(go);
+    hydrate(1);
     window.setTimeout(go, 3000);
   }());
 }());
