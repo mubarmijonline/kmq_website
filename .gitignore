@@ -17,3 +17,6 @@ branches_images/
 
 # Audit output. Regenerate with scripts/audit.py.
 docs/audit/
+
+# Written and removed by scripts/audit.py while it runs.
+_audit_wsgi.py

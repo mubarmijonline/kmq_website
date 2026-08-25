@@ -112,6 +112,11 @@ phone. The track is six of those (bare car, three coating wipes, a dwell on
 the finished car with the buttons, the exit) and `app.js` splits its stages on
 the same sixths, so retiming the sequence is that one declaration.
 
+**Superseded 2026-08-25 by milestone 11.** The scroll-driven hero, the
+filtered coating copies, the glass mask and `scripts/trace_car.py` are all
+gone; the paragraph below describes what the homepage used to do and is kept
+because the reasoning still explains the shape of what replaced it.
+
 **Two of the hero's assets are generated, not drawn.** The coatings are
 filtered copies of `static/img/car-suv.png` confined by its own alpha, but the
 thermal tint belongs on the glass alone, which the silhouette cannot tell it.
