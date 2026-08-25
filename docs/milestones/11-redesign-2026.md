@@ -59,6 +59,37 @@ frame read `getBoundingClientRect`, forcing a synchronous layout each tick.
 **Status.** Delivered. Numbers in `docs/audit/`; regenerate with
 `python3 scripts/audit.py <label>`.
 
+**On the numbers.** This machine cannot certify a Lighthouse score. Five runs
+of identical code spread 29 to 37 Performance points — the Arabic page scored
+between 51 and 88 in one batch, the English between 66 and 95 — because
+Lighthouse's simulated throttling amplifies whatever else the box is doing.
+Judge the redesign on the least-contended run of a batch, on main-thread work
+rather than the composite score, and on the throttled scroll trace, which is
+the only measurement that exercises the hero at all: Lighthouse never scrolls,
+so it never touched the animation this milestone replaced.
+
+Best of five, before against after:
+
+| | AR before | AR after | EN before | EN after |
+|---|---|---|---|---|
+| Performance | 81 | 88 | 94 | 95 |
+| LCP | 3625ms | 1998ms | 2590ms | 2639ms |
+| TBT | 0ms | 364ms | 0ms | 110ms |
+| Main-thread | 3258ms | 3145ms | 2062ms | 1943ms |
+
+Scroll trace, 4x CPU: CLS 0.2397 to 0.0008 on Arabic and 0.1401 to 0.0 on
+English — the old hero's shift is gone. The residual TBT is the hero
+photograph decoding, which a photographic hero cannot avoid; it is inside the
+200ms budget on English and over it on Arabic.
+
+Arabic remains the slower page for a reason that predates this work and
+survives it: about 3s of a throttled mobile's main thread goes to Style &
+Layout, roughly two and a half times the English figure, because shaping and
+laying out that much Arabic is more work. `content-visibility` on the
+below-fold sections was tried against it and reverted — it helped, but
+`contain-intrinsic-size` guesses each section's height until it has been
+measured, and the page grew about 1000px while being scrolled.
+
 **Open.**
 
 - Five branch photographs for six branches. Al-Manar keeps the shared entrance

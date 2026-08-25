@@ -175,7 +175,7 @@ class Server:
 #: times over — script parsing included, which the change under test does not
 #: touch — while the very next locale in the same batch improved. Three runs
 #: and a median is the cheapest thing that stops that reading as a regression.
-LH_RUNS = 3
+LH_RUNS = 5
 
 
 def median(values: list[float]) -> float:
