@@ -14,7 +14,24 @@
    truth, no stray hex in components — for a diff you can actually read.
 
    Contrast numbers in the comments are measured, not guessed. They are
-   WCAG 2.1 relative-luminance ratios against the ground named beside them. */
+   WCAG 2.1 relative-luminance ratios against the ground named beside them.
+
+   ONE CONVENTION TO KNOW. components.css carries no hex values and no colours
+   of its own, but it does write rgba() where a one-off alpha is wanted — a
+   hairline at .09, a wash at .07, a glow stop at .22. Every one of those
+   triples is a value from the palette below, and only the alpha is local:
+
+       rgba(37, 71, 255, a)     --brand-600      rgba(5, 7, 15, a)    --ink-950
+       rgba(61, 107, 255, a)    --brand-500      rgba(11, 16, 32, a)  --ink-900
+       rgba(143, 176, 255, a)   --brand-300      rgba(19, 26, 50, a)  --ink-800
+       rgba(185, 204, 255, a)   --brand-200      rgba(246, 248, 255, a) --text-hi
+       rgba(124, 77, 255, a)    --violet-500     rgba(255, 107, 107, a) --danger-500
+
+   color-mix() would let those name the token directly, and was considered.
+   It is not used because an unsupported color-mix makes the whole declaration
+   invalid, which turns a border into no border and a panel into no panel —
+   a worse failure than a literal that is merely harder to trace. Anything
+   added later follows this table rather than inventing a triple. */
 
 :root {
 
