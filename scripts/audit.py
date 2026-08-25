@@ -257,6 +257,22 @@ def screenshots(base: str, out: Path) -> None:
                 page.goto(f"{base}/{lang}/", wait_until="networkidle")
                 page.wait_for_timeout(1200)  # let the hero settle on state 1
 
+                # Walk the page before the full-page shot. Playwright captures
+                # full_page by resizing rather than scrolling, which never
+                # trips loading="lazy" — the branch and journal cards came out
+                # as empty wells, which looks exactly like a broken build.
+                page.evaluate("""() => new Promise(done => {
+                    let y = 0;
+                    const step = () => {
+                        y += window.innerHeight * 0.8;
+                        window.scrollTo(0, y);
+                        if (y < document.body.scrollHeight) setTimeout(step, 120);
+                        else { window.scrollTo(0, 0); setTimeout(done, 400); }
+                    };
+                    step();
+                })""")
+                page.wait_for_load_state("networkidle")
+
                 page.screenshot(path=shots / f"{lang}-{name}-full.png", full_page=True)
 
                 # A page wider than its viewport is the RTL failure that shows
@@ -277,6 +293,149 @@ def screenshots(base: str, out: Path) -> None:
                 ctx.close()
         browser.close()
     print(f"  shots -> {shots}")
+
+
+# --------------------------------------------------------------------------
+# Contrast and focus
+# --------------------------------------------------------------------------
+
+#: Walks the rendered page rather than the palette. Tokens can be correct and
+#: still land the wrong pair on an element, and the only way to know is to ask
+#: the browser what it actually painted. Backgrounds are resolved by walking
+#: up until something is not transparent, which is what the eye does too.
+CONTRAST = r"""
+() => {
+  const lum = (c) => {
+    const [r, g, b] = c.map(v => {
+      v /= 255;
+      return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const parse = (s) => {
+    const m = s.match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+    return { rgb: p.slice(0, 3), a: p.length > 3 ? p[3] : 1 };
+  };
+  // Returns the painted ground, or null when a gradient is in the way.
+  // Walking past a gradient to the colour underneath reports a ratio against
+  // something the eye never sees — that produced a 1.06 for white-on-brand,
+  // which is neither the real number nor a real pass. Gradients come back as
+  // null and are listed separately for a by-hand check; --grad-brand's own
+  // worst point is measured in tokens.css.
+  //
+  // Known false positive: .kmq-pkg--featured paints a brand gradient on its
+  // border box and an opaque --ink-800 layer on its padding box. This stops
+  // at the first gradient it meets, so the card's text is reported here even
+  // though it sits on the opaque layer. Checked by hand — text-mid 8.78,
+  // text-low 4.75, brand-300 8.04 on --ink-800, all passing.
+  const ground = (el) => {
+    for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      if (cs.backgroundImage && cs.backgroundImage.includes('gradient')) return null;
+      const c = parse(cs.backgroundColor);
+      if (c && c.a > 0.5) return c.rgb;
+    }
+    const c = parse(getComputedStyle(document.body).backgroundColor);
+    return c ? c.rgb : [0, 0, 0];
+  };
+  const bad = [], onGradient = [];
+  for (const el of document.querySelectorAll('body *')) {
+    if (!el.childNodes.length) continue;
+    const text = [...el.childNodes]
+      .filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join('');
+    if (!text) continue;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+    if (parseFloat(cs.opacity) < 0.5) continue;
+    // Gradient-clipped headings paint transparent by design; the gradient's
+    // own stops are checked in tokens.css, not here.
+    if (cs.webkitTextFillColor === 'rgba(0, 0, 0, 0)') continue;
+    const fg = parse(cs.color);
+    if (!fg || fg.a < 0.5) continue;
+    const bg = ground(el);
+    if (bg === null) {
+      onGradient.push({ text: text.slice(0, 40), color: cs.color,
+                        cls: (el.className || '').toString().slice(0, 40) });
+      continue;
+    }
+    // Flatten any partial alpha on the text colour over its own ground.
+    const flat = fg.rgb.map((v, i) => v * fg.a + bg[i] * (1 - fg.a));
+    const l1 = lum(flat), l2 = lum(bg);
+    const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    const size = parseFloat(cs.fontSize);
+    const weight = parseInt(cs.fontWeight, 10) || 400;
+    const large = size >= 24 || (size >= 18.66 && weight >= 700);
+    const need = large ? 3 : 4.5;
+    if (ratio < need) {
+      bad.push({ text: text.slice(0, 40), ratio: Math.round(ratio * 100) / 100,
+                 need, size, tag: el.tagName.toLowerCase(),
+                 cls: (el.className || '').toString().slice(0, 40) });
+    }
+  }
+  return { bad, onGradient };
+}
+"""
+
+
+def contrast(base: str, out: Path) -> dict:
+    """Every visible text node, measured against what is painted behind it."""
+    from playwright.sync_api import sync_playwright
+
+    pages = ["", "packages/", "services/", "branches/", "contact/", "warranty/"]
+    result = {}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(args=["--no-sandbox", "--disable-dev-shm-usage"])
+        for lang in LOCALES:
+            failures, rings = [], 0
+            ctx = browser.new_context(viewport={"width": 1440, "height": 950})
+            page = ctx.new_page()
+            gradients = []
+            for path in pages:
+                page.goto(f"{base}/{lang}/{path}", wait_until="networkidle")
+                found = page.evaluate(CONTRAST)
+                for item in found["bad"]:
+                    item["page"] = f"/{lang}/{path}"
+                    failures.append(item)
+                gradients.extend(found["onGradient"])
+
+            # Focus: tab through the homepage and confirm every stop paints
+            # something visible. outline:none with no replacement is the bug.
+            page.goto(f"{base}/{lang}/", wait_until="networkidle")
+            for _ in range(40):
+                page.keyboard.press("Tab")
+                seen = page.evaluate("""() => {
+                    const el = document.activeElement;
+                    if (!el || el === document.body) return null;
+                    const cs = getComputedStyle(el);
+                    const outline = cs.outlineStyle !== 'none'
+                        && parseFloat(cs.outlineWidth) > 0;
+                    return { ok: outline || cs.boxShadow !== 'none',
+                             tag: el.tagName.toLowerCase() };
+                }""")
+                if seen and not seen["ok"]:
+                    failures.append({"focus": seen["tag"], "page": f"/{lang}/"})
+                elif seen:
+                    rings += 1
+            ctx.close()
+            colours = sorted({g["color"] for g in gradients})
+            result[lang] = {"contrast_failures": failures,
+                            "focus_stops_ok": rings,
+                            "on_gradient_labels": len(gradients),
+                            "on_gradient_colours": colours}
+            print(f"    {lang}: {len(failures)} contrast failures, "
+                  f"{rings} focus stops with a visible ring, "
+                  f"{len(gradients)} labels on a gradient ({', '.join(colours)})")
+            for f in failures[:8]:
+                print(f"      {f}")
+        browser.close()
+
+    (out / "contrast.json").write_text(json.dumps(result, indent=2) + "\n")
+    return {lang: {"contrast_failures": len(v["contrast_failures"]),
+                   "focus_stops_ok": v["focus_stops_ok"],
+                   "on_gradient_colours": v["on_gradient_colours"]}
+            for lang, v in result.items()}
 
 
 # --------------------------------------------------------------------------
@@ -324,8 +483,8 @@ def hero_trace(base: str, out: Path) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("label", help="before | after | any directory name")
-    ap.add_argument("--only", choices=("lighthouse", "shots", "trace"),
-                    help="run a single check instead of all three")
+    ap.add_argument("--only", choices=("lighthouse", "shots", "trace", "a11y"),
+                    help="run a single check instead of all of them")
     args = ap.parse_args()
 
     out = OUT_ROOT / args.label
@@ -340,11 +499,14 @@ def main() -> None:
         if args.only in (None, "shots"):
             print("screenshots:")
             screenshots(srv.base, out)
+        if args.only in (None, "a11y"):
+            print("contrast and focus:")
+            summary["a11y"] = contrast(srv.base, out)
         if args.only in (None, "trace"):
             print("hero trace (4x CPU throttle):")
             summary["hero"] = hero_trace(srv.base, out)
 
-    if args.only in (None, "lighthouse", "trace"):
+    if args.only in (None, "lighthouse", "trace", "a11y"):
         path = out / "summary.json"
         merged = json.loads(path.read_text()) if path.exists() else {}
         merged.update(summary)

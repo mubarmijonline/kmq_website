@@ -52,12 +52,12 @@
 
 .kmq-btn--blue {
   background: var(--kmq-grad-cta);
-  color: #FFF;  /* the one literal white the palette does not name */
+  color: var(--text-on-brand);
   box-shadow: var(--kmq-shadow-cta);
 }
 
 .kmq-btn--blue:hover {
-  color: #FFF;
+  color: var(--text-on-brand);
   transform: translateY(-2px);
   box-shadow: var(--kmq-shadow-cta-hover);
 }
@@ -525,7 +525,7 @@
   font-family: var(--kmq-font-latin);
   font-size: var(--kmq-micro);
   letter-spacing: var(--kmq-track-code);
-  color: rgba(61, 107, 255, .85);
+  color: var(--kmq-blue);
   margin-block-start: 6px;
   direction: ltr;
 }
@@ -712,7 +712,7 @@
   font-family: var(--kmq-font-latin);
   font-size: var(--kmq-micro);
   letter-spacing: .16em;
-  color: rgba(61, 107, 255, .9);
+  color: var(--kmq-blue);
   margin-block-end: 26px;
   direction: ltr;
 }
@@ -883,7 +883,7 @@
   transform: translateY(-50%);
   background: var(--kmq-grad-cta);
   box-shadow: var(--kmq-shadow-flag);
-  color: var(--kmq-bg);
+  color: var(--text-on-brand);
   font-family: var(--kmq-head);
   font-weight: 800;
   font-size: var(--kmq-micro);
@@ -920,7 +920,7 @@
   font-family: var(--kmq-font-meta);
   font-size: var(--kmq-micro);
   letter-spacing: .16em;
-  color: rgba(61, 107, 255, .9);
+  color: var(--kmq-blue);
   margin-block-end: 16px;
 }
 
@@ -1109,12 +1109,12 @@
   background: var(--kmq-grad-cta);
   border-color: transparent;
   box-shadow: var(--kmq-shadow-cta), inset 0 1px 0 rgba(255, 255, 255, .22);
-  color: var(--kmq-bg);
+  color: var(--text-on-brand);
 }
 
 .kmq-pkg--featured .kmq-pkg__cta:hover {
-  filter: brightness(1.10);
-  color: var(--kmq-bg);
+  box-shadow: var(--kmq-shadow-cta-hover), inset 0 1px 0 rgba(255, 255, 255, .30);
+  color: var(--text-on-brand);
 }
 
 /* ═══════════ Warranty band ═══════════ */
@@ -1573,7 +1573,7 @@
 
 .kmq-flag {
   background: var(--kmq-grad-cta);
-  color: var(--kmq-bg);
+  color: var(--text-on-brand);
   font-family: var(--kmq-head);
   font-weight: 800;
   font-size: 11px;
@@ -1674,7 +1674,7 @@
 
 .kmq-chip[aria-current="true"] {
   background: var(--kmq-grad-cta);
-  color: var(--kmq-bg);
+  color: var(--text-on-brand);
   border-color: rgba(61, 107, 255, .8);
 }
 
@@ -1766,7 +1766,7 @@
 
 .kmq-pager [aria-current="page"] {
   background: var(--kmq-grad-cta);
-  color: var(--kmq-bg);
+  color: var(--text-on-brand);
   border-color: rgba(61, 107, 255, .8);
 }
 
@@ -2116,11 +2116,25 @@
 
 .kmq-close { position: relative; overflow: hidden; }
 
+/* The second and last ambient glow on the page. The brief allows exactly
+   two — one behind the hero, one behind the closing band — and being sparing
+   with them is what stops the whole site reading as one continuous haze. */
 .kmq-close__glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(80% 120% at 50% 120%, rgba(143, 176, 255, .22), transparent 60%);
+  background: var(--glow-brand);
   pointer-events: none;
+}
+
+/* Signature shield edge, fourth and final use: it opens the closing band the
+   way .kmq-rule closes the sections above it. */
+.kmq-close::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 20%;
+  block-size: 1px;
+  background: var(--edge-shield);
 }
 
 .kmq-close__body {
@@ -2448,11 +2462,15 @@
   gap: 14px;
 }
 
+/* A plain hairline, not the shield edge. The motif is allowed four uses —
+   section rules, card top edges, the hero's lower boundary and the closing
+   band — and this would have been a fifth, which is where a signature stops
+   being a signature. */
 .kmq-cycle__kicker::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--edge-shield);
+  background: var(--glass-line);
 }
 
 .kmq-cycle__copy { max-width: 44ch; }

@@ -82,6 +82,11 @@
   --text-low:   #7A86A8;
   --text-on-paper: #0B1020;
 
+  /* Labels that sit on --grad-brand. White is the only value that clears AA
+     across the whole sweep: it holds 4.81 : 1 at the violet end, its worst
+     point, where the near-black these used to carry measured 3.09. */
+  --text-on-brand: #FFFFFF;
+
   /* Form errors were the one role with no token at all — two literals sat in
      components.css. Measured on --ink-900: 500 is 6.82, 300 is 10.29.      */
   --danger-500: #FF6B6B;
