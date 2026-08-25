@@ -9,4 +9,11 @@ _incoming/
 logs/
 
 # Client source assets, not served.
-WEBSITE/
+WEBSITE
+
+# Client source assets, not served.
+car_images/
+branches_images/
+
+# Audit output. Regenerate with scripts/audit.py.
+docs/audit/

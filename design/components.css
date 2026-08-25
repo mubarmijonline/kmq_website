@@ -313,6 +313,9 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
+  /* WhatsApp's own brand green and its pressed state. Deliberately not
+     tokens: these belong to WhatsApp, and recolouring the button to the
+     KMQ palette would stop it reading as "this opens WhatsApp". */
   background: #25D366;
   border: none;
   display: grid;
@@ -530,12 +533,17 @@
 
 /* ═══════════ Icon frame ═══════════ */
 
+/* The icon macro strokes with currentColor, so the accent lives here and
+   follows whichever section the frame is sitting in. */
 .kmq-iconframe {
   display: grid;
   place-items: center;
   width: 52px;
   height: 52px;
   border: 1px solid var(--kmq-blue-45);
+  border-radius: var(--kmq-radius);
+  background: var(--glass);
+  color: var(--kmq-blue);
   flex-shrink: 0;
 }
 
@@ -738,13 +746,13 @@
 .kmq-pkg--featured {
   border-color: transparent;
   background:
-    radial-gradient(120% 78% at 50% -14%, rgba(87, 191, 238, .16), transparent 64%) padding-box,
+    radial-gradient(120% 78% at 50% -14%, rgba(61, 107, 255, .20), transparent 64%) padding-box,
     var(--kmq-grad-card-lit) padding-box,
     /* Opaque, unlike the plain card's translucent base: everything above it
        is see-through, and the accent below would otherwise flood the whole
        card instead of staying in the one-pixel border it is painted for. */
-    linear-gradient(#14161E, #14161E) padding-box,
-    linear-gradient(160deg, var(--kmq-blue-hi), var(--kmq-blue) 42%, rgba(27, 143, 214, .28)) border-box;
+    linear-gradient(var(--ink-800), var(--ink-800)) padding-box,
+    linear-gradient(160deg, var(--kmq-blue-hi), var(--kmq-blue) 42%, var(--kmq-blue-35)) border-box;
   box-shadow: var(--kmq-shadow-pkg-lit);
 }
 
@@ -1810,17 +1818,17 @@
 
 .kmq-field--bad .kmq-input,
 .kmq-field--bad .kmq-select,
-.kmq-field--bad .kmq-textarea { border-color: #C25B5B; background: rgba(194, 91, 91, .06); }
+.kmq-field--bad .kmq-textarea { border-color: var(--danger-500); background: rgba(255, 107, 107, .07); }
 
 .kmq-field--bad .kmq-input:focus,
 .kmq-field--bad .kmq-select:focus,
-.kmq-field--bad .kmq-textarea:focus { box-shadow: 0 0 0 3px rgba(194, 91, 91, .16); }
+.kmq-field--bad .kmq-textarea:focus { box-shadow: 0 0 0 3px rgba(255, 107, 107, .20); }
 
 .kmq-field__error {
   display: flex;
   gap: 7px;
   font-size: 13px;
-  color: #E08A8A;
+  color: var(--danger-300);
   line-height: 1.6;
 }
 

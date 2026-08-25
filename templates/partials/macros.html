@@ -13,9 +13,12 @@
 {%- endmacro %}
 
 
+{# stroke="currentColor" rather than a literal: inside .kmq-section--paper the
+   accent has to flip to --brand-600, and a hardcoded hex cannot. The colour
+   comes from .kmq-iconframe in components.css. #}
 {% macro icon(path, size=26, width=1.4) -%}
   <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none"
-       stroke="#2EA8E5" stroke-width="{{ width }}" stroke-linecap="round"
+       stroke="currentColor" stroke-width="{{ width }}" stroke-linecap="round"
        stroke-linejoin="round" aria-hidden="true"><path d="{{ path }}"></path></svg>
 {%- endmacro %}
 
