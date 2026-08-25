@@ -214,94 +214,177 @@
     });
   }());
 
-  /* ---- Hero protection stack -------------------------------------------
-     Scroll drives four coating stages, then the car leaves and hands the page
-     to the Trust strip. The CSS leaves the bare car and the first caption
-     standing when this does not run at all.
+  /* ---- Hero cycle -------------------------------------------------------
+     Four photographs of one car, crossfading on a timer.
 
-     This DOES run under prefers-reduced-motion. The build is scroll-driven,
-     so the visitor controls every frame of it and nothing animates on its own;
-     bailing out here just deleted the hero for anyone with the setting on.
-     What `reduce` suppresses below is the travel — the caption slide and the
-     car's exit translate and scale. Opacity is left alone: a cross-fade is
-     not motion. */
+     What this replaced was scroll-driven, and the rewrite is deliberately
+     boring about how it animates. Rules it holds to, in order of how much
+     each one mattered to the old version's frame times:
 
-  (function stack() {
-    var track = d.querySelector('[data-kmq-stack]');
-    if (!track) return;
+       1. Only opacity changes, and only via CSS transitions. No filters, no
+          blend modes, no masks, no clip-path, no layout properties. The
+          progress fill is a scaleX, not a width.
+       2. No scroll listener. Nothing here reads scroll position, and nothing
+          calls getBoundingClientRect.
+       3. One timer, not one per state, and not a requestAnimationFrame loop —
+          there is no per-frame value to compute, so asking for a frame
+          callback 60 times a second to do nothing 59 of them is waste.
+       4. Every image decodes before the first transition. A crossfade into an
+          undecoded image stalls on the main thread mid-transition, which is
+          the first-cycle hitch the old hero had and the reason the sequence
+          waits here.
+       5. The timer stops when the hero is off-screen and when the tab is
+          hidden. An IntersectionObserver does the first, visibilitychange the
+          second. A paused cycle also drops its compositor layers.
 
-    var dull = track.querySelector('[data-kmq-dull]');
-    var bar = track.querySelector('[data-kmq-bar]');
-    var glow = track.querySelector('.kmq-stack__glow');
-    if (!dull || !bar || !glow) return;
+     Under prefers-reduced-motion the cycle never starts. State 1 stands, and
+     the rail still switches states on click — the controls keep working, the
+     autoplay does not. That is the opposite call from the old hero, and
+     correctly so: that one was scroll-driven, so the visitor moved every
+     frame of it themselves. This one moves on its own, which is exactly what
+     the setting asks not to happen. */
 
-    var caps = track.querySelectorAll('[data-kmq-cap]');
-    var dots = track.querySelectorAll('[data-kmq-dot]');
-    var lbls = track.querySelectorAll('[data-kmq-lbl]');
+  (function hero() {
+    var root = d.querySelector('[data-kmq-cycle]');
+    if (!root) return;
 
-    /* Stage 2 and 4 each wipe two layers at once: a rim glow and a coating. */
-    var groups = [['1a', '1b'], ['2'], ['3a', '3b']].map(function (ids) {
-      return ids.map(function (id) {
-        return track.querySelector('[data-kmq-layer="' + id + '"]');
+    var states = root.querySelectorAll('[data-kmq-state]');
+    var steps = root.querySelectorAll('[data-kmq-step]');
+    if (states.length < 2 || steps.length !== states.length) return;
+
+    /* Per-state accents. Sampling the images was the original plan and does
+       not survive contact with them: all four cars are black on transparent,
+       so the dominant colour is the same near-black four times over and the
+       glow would never visibly change. These are the palette's own accents,
+       one per service, chosen so consecutive states differ in hue rather than
+       only in brightness. Read from CSS rather than written here as hex, so
+       the tokens stay the single source. */
+    var ACCENTS = ['--brand-500', '--text-low', '--cyan-400', '--violet-500'];
+
+    var HOLD = 2800;   /* dwell on a state, ms */
+    var FADE = 700;    /* crossfade, ms — also the rail's colour transition */
+
+    var css = getComputedStyle(d.documentElement);
+    var accents = ACCENTS.map(function (name) {
+      return css.getPropertyValue(name).trim();
+    });
+
+    root.style.setProperty('--kmq-fade', FADE + 'ms');
+    root.style.setProperty('--kmq-hold', HOLD + 'ms');
+
+    var current = 0;
+    var timer = 0;
+    var visible = true;
+    var ready = false;
+
+    function paint(next) {
+      var previous = current;
+      current = next;
+
+      states.forEach(function (el, i) {
+        el.setAttribute('data-on', i === current ? 'true' : 'false');
+        /* Marks the layer on its way out, so it keeps its compositor layer
+           for the length of the fade and loses it afterwards. */
+        el.setAttribute('data-leaving', i === previous && i !== current ? 'true' : 'false');
+      });
+
+      steps.forEach(function (el, i) {
+        /* "done" holds the fill at full without a transition; "live" runs it
+           across the dwell. Setting live last, after a reflow-free attribute
+           write, is enough — the transition is declared in CSS against the
+           data-state value, so the browser starts it. */
+        el.setAttribute('data-state', i === current ? 'live' : (i < current ? 'done' : 'idle'));
+        el.setAttribute('aria-pressed', i === current ? 'true' : 'false');
+      });
+
+      root.style.setProperty('--kmq-accent', accents[current] || accents[0]);
+    }
+
+    function stop() {
+      window.clearTimeout(timer);
+      timer = 0;
+      root.setAttribute('data-running', 'false');
+    }
+
+    function tick() {
+      timer = window.setTimeout(function () {
+        paint((current + 1) % states.length);
+        tick();
+      }, HOLD + FADE);
+    }
+
+    function start() {
+      if (timer || reduce || !ready || !visible || d.hidden) return;
+      root.setAttribute('data-running', 'true');
+      tick();
+    }
+
+    /* Clicking a state jumps to it and restarts the dwell, so the visitor
+       gets a full look rather than whatever was left of the previous timer. */
+    steps.forEach(function (el, i) {
+      on(el, 'click', function () {
+        stop();
+        paint(i);
+        start();
+      });
+
+      /* Arrow keys move along the rail. The buttons give Enter, Space, Tab
+         and focus for free; this is the only part that has to be added. */
+      on(el, 'keydown', function (e) {
+        var delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!delta) return;
+        e.preventDefault();
+        /* In RTL the right arrow should walk the rail the way the rail is
+           drawn, which is right to left. */
+        if (d.documentElement.dir === 'rtl') delta = -delta;
+        var next = (i + delta + steps.length) % steps.length;
+        steps[next].focus();
+        stop();
+        paint(next);
+        start();
       });
     });
 
-    /* Fifths of the track, matching the five scroll steps --kmq-stack-step
-       cuts it into: one on the bare car, three wipes, one dwelling on the
-       finished car so the buttons can be read. Fractions, not distances —
-       retiming the hero is a one-line change in the stylesheet and these
-       follow it. Nothing runs the frame out: the pin's own release scrolls
-       the finished car away, so the hero hands over to the section below
-       without a blank screen in between. */
-    var HOLD = 1 / 5;   /* stage 0 dwell */
-    var BUILD = 4 / 5;  /* three wipes finish here, then the frame dwells */
-    var frame = 0;
-
-    function paint() {
-      var rect = track.getBoundingClientRect();
-      var span = Math.max(1, track.offsetHeight - window.innerHeight);
-      var p = Math.min(1, Math.max(0, -rect.top / span));
-      var t = Math.min(1, Math.max(0, (p - HOLD) / (BUILD - HOLD)));
-      var seg = t * 3;
-
-      groups.forEach(function (els, i) {
-        var local = Math.min(1, Math.max(0, seg - i));
-        var e = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
-        /* A fraction, not a clip-path: the stylesheet turns it into one, so
-           the halo the cut has to clear stays a CSS number. 1 is hidden. */
-        var wipe = (1 - e).toFixed(4);
-        els.forEach(function (el) { if (el) el.style.setProperty('--kmq-wipe', wipe); });
-      });
-
-      var active = Math.min(3, Math.floor(seg + 0.35));
-
-      function mark(el, i) {
-        el.setAttribute('data-state', i === active ? 'now' : i < active ? 'done' : 'next');
-      }
-
-      caps.forEach(function (c, i) {
-        c.setAttribute('data-lit', i === active ? 'true' : 'false');
-        if (!reduce) c.style.transform = i === active ? 'translateY(0)' : 'translateY(20px)';
-      });
-      dots.forEach(mark);
-      lbls.forEach(mark);
-
-      /* Unprotected paint reads flat, then each coating lifts it back. The
-         ceiling is high because the dull pass now cross-fades to a flat grey
-         copy rather than screening white over black paint; at 0.17 the swap to
-         a silver car left it invisible. */
-      dull.style.opacity = (0.55 * Math.min(1, p / HOLD) * (1 - Math.min(1, Math.max(0, seg)))).toFixed(3);
-      bar.style.width = (p * 100).toFixed(2) + '%';
-      glow.style.opacity = (0.5 + 0.5 * t).toFixed(3);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible) start(); else stop();
+      }, { threshold: 0 }).observe(root);
     }
 
-    function sync() {
-      if (frame) return;
-      frame = window.requestAnimationFrame(function () { frame = 0; paint(); });
+    on(d, 'visibilitychange', function () {
+      if (d.hidden) stop(); else start();
+    });
+
+    /* Decode everything before the first transition. img.decode() resolves
+       once the bitmap is ready to paint, so nothing has to be decoded on the
+       main thread mid-fade — that stall was the first-cycle hitch the old
+       hero had. It rejects on a broken image; catching keeps one missing file
+       from stopping the other three.
+
+       Not deferred to requestIdleCallback. That was the first version and it
+       was wrong: idle callbacks have no deadline unless you give them one, so
+       on a page that never goes idle the hero simply never started. Decoding
+       happens off the main thread anyway, and the three images behind the
+       first are marked fetchpriority="low" so they queue after the LCP
+       candidate rather than racing it. */
+    function decodeAll() {
+      var imgs = [].slice.call(root.querySelectorAll('.kmq-cycle__state img'));
+      return Promise.all(imgs.map(function (img) {
+        if (!img.decode) return Promise.resolve();
+        return img.decode().catch(function () {});
+      }));
     }
 
-    on(window, 'scroll', sync, { passive: true });
-    on(window, 'resize', sync);
-    paint();
+    /* A slow or stalled image should degrade to a working cycle, not to a
+       still photograph. Whichever of the two settles first wins. */
+    function go() {
+      if (ready) return;
+      ready = true;
+      start();
+    }
+
+    decodeAll().then(go);
+    window.setTimeout(go, 3000);
   }());
 }());

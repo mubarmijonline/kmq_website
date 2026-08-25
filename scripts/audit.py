@@ -45,7 +45,7 @@ WIDTHS = {"mobile": 360, "tablet": 768, "desktop": 1440}
 #: than nth-child so a section moving does not silently rename a screenshot.
 SECTIONS = [
     ("header", ".kmq-header"),
-    ("hero", "[data-kmq-stack], [data-kmq-hero]"),
+    ("hero", "[data-kmq-stack], [data-kmq-cycle]"),
     ("trust", ".kmq-strip"),
     ("services", "[data-kmq-section='services']"),
     ("packages", "[data-kmq-section='packages']"),
@@ -128,40 +128,68 @@ class Server:
 # Lighthouse
 # --------------------------------------------------------------------------
 
+#: Lighthouse runs on a shared machine, and one run is not a measurement.
+#: A single noisy run here reported every main-thread category inflated four
+#: times over — script parsing included, which the change under test does not
+#: touch — while the very next locale in the same batch improved. Three runs
+#: and a median is the cheapest thing that stops that reading as a regression.
+LH_RUNS = 3
+
+
+def median(values: list[float]) -> float:
+    ordered = sorted(values)
+    mid = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[mid]
+    return (ordered[mid - 1] + ordered[mid]) / 2
+
+
 def lighthouse(base: str, out: Path) -> dict:
-    """Mobile run per locale. Returns the four numbers Section 7 asks for."""
+    """Mobile runs per locale, median of LH_RUNS. Section 7's four numbers."""
     if not shutil.which("npx"):
         print("  npx missing — skipping Lighthouse")
         return {}
 
+    # Lighthouse 12 takes the browser from CHROME_PATH; --chrome-path is
+    # accepted on the command line and then ignored.
+    env = dict(os.environ, CHROME_PATH=chromium())
     scores = {}
-    for lang in LOCALES:
-        report = out / f"lighthouse-{lang}.json"
-        cmd = [
-            "npx", "--yes", "lighthouse", f"{base}/{lang}/",
-            "--quiet", "--output=json", f"--output-path={report}",
-            "--only-categories=performance", "--form-factor=mobile",
-            "--screenEmulation.mobile", "--throttling-method=simulate",
-            "--chrome-flags=--headless=new --no-sandbox --disable-dev-shm-usage",
-        ]
-        print(f"  lighthouse /{lang}/ ...", flush=True)
-        # Lighthouse 12 takes the browser from CHROME_PATH; --chrome-path is
-        # accepted on the command line and then ignored.
-        env = dict(os.environ, CHROME_PATH=chromium())
-        run = subprocess.run(cmd, capture_output=True, text=True, timeout=600, env=env)
-        if not report.exists():
-            print(f"    failed: {run.stderr.strip().splitlines()[0][:300] if run.stderr.strip() else run.stdout.strip()[:300]}")
-            continue
 
-        data = json.loads(report.read_text())
-        audits = data["audits"]
-        scores[lang] = {
-            "performance": round(data["categories"]["performance"]["score"] * 100),
-            "lcp_ms": round(audits["largest-contentful-paint"]["numericValue"]),
-            "cls": round(audits["cumulative-layout-shift"]["numericValue"], 4),
-            "tbt_ms": round(audits["total-blocking-time"]["numericValue"]),
-        }
-        print(f"    {scores[lang]}")
+    for lang in LOCALES:
+        runs = []
+        for n in range(LH_RUNS):
+            report = out / f"lighthouse-{lang}-{n}.json"
+            cmd = [
+                "npx", "--yes", "lighthouse", f"{base}/{lang}/",
+                "--quiet", "--output=json", f"--output-path={report}",
+                "--only-categories=performance", "--form-factor=mobile",
+                "--screenEmulation.mobile", "--throttling-method=simulate",
+                "--chrome-flags=--headless=new --no-sandbox --disable-dev-shm-usage",
+            ]
+            print(f"  lighthouse /{lang}/ {n + 1}/{LH_RUNS} ...", flush=True)
+            run = subprocess.run(cmd, capture_output=True, text=True,
+                                 timeout=600, env=env)
+            if not report.exists():
+                err = run.stderr.strip() or run.stdout.strip()
+                print(f"    failed: {err.splitlines()[0][:300] if err else '?'}")
+                continue
+
+            data = json.loads(report.read_text())
+            audits = data["audits"]
+            runs.append({
+                "performance": round(data["categories"]["performance"]["score"] * 100),
+                "lcp_ms": round(audits["largest-contentful-paint"]["numericValue"]),
+                "cls": round(audits["cumulative-layout-shift"]["numericValue"], 4),
+                "tbt_ms": round(audits["total-blocking-time"]["numericValue"]),
+            })
+            print(f"    {runs[-1]}")
+
+        if not runs:
+            continue
+        scores[lang] = {k: round(median([r[k] for r in runs]), 4)
+                        for k in runs[0]}
+        scores[lang]["runs"] = len(runs)
+        print(f"    median: {scores[lang]}")
     return scores
 
 

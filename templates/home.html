@@ -5,82 +5,98 @@
 {% block description %}{{ t.hero_sub }}{% endblock %}
 
 {% block content %}
+{# ═══════════ Hero ═══════════
 
-{# ═══════════ Hero: protection stack ═══════════
-   A six-step track with a pinned frame — one scroll gesture a step. Scroll
-   drives four stages; each coating is a filtered copy of the same cutout, so
-   the PNG's own alpha confines it to the silhouette. The tint is the exception:
-   glass is not the whole car, so it carries a mask of its own.
-   Without JS the first caption and the bare car still show. #}
-{% set car = url_for('static', filename='img/car-suv.png') %}
-<section class="kmq-stack" data-kmq-stack>
-  <div class="kmq-stack__pin">
-    <div class="kmq-hero__layer kmq-hero__layer--weave" aria-hidden="true"></div>
-    <div class="kmq-stack__glow" aria-hidden="true"></div>
-    <div class="kmq-stack__veil" aria-hidden="true"></div>
+   Four photographs of one car, crossfading on a timer — see design/app.js.
+   It replaces a scroll-driven build-up; the diagnosis of why that one was slow
+   is at the top of the hero block in design/components.css.
 
-    <div class="kmq-stack__grid">
-      <div class="kmq-stack__kicker">
-        <span dir="ltr">{{ t.stack_kicker }}</span><i aria-hidden="true"></i>
+   Every string here already existed in app/content.py, in both languages.
+   hero_kicker, hero_a, hero_b and hero_sub were written for a hero that was
+   never rendered; the four state labels are the service names and taglines
+   from t.services, which is what the four photographs actually show. No copy
+   was written for this commit in either locale.
+
+   Without JS the first state is already on and the rail is already marked, so
+   the section is a static hero rather than an empty box. #}
+
+{% set states = t.services[:4] %}
+{% set slugs  = ['ppf-gloss', 'ppf-matte', 'nano-ceramic', 'window-tint'] %}
+
+<section class="kmq-cycle" data-kmq-cycle>
+  <div class="kmq-cycle__glow" aria-hidden="true"></div>
+  <div class="kmq-cycle__accentglow" data-kmq-accentglow aria-hidden="true"></div>
+
+  <div class="kmq-cycle__grid">
+    <div class="kmq-cycle__side">
+      <div class="kmq-cycle__kicker"><span dir="ltr">{{ t.hero_kicker }}</span></div>
+
+      <div class="kmq-cycle__copy">
+        <h1>{{ t.hero_a }} <span class="kmq-cycle__accent">{{ t.hero_b }}</span></h1>
+        <p class="kmq-cycle__sub">{{ t.hero_sub }}</p>
       </div>
 
-      <div class="kmq-stack__stage">
-        <div class="kmq-stack__car" data-kmq-car>
-          {# The two rim glows sit behind the car: brightness(0) makes them a
-             black silhouette, and only their drop-shadows should be visible. #}
-          <div class="kmq-coat-wrap" data-kmq-layer="1a">
-            <img class="kmq-coat kmq-coat--rim-silver" src="{{ car }}" alt="" aria-hidden="true">
-          </div>
-          <div class="kmq-coat-wrap" data-kmq-layer="3a">
-            <img class="kmq-coat kmq-coat--rim-blue" src="{{ car }}" alt="" aria-hidden="true">
-          </div>
-
-          <img src="{{ car }}" alt="{{ t.stack_shot }}" loading="eager" decoding="async">
-          <img class="kmq-coat kmq-coat--dull" src="{{ car }}" alt="" aria-hidden="true" data-kmq-dull>
-
-          <div class="kmq-coat-wrap" data-kmq-layer="1b">
-            <img class="kmq-coat kmq-coat--ppf" src="{{ car }}" alt="" aria-hidden="true">
-          </div>
-          <div class="kmq-coat-wrap" data-kmq-layer="2">
-            <img class="kmq-coat kmq-coat--tint" src="{{ car }}" alt="" aria-hidden="true">
-            <img class="kmq-coat kmq-coat--tint-rim" src="{{ car }}" alt="" aria-hidden="true">
-          </div>
-          <div class="kmq-coat-wrap" data-kmq-layer="3b">
-            <img class="kmq-coat kmq-coat--ceramic" src="{{ car }}" alt="" aria-hidden="true">
-          </div>
-        </div>
-      </div>
-
-      <div class="kmq-stack__foot">
-        <div class="kmq-stack__caps">
-          {% for s in t.stack %}
-            <div class="kmq-stack__cap" data-kmq-cap="{{ loop.index0 }}">
-              <h1>{{ s.a }} <span class="kmq-hero__accent">{{ s.b }}</span></h1>
-              <p>{{ s.body }}</p>
-              {% if loop.last %}
-                <div class="kmq-btn-row">
-                  {% set link = wa(t.wa_default) %}
-                  <a class="kmq-btn kmq-btn--blue" href="{{ link or url_for('site.contact') }}"
-                     {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.hero_cta1 }}</a>
-                  <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.packages') }}">{{ t.hero_cta2 }}</a>
-                </div>
-              {% endif %}
-            </div>
-          {% endfor %}
-        </div>
-
-        <div class="kmq-stack__rail">
-          {% for s in t.stack %}
-            <div class="kmq-stack__step">
-              <span class="kmq-stack__dot" data-kmq-dot="{{ loop.index0 }}"></span>
-              <span class="kmq-stack__label" dir="ltr" data-kmq-lbl="{{ loop.index0 }}">{{ s.code }}</span>
-            </div>
-          {% endfor %}
-          <div class="kmq-stack__bar"><i data-kmq-bar></i></div>
-        </div>
+      <div class="kmq-cycle__ctas">
+        {% set link = wa(t.wa_default) %}
+        <a class="kmq-btn kmq-btn--blue" href="{{ link or url_for('site.contact') }}"
+           {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.hero_cta1 }}</a>
+        <a class="kmq-btn kmq-btn--ghost" href="{{ url_for('site.packages') }}">{{ t.hero_cta2 }}</a>
       </div>
     </div>
+
+    {# aria-live is deliberately absent. The car changing is decoration; a
+       screen reader announcing a new service name every three seconds would
+       be an interruption, not information. The same four names are readable
+       at any time from the rail below, which is where they belong. #}
+    <div class="kmq-cycle__stage" data-kmq-stage>
+      {% for s in states %}
+        {% set slug = slugs[loop.index0] %}
+        <div class="kmq-cycle__state" data-kmq-state="{{ loop.index0 }}"
+             data-on="{{ 'true' if loop.first else 'false' }}" aria-hidden="true">
+          <picture>
+            <source type="image/avif" sizes="(max-width: 899px) 92vw, 940px"
+                    srcset="{{ url_for('static', filename='img/hero/' ~ slug ~ '-480.avif') }} 480w,
+                            {{ url_for('static', filename='img/hero/' ~ slug ~ '-720.avif') }} 720w,
+                            {{ url_for('static', filename='img/hero/' ~ slug ~ '-940.avif') }} 940w,
+                            {{ url_for('static', filename='img/hero/' ~ slug ~ '-1250.avif') }} 1250w">
+            <source type="image/webp" sizes="(max-width: 899px) 92vw, 940px"
+                    srcset="{{ url_for('static', filename='img/hero/' ~ slug ~ '-480.webp') }} 480w,
+                            {{ url_for('static', filename='img/hero/' ~ slug ~ '-720.webp') }} 720w,
+                            {{ url_for('static', filename='img/hero/' ~ slug ~ '-940.webp') }} 940w,
+                            {{ url_for('static', filename='img/hero/' ~ slug ~ '-1250.webp') }} 1250w">
+            {# width/height carry the normalised frame, so the box is reserved
+               before anything decodes and nothing shifts when it does. #}
+            <img src="{{ url_for('static', filename='img/hero/' ~ slug ~ '-940.png') }}"
+                 width="1358" height="701"
+                 alt="{{ t.stack_shot if loop.first else '' }}"
+                 {# All four are inside the viewport, so loading="lazy" would
+                    do nothing but delay the decode the cycle waits on. The
+                    three behind the first queue at low priority instead, so
+                    they load after the LCP candidate rather than against it. #}
+                 decoding="async"
+                 fetchpriority="{{ 'high' if loop.first else 'low' }}">
+          </picture>
+        </div>
+      {% endfor %}
+    </div>
   </div>
+
+  <div class="kmq-cycle__foot">
+    <div class="kmq-cycle__rail" data-kmq-rail>
+      {% for s in states %}
+        <button type="button" class="kmq-cycle__step"
+                data-kmq-step="{{ loop.index0 }}"
+                data-state="{{ 'live' if loop.first else 'idle' }}"
+                aria-pressed="{{ 'true' if loop.first else 'false' }}"
+                title="{{ s.tagline }}">
+          <span class="kmq-cycle__step-num" dir="ltr">0{{ loop.index }}</span>
+          <span class="kmq-cycle__step-name">{{ s.name }}</span>
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="kmq-cycle__edge" aria-hidden="true"></div>
 </section>
 
 {# ═══════════ Trust strip ═══════════ #}

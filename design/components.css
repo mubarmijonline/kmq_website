@@ -26,34 +26,52 @@
 
 /* ═══════════ Buttons ═══════════ */
 
+/* One height, one casing, one radius across the whole site. The primary is
+   the brand gradient with a white label: white holds 4.81 : 1 at the sweep's
+   violet end, its worst point, whereas the dark label this used to carry
+   measured 3.09 at the blue end and failed outright. */
 .kmq-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-block-size: 54px;
   font-family: var(--kmq-head);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 16px;
-  padding: 17px 32px;
+  padding: 15px 32px;
   border: 1px solid transparent;
-  border-radius: var(--kmq-radius);
+  border-radius: var(--kmq-radius-pill);
   text-align: center;
-  transition: filter var(--kmq-quick), border-color var(--kmq-quick), color var(--kmq-quick);
+  /* transform and box-shadow only — `filter: brightness()` on hover forces a
+     repaint of the whole button, and there is no reason to pay for one. */
+  transition: transform var(--kmq-quick), box-shadow var(--kmq-quick),
+              border-color var(--kmq-quick), color var(--kmq-quick),
+              background-color var(--kmq-quick);
 }
 
 .kmq-btn--blue {
   background: var(--kmq-grad-cta);
-  color: var(--kmq-bg);
+  color: #FFF;  /* the one literal white the palette does not name */
+  box-shadow: var(--kmq-shadow-cta);
 }
 
-.kmq-btn--blue:hover { filter: brightness(1.12); color: var(--kmq-bg); }
+.kmq-btn--blue:hover {
+  color: #FFF;
+  transform: translateY(-2px);
+  box-shadow: var(--kmq-shadow-cta-hover);
+}
 
 .kmq-btn--ghost {
-  border-color: rgba(245, 245, 240, .28);
+  border-color: var(--glass-line);
   color: var(--kmq-ink);
-  background: transparent;
+  background: var(--glass);
 }
 
 .kmq-btn--ghost:hover {
   border-color: var(--kmq-blue);
   color: var(--kmq-blue);
+  transform: translateY(-2px);
 }
 
 .kmq-btn--outline {
@@ -62,11 +80,14 @@
   background: transparent;
 }
 
-.kmq-btn--outline:hover { background: rgba(87, 191, 238, .10); }
+.kmq-btn--outline:hover {
+  background: var(--kmq-blue-wash);
+  transform: translateY(-2px);
+}
 
-.kmq-btn--lg { font-size: 18px; padding: 20px 46px; }
+.kmq-btn--lg { min-block-size: 62px; font-size: 18px; padding: 18px 46px; }
 
-.kmq-btn--block { display: block; width: 100%; }
+.kmq-btn--block { display: flex; width: 100%; }
 
 .kmq-btn-row {
   display: flex;
@@ -112,8 +133,11 @@
 /* Set by app.js past 40px of scroll. Without JS the header simply stays
    in its transparent state, which is legible over every hero. */
 .kmq-header[data-scrolled="true"] {
-  background: rgba(13, 13, 13, .82);
-  backdrop-filter: blur(18px);
+  /* Solid, not a backdrop blur. An 18px backdrop-filter here sat over the
+     hero and re-sampled whatever repainted beneath it — the single most
+     expensive thing on the page during the old scroll animation. At 94%
+     on a near-black bar the blur was not visible anyway. */
+  background: color-mix(in srgb, var(--ink-950) 94%, transparent);
   border-block-end-color: var(--kmq-blue-18);
   box-shadow: var(--kmq-shadow-head);
 }
@@ -180,7 +204,7 @@
   inset-inline-start: 0;
   height: 1px;
   width: 0;
-  background: linear-gradient(90deg, var(--kmq-blue-bright), rgba(87, 191, 238, 0));
+  background: linear-gradient(90deg, var(--kmq-blue-bright), rgba(143, 176, 255, 0));
   transition: width var(--kmq-quick);
 }
 
@@ -192,13 +216,13 @@
 
 /* Scroll-spy on the home page adds the glow the source had. */
 .kmq-nav__link[data-lit="true"] {
-  filter: drop-shadow(0 0 10px rgba(87, 191, 238, .65));
+  filter: drop-shadow(0 0 10px rgba(143, 176, 255, .65));
 }
 
 .kmq-langbtn {
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid rgba(46, 168, 229, .4);
+  border: 1px solid rgba(61, 107, 255, .4);
   color: var(--kmq-blue);
   font-family: var(--kmq-font-latin);
   font-weight: 600;
@@ -223,7 +247,7 @@
   width: 46px;
   height: 46px;
   background: transparent;
-  border: 1px solid rgba(46, 168, 229, .4);
+  border: 1px solid rgba(61, 107, 255, .4);
   padding: 0;
   flex-direction: column;
   align-items: center;
@@ -254,7 +278,7 @@
 .kmq-mobilenav {
   display: none;
   border-block-start: 1px solid var(--kmq-blue-18);
-  background: rgba(10, 10, 12, .97);
+  background: rgba(5, 7, 15, .97);
   backdrop-filter: blur(20px);
   padding: 18px var(--kmq-gutter) 26px;
 }
@@ -356,18 +380,18 @@
 
 .kmq-hero__layer--glow {
   background:
-    radial-gradient(120% 90% at 78% 15%, rgba(87, 191, 238, .20), transparent 55%),
-    radial-gradient(90% 70% at 10% 90%, rgba(28, 28, 46, .90), transparent 60%);
+    radial-gradient(120% 90% at 78% 15%, rgba(143, 176, 255, .20), transparent 55%),
+    radial-gradient(90% 70% at 10% 90%, rgba(19, 26, 50, .90), transparent 60%);
 }
 
 .kmq-hero__layer--veil {
-  background: linear-gradient(180deg, rgba(13, 13, 13, .35), rgba(13, 13, 13, .92));
+  background: linear-gradient(180deg, rgba(5, 7, 15, .35), rgba(5, 7, 15, .92));
 }
 
 .kmq-hero__layer--sheen {
   inset-block: 50% auto;
   height: 40%;
-  background: linear-gradient(180deg, transparent, rgba(245, 245, 240, .05), transparent);
+  background: linear-gradient(180deg, transparent, rgba(246, 248, 255, .05), transparent);
   transform: skewY(-6deg);
 }
 
@@ -501,7 +525,7 @@
   font-family: var(--kmq-font-latin);
   font-size: var(--kmq-micro);
   letter-spacing: var(--kmq-track-code);
-  color: rgba(46, 168, 229, .85);
+  color: rgba(61, 107, 255, .85);
   margin-block-start: 6px;
   direction: ltr;
 }
@@ -568,7 +592,7 @@
 /* Hairline grid: 1px gap over a light background paints the rules. */
 .kmq-grid--hairline {
   gap: 1px;
-  background: rgba(245, 245, 240, .09);
+  background: rgba(246, 248, 255, .09);
 }
 
 .kmq-sectionhead { margin-block-end: 60px; }
@@ -597,7 +621,7 @@
   position: relative;
   padding: 38px clamp(20px, 6vw, 32px) 32px;
   background: var(--kmq-grad-card);
-  border: 1px solid rgba(245, 245, 240, .09);
+  border: 1px solid rgba(246, 248, 255, .09);
   transition: transform var(--kmq-lift), border-color var(--kmq-lift);
 }
 
@@ -610,7 +634,7 @@
   font-family: var(--kmq-font-latin);
   font-size: var(--kmq-micro);
   letter-spacing: .16em;
-  color: rgba(46, 168, 229, .9);
+  color: rgba(61, 107, 255, .9);
   margin-block-end: 26px;
   direction: ltr;
 }
@@ -654,7 +678,7 @@
 .kmq-cell__num--sm {
   font-size: 13px;
   letter-spacing: .2em;
-  color: rgba(46, 168, 229, .85);
+  color: rgba(61, 107, 255, .85);
   margin-block-end: 24px;
 }
 
@@ -687,9 +711,9 @@
      and a translucent dark base. The base is what the shadows read against —
      without it the card is the same value as the section behind it. */
   background:
-    radial-gradient(120% 78% at 50% -14%, rgba(87, 191, 238, .085), transparent 62%),
+    radial-gradient(120% 78% at 50% -14%, rgba(143, 176, 255, .085), transparent 62%),
     var(--kmq-grad-card),
-    rgba(19, 20, 27, .72);
+    rgba(19, 26, 50, .72);
   border: 1px solid var(--kmq-line);
   box-shadow: var(--kmq-shadow-pkg);
   transition:
@@ -706,7 +730,7 @@
   inset-block-start: -1px;
   inset-inline: -1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 245, 240, .26), transparent);
+  background: linear-gradient(90deg, transparent, rgba(246, 248, 255, .26), transparent);
   pointer-events: none;
 }
 
@@ -818,7 +842,7 @@
   font-family: var(--kmq-font-meta);
   font-size: var(--kmq-micro);
   letter-spacing: .16em;
-  color: rgba(46, 168, 229, .9);
+  color: rgba(61, 107, 255, .9);
   margin-block-end: 16px;
 }
 
@@ -944,7 +968,7 @@
   padding: 15px 17px;
   border: 1px solid var(--kmq-line-soft);
   border-radius: var(--kmq-radius);
-  background: rgba(245, 245, 240, .022);
+  background: rgba(246, 248, 255, .022);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
 }
 
@@ -973,7 +997,7 @@
   gap: 10px;
   width: 100%;
   border-color: var(--kmq-blue-50);
-  background: rgba(46, 168, 229, .07);
+  background: rgba(61, 107, 255, .07);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
   color: var(--kmq-ink);
   padding: 17px;
@@ -987,7 +1011,7 @@
 
 .kmq-pkg__cta:hover {
   border-color: var(--kmq-blue);
-  background: rgba(46, 168, 229, .16);
+  background: rgba(61, 107, 255, .16);
   color: var(--kmq-ink);
 }
 
@@ -1029,8 +1053,8 @@
 
 .kmq-band__layer--glow {
   background:
-    radial-gradient(85% 120% at 80% 0%, rgba(87, 191, 238, .22), transparent 58%),
-    radial-gradient(70% 90% at 8% 100%, rgba(28, 28, 46, .95), transparent 62%);
+    radial-gradient(85% 120% at 80% 0%, rgba(143, 176, 255, .22), transparent 58%),
+    radial-gradient(70% 90% at 8% 100%, rgba(19, 26, 50, .95), transparent 62%);
 }
 
 .kmq-band__layer--weave { background: var(--kmq-weave-fine); }
@@ -1073,7 +1097,7 @@
   width: clamp(260px, 30vw, 380px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(87, 191, 238, .16), transparent 68%);
+  background: radial-gradient(circle, rgba(143, 176, 255, .16), transparent 68%);
 }
 
 .kmq-seal__body { position: relative; text-align: center; }
@@ -1342,7 +1366,7 @@
   justify-content: space-between;
   gap: 24px;
   padding-block: 20px;
-  border-block-end: 1px solid rgba(245, 245, 240, .09);
+  border-block-end: 1px solid rgba(246, 248, 255, .09);
 }
 
 .kmq-spec dt { font-size: 15px; color: var(--kmq-ink-55); }
@@ -1477,7 +1501,7 @@
   display: flex;
   flex-direction: column;
   color: inherit;
-  border: 1px solid rgba(245, 245, 240, .09);
+  border: 1px solid rgba(246, 248, 255, .09);
   transition: border-color var(--kmq-lift), transform var(--kmq-lift);
 }
 
@@ -1493,7 +1517,7 @@
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
-  background: rgba(13, 13, 13, .82);
+  background: rgba(5, 7, 15, .82);
   backdrop-filter: blur(8px);
   border-inline-end: 1px solid var(--kmq-blue-35);
   border-block-end: 1px solid var(--kmq-blue-35);
@@ -1524,7 +1548,7 @@
 .kmq-post__meta {
   margin-block-start: auto;
   padding-block-start: 18px;
-  border-block-start: 1px solid rgba(245, 245, 240, .08);
+  border-block-start: 1px solid rgba(246, 248, 255, .08);
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -1554,7 +1578,7 @@
 .kmq-chip {
   background: transparent;
   color: var(--kmq-ink-70);
-  border: 1px solid rgba(245, 245, 240, .16);
+  border: 1px solid rgba(246, 248, 255, .16);
   font-family: var(--kmq-head);
   font-weight: 700;
   font-size: var(--kmq-small);
@@ -1568,7 +1592,7 @@
 .kmq-chip[aria-current="true"] {
   background: var(--kmq-grad-cta);
   color: var(--kmq-bg);
-  border-color: rgba(46, 168, 229, .8);
+  border-color: rgba(61, 107, 255, .8);
 }
 
 .kmq-filterbar {
@@ -1626,7 +1650,7 @@
 
 .kmq-empty {
   padding: 70px 30px;
-  border: 1px dashed rgba(245, 245, 240, .16);
+  border: 1px dashed rgba(246, 248, 255, .16);
   text-align: center;
   font-size: 15px;
   color: var(--kmq-ink-45);
@@ -1648,7 +1672,7 @@
   place-items: center;
   background: transparent;
   color: var(--kmq-ink-70);
-  border: 1px solid rgba(245, 245, 240, .14);
+  border: 1px solid rgba(246, 248, 255, .14);
   font-family: var(--kmq-font-latin);
   font-weight: 600;
   font-size: var(--kmq-small);
@@ -1660,10 +1684,10 @@
 .kmq-pager [aria-current="page"] {
   background: var(--kmq-grad-cta);
   color: var(--kmq-bg);
-  border-color: rgba(46, 168, 229, .8);
+  border-color: rgba(61, 107, 255, .8);
 }
 
-.kmq-pager span[aria-disabled="true"] { color: rgba(245, 245, 240, .28); }
+.kmq-pager span[aria-disabled="true"] { color: rgba(246, 248, 255, .28); }
 
 .kmq-aside { display: grid; gap: 22px; }
 
@@ -1692,7 +1716,7 @@
   font-family: var(--kmq-font-latin);
   font-size: 20px;
   font-weight: 600;
-  color: rgba(46, 168, 229, .4);
+  color: rgba(61, 107, 255, .4);
   line-height: 1.2;
   direction: ltr;
 }
@@ -1716,14 +1740,14 @@
 
 .kmq-catlist__count {
   font-family: var(--kmq-font-latin);
-  color: rgba(46, 168, 229, .8);
+  color: rgba(61, 107, 255, .8);
   direction: ltr;
 }
 
 .kmq-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .kmq-tags a {
-  border: 1px solid rgba(245, 245, 240, .14);
+  border: 1px solid rgba(246, 248, 255, .14);
   color: var(--kmq-ink-60);
   font-size: 13px;
   padding: 8px 14px;
@@ -1755,7 +1779,7 @@
 .kmq-select,
 .kmq-textarea {
   width: 100%;
-  background: rgba(8, 8, 10, .62);
+  background: rgba(5, 7, 15, .62);
   border: 1px solid var(--kmq-line);
   /* Accent hairline on the inline-start edge, revealed on focus. */
   box-shadow: inset 2px 0 0 -2px transparent;
@@ -1772,13 +1796,13 @@
 
 .kmq-input:hover,
 .kmq-select:hover,
-.kmq-textarea:hover { border-color: rgba(245, 245, 240, .22); }
+.kmq-textarea:hover { border-color: rgba(246, 248, 255, .22); }
 
 .kmq-input:focus,
 .kmq-select:focus,
 .kmq-textarea:focus {
   border-color: var(--kmq-blue);
-  background: rgba(8, 8, 10, .85);
+  background: rgba(5, 7, 15, .85);
   box-shadow: 0 0 0 3px var(--kmq-blue-18);
 }
 
@@ -1927,8 +1951,8 @@
 }
 
 .kmq-notice--bad {
-  border-color: rgba(194, 91, 91, .5);
-  background: linear-gradient(140deg, rgba(194, 91, 91, .10), transparent);
+  border-color: rgba(255, 107, 107, .5);
+  background: linear-gradient(140deg, rgba(255, 107, 107, .10), transparent);
 }
 
 .kmq-inlineform {
@@ -2012,7 +2036,7 @@
 .kmq-close__glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(80% 120% at 50% 120%, rgba(87, 191, 238, .22), transparent 60%);
+  background: radial-gradient(80% 120% at 50% 120%, rgba(143, 176, 255, .22), transparent 60%);
   pointer-events: none;
 }
 
@@ -2041,7 +2065,7 @@
 /* ═══════════ Footer ═══════════ */
 
 .kmq-footer {
-  border-block-start: 1px solid rgba(46, 168, 229, .18);
+  border-block-start: 1px solid rgba(61, 107, 255, .18);
   background: var(--kmq-bg-sunk);
 }
 
@@ -2119,7 +2143,7 @@
   height: 42px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(245, 245, 240, .18);
+  border: 1px solid rgba(246, 248, 255, .18);
   color: var(--kmq-ink-70);
   transition: border-color var(--kmq-quick), color var(--kmq-quick);
 }
@@ -2202,389 +2226,313 @@
   transform: rotate(45deg);
 }
 
-/* ═══════════ Hero protection stack ═══════════
+/* ═══════════ Hero cycle (homepage) ═══════════
 
-   A track of six scroll steps with a sticky 100vh frame. design/app.js maps
-   scroll progress onto four stages; each coating is a filtered copy of
-   static/img/car-suv.png, so the PNG's own alpha confines it to the
-   silhouette. The thermal tint is the exception — glass is not the whole car,
-   so it carries a mask of its own, and that mask is generated from the photo
-   rather than drawn.
+   Four photographs of one car, crossfading on a timer. What it replaced was a
+   scroll-driven build-up: a sticky 100vh frame over a 950px track, with scroll
+   progress mapped to a clip-path wipe across five filtered copies of one PNG.
+   That version was correct and slow, and slow for a reason worth writing down,
+   because the obvious fixes were not the problem.
 
-   Every sweep percentage below is measured against that exact cutout at
-   1150x718. scripts/trace_car.py measures a replacement and writes both the
-   glass mask and the grid the rest is checked against, so a swapped photo is
-   one command, not a re-trace. */
+   The scroll handler was already rAF-gated and passive. The images were 160 KB
+   in total. There was no canvas and no scroll-jacking. What cost the frames was
+   what the clip-path was clipping: copies of the car carrying four stacked
+   drop-shadows, mix-blend-mode: screen, mask-composite: intersect, four- and
+   five-stage filter chains, and a PNG mask rescaled to 100% 100%. None of that
+   can live on the compositor, so every pixel of every frame was re-rastered on
+   the main thread — and an 18px backdrop-filter on the sticky header sat on
+   top re-sampling the result.
 
-/* Pulled up under the sticky transparent header, the same trick .kmq-hero
-   uses. Without it the track starts 91px down, so the pin does not reach
-   top:0 until you have already scrolled past the header and the frame visibly
-   jumps on the first wheel click. .kmq-stack__grid pads the content back down. */
-.kmq-stack {
-  /* One step is one scroll: a wheel flick on a desktop, a swipe on a phone.
-     The track is five of them — the bare car, the three coating wipes, and a
-     dwell on the finished car so the buttons can be read and clicked. The
-     hero used to run 480vh, which is roughly four screens of scrolling to get
-     past four captions; this is the same sequence at a step a gesture.
+   So this version animates opacity and nothing else. The layers are plain
+   <picture> elements; the only properties that change per state are opacity on
+   two of them and a custom property on the root. No filters, no blend modes, no
+   masks, no clip-path, and no scroll listener anywhere in the sequence.
 
-     There was a sixth step, an exit that slid the car off and faded the frame
-     to nothing. It was one step too many: the pin still has its own screen to
-     travel after the track runs out, so emptying the frame first bought a
-     blank screen between the hero and the strip below and made the hero read
-     as a black box sitting on the page. The frame now keeps the finished car
-     to the last pixel and the sticky release carries it off, which is the
-     same exit for free and one gesture shorter.
+   The frame is 1358 x 701 — the aspect scripts/build_images.py normalised the
+   four sources to. It is declared on the box so the reserved space is correct
+   before a single byte of image arrives, which is what keeps CLS at zero. */
 
-     A distance rather than a fraction of the viewport, because the gesture is
-     a fixed distance: a wheel notch is ~100px whatever the screen, so a vh
-     figure paced the same hero briskly on a laptop and slowly on a monitor.
-     app.js splits its stages on fifths of the track, so retuning this value
-     retimes the whole sequence and nothing else needs to move. */
-  --kmq-stack-step: 190px;
+.kmq-cycle {
   position: relative;
-  height: calc(100vh + 5 * var(--kmq-stack-step));
-  margin-block-start: -100px;
-}
-
-.kmq-stack__pin {
-  position: sticky;
-  inset-block-start: 0;
-  height: 100vh;
+  isolation: isolate;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  /* Pulled up under the transparent sticky header, so the glow starts at the
+     top of the page rather than 91px down. */
+  margin-block-start: calc(-1 * var(--kmq-header-h, 91px));
+  padding-block: calc(var(--kmq-header-h, 91px) + 40px) clamp(48px, 7vw, 96px);
+  background: var(--ink-950);
+
+  /* Rewritten by app.js, once per state. Everything tinted in here reads it,
+     so one property write recolours the glow, the rail and the active label
+     together — no per-element style loop. */
+  --kmq-accent: var(--brand-500);
 }
 
-/* The shared weave layer is full strength elsewhere; the stack sits it back. */
-.kmq-stack .kmq-hero__layer--weave { opacity: .5; }
-
-/* inset + margin:auto rather than a 50% offset with a translate: centring must
-   not flip with dir, and this file carries no physical sides. */
-.kmq-stack__glow {
+/* The ambient glow. Two layers rather than one animated gradient: gradient
+   interpolation is not a compositor operation, so crossfading two static
+   layers is the difference between a repaint and a composite. The second is
+   the per-state accent; the first is the constant brand wash underneath it. */
+.kmq-cycle__glow,
+.kmq-cycle__accentglow {
   position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 1200px;
-  height: 1200px;
-  opacity: .5;
-  background: radial-gradient(circle, rgba(87, 191, 238, .16), transparent 62%);
+  inset-block-start: -22%;
+  inset-inline: -10%;
+  block-size: 105%;
+  z-index: -2;
   pointer-events: none;
 }
 
-.kmq-stack__veil {
+.kmq-cycle__glow { background: var(--glow-brand); }
+
+.kmq-cycle__accentglow {
+  background: var(--glow-accent);
+  opacity: .85;
+  transition: opacity var(--kmq-fade, .7s) var(--kmq-ease);
+}
+
+/* The coated-surface sheen, at the shallowest angle it reads at. Static. */
+.kmq-cycle::after {
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(13,13,13,.88) 0%, rgba(13,13,13,.15) 45%, rgba(13,13,13,.96) 100%);
-}
-
-/* Top padding clears the sticky header, which stays over this frame for the
-   whole track and would otherwise cover the kicker. Matches the 100px
-   .kmq-hero pads back and the scroll-padding-block-start in base.css. */
-.kmq-stack__grid {
-  position: relative;
-  z-index: 4;
-  flex: 1;
-  min-height: 0;
-  max-width: var(--kmq-shell);
-  width: 100%;
-  margin-inline: auto;
-  padding: 100px var(--kmq-gutter) clamp(18px, 3.5vh, 40px);
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-}
-
-.kmq-stack__kicker { display: flex; align-items: center; gap: 16px; }
-
-.kmq-stack__kicker span {
-  font-family: var(--kmq-font-meta);
-  font-size: 11px;
-  letter-spacing: var(--kmq-track-meta);
-  color: var(--kmq-blue);
-  white-space: nowrap;
-}
-
-.kmq-stack__kicker i { flex: 1; height: 1px; background: var(--kmq-grad-rule); }
-
-.kmq-stack__stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-}
-
-/* Aspect ratio must match the cutout exactly, or the coatings drift off it:
-   object-fit would letterbox inside a mismatched box and every percentage
-   below is of the box, not the image.
-
-   The calc term is what actually binds on a short viewport. The rest of the
-   pin costs a roughly fixed ~420px (the 100px header pad, the kicker, the
-   caption block and the rail), so the height left for the car is an offset off
-   100vh rather than a fraction of it — a plain vh cap overflowed the stage row
-   at 1280x680. 1.6018 converts that height back to a width at the cutout's
-   ratio, so the box scales without ever letterboxing. */
-.kmq-stack__car {
-  position: relative;
-  width: min(940px, 92vw, calc((100vh - 440px) * 1.6018));
-  aspect-ratio: 1150 / 718;
-}
-
-.kmq-stack__car > img,
-.kmq-coat {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-/* The wipe that reveals each coating. clip-path cuts to the element's own
-   box, and the rim glows are drop-shadows that spill about 26px past it — so
-   with the cutout all but filling its frame, the halo was sliced off in a
-   straight line down every side and the hero read as a lit rectangle laid on
-   the page instead of a car standing in it.
-
-   The cut is therefore taken --kmq-coat-halo outside the box on three sides,
-   and the reveal edge travels that same distance further at each end, so the
-   sweep still begins with the layer wholly hidden (no glow sliver parked off
-   the right edge) and ends with it wholly shown. app.js sets --kmq-wipe, a
-   plain 1-to-0 fraction; the 1 fallback is the no-JS state, hidden. */
-.kmq-coat-wrap {
-  --kmq-coat-halo: 40px;
-  position: absolute;
-  inset: 0;
-  clip-path: inset(
-    calc(-1 * var(--kmq-coat-halo))
-    calc(-1 * var(--kmq-coat-halo))
-    calc(-1 * var(--kmq-coat-halo))
-    calc(-1 * var(--kmq-coat-halo) + var(--kmq-wipe, 1) * (100% + 2 * var(--kmq-coat-halo)))
-  );
-}
-
-/* Unprotected paint. The old black car was dulled by screening white over it;
-   a silver body has nowhere to go that way and just blows out, so the light
-   equivalent is to flatten it instead — a plain cross-fade to a grey, low
-   contrast copy of the same cutout. No blend mode: it replaces, not lifts. */
-.kmq-coat--dull { filter: grayscale(1) brightness(.74) contrast(.72); opacity: 0; }
-
-/* The two rim glows are black silhouettes behind the car — only their
-   drop-shadows show, as a halo. They must stay above .kmq-stack__car > img. */
-.kmq-coat--rim-silver {
-  filter: brightness(0)
-          drop-shadow(0 0 5px rgba(245, 245, 240, .55))
-          drop-shadow(0 0 16px rgba(245, 245, 240, .22));
-}
-
-.kmq-coat--rim-blue {
-  filter: brightness(0)
-          drop-shadow(0 0 7px rgba(87, 191, 238, .85))
-          drop-shadow(0 0 26px rgba(87, 191, 238, .40));
-}
-
-.kmq-coat--ppf,
-.kmq-coat--ceramic {
-  mix-blend-mode: screen;
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-.kmq-coat--ppf {
-  filter: brightness(0) invert(1);
-  opacity: .35;
-  -webkit-mask-image:
-    linear-gradient(101deg, transparent 25%, rgba(0,0,0,.5) 29%, #000 31%, rgba(0,0,0,.5) 33%, transparent 37%),
-    linear-gradient(180deg, #000 0 58%, transparent 86%);
-  mask-image:
-    linear-gradient(101deg, transparent 25%, rgba(0,0,0,.5) 29%, #000 31%, rgba(0,0,0,.5) 33%, transparent 37%),
-    linear-gradient(180deg, #000 0 58%, transparent 86%);
-}
-
-.kmq-coat--ceramic {
-  /* The coating layers tint a black silhouette, so there is no colour value
-     here to swap — sepia() bends white towards a hue and saturate() decides
-     how far. Measured on canvas: the gold this made was hsv(60, 9%); the
-     chain below lands hsv(198, 9%), the same wash at the logo's hue. */
-  filter: brightness(0) invert(1) sepia(.5) saturate(10) hue-rotate(170deg);
+  z-index: -1;
+  background: var(--sheen);
   opacity: .5;
-  -webkit-mask-image:
-    linear-gradient(99deg, transparent 33%, rgba(0,0,0,.45) 38%, #000 42%, rgba(0,0,0,.45) 46%, transparent 51%),
-    linear-gradient(180deg, #000 0 58%, transparent 86%);
-  mask-image:
-    linear-gradient(99deg, transparent 33%, rgba(0,0,0,.45) 38%, #000 42%, rgba(0,0,0,.45) 46%, transparent 51%),
-    linear-gradient(180deg, #000 0 58%, transparent 86%);
+  pointer-events: none;
 }
 
-/* Thermal tint. This is the one coating the silhouette cannot place on its
-   own: it belongs on the glass, not on the whole car, and the PNG's alpha
-   knows only car from background.
-
-   static/img/car-suv-glass.png is that missing outline — an alpha cut of the
-   greenhouse written by scripts/trace_car.py. It is thresholded off the photo
-   rather than traced by hand, so it lands on the real window edges: it follows
-   the curve of the windscreen, keeps the door mirror and the mirror's shadow
-   on the door out of the darkening, and stops at the belt line instead of
-   running onto the hood the way a straight-sided polygon did. A swapped photo
-   means re-running the script, not re-measuring anything in this file.
-
-   mask-size is spelled out because the mask has an intrinsic size: left at
-   auto it would be laid in at 1150x718 CSS pixels while the box around it
-   scales with the viewport, and the glass would drift off the windows. */
-.kmq-coat--tint,
-.kmq-coat--tint-rim {
-  -webkit-mask-image: url("../img/car-suv-glass.png");
-  mask-image: url("../img/car-suv-glass.png");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+.kmq-cycle__grid,
+.kmq-cycle__foot {
+  max-width: var(--kmq-shell);
+  margin-inline: auto;
+  padding-inline: var(--kmq-gutter);
 }
 
-.kmq-coat--tint { filter: brightness(0); opacity: .84; }
-
-.kmq-coat--tint-rim {
-  /* Same measurement: the gold rim was hsv(58, 35%). Blue saturation clips
-     at 31% here — the blue channel is already at 255 — so saturate() above
-     18 changes nothing. That 4-point shortfall is the one place the recolour
-     could not match the original exactly. */
-  filter: brightness(0) invert(1) sepia(1) saturate(18) hue-rotate(170deg);
-  mix-blend-mode: screen;
-  opacity: .42;
-  /* Two layers intersected: the glass cut, and the leading-edge sweep that
-     puts the sheen on the windscreen's near corner rather than every pane. */
-  -webkit-mask-image: url("../img/car-suv-glass.png"),
-                      linear-gradient(118deg, #000 6%, transparent 30%);
-  mask-image: url("../img/car-suv-glass.png"),
-              linear-gradient(118deg, #000 6%, transparent 30%);
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-.kmq-stack__foot {
+.kmq-cycle__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(20px, 4vw, 56px);
-  align-items: end;
+  gap: clamp(20px, 3vw, 40px);
 }
 
-.kmq-stack__caps { position: relative; min-height: clamp(130px, 24vh, 210px); }
+/* ---- Stage ------------------------------------------------------------- */
 
-.kmq-stack__cap {
+.kmq-cycle__stage {
+  position: relative;
+  inline-size: 100%;
+  max-inline-size: min(940px, 92vw);
+  margin-inline: auto;
+  /* The number build_images.py prints. Declared, not inferred, so the box is
+     the right size before the first image decodes. */
+  aspect-ratio: 1358 / 701;
+}
+
+.kmq-cycle__state {
   position: absolute;
-  inset-inline-start: 0;
-  inset-block-end: 0;
-  max-width: 640px;
-  /* Shorter than the .4s this ran at: a step is now one gesture, so a fade
-     that long was still finishing as the next caption was called for. */
-  transition: opacity .26s var(--kmq-ease), transform .26s var(--kmq-ease),
-              visibility .26s var(--kmq-ease);
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--kmq-fade, .7s) var(--kmq-ease);
 }
 
-/* Without JS the first caption stands on its own. visibility, not opacity
-   alone, keeps the other three out of the accessibility tree — otherwise a
-   screen reader meets four <h1>s at once. The [data-lit] pair comes last so
-   the scroll state wins on equal specificity. */
-.kmq-stack__cap:not(:first-child),
-.kmq-stack__cap[data-lit="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
+.kmq-cycle__state[data-on="true"] { opacity: 1; }
 
-.kmq-stack__cap[data-lit="true"] { opacity: 1; visibility: visible; pointer-events: auto; }
-
-.kmq-stack__cap h1 {
-  font-weight: 900;
-  font-size: clamp(28px, min(5.6vw, 5.6vh), 72px);
-  line-height: 1.15;
-  margin-block-end: 10px;
+.kmq-cycle__state img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
 }
 
-.kmq-stack__cap p {
-  font-family: var(--kmq-body-font);
-  font-size: clamp(14px, 1.9vh, 18px);
-  line-height: 1.9;
-  color: var(--kmq-ink-70);
-  max-width: 50ch;
+/* Promotion is granted to the two layers that are actually mid-transition and
+   taken back the moment the cycle stops. A blanket will-change on the hero
+   would hand the compositor a permanent layer for elements that are static
+   98% of the time, which costs memory and buys nothing. app.js sets and
+   clears this attribute. */
+.kmq-cycle[data-running="true"] .kmq-cycle__state[data-on="true"],
+.kmq-cycle[data-running="true"] .kmq-cycle__state[data-leaving="true"],
+.kmq-cycle[data-running="true"] .kmq-cycle__accentglow {
+  will-change: opacity;
 }
 
-.kmq-stack__cap .kmq-btn-row { margin-block-start: 18px; }
+/* ---- Copy -------------------------------------------------------------- */
 
-/* Bottom padding keeps the rail clear of the floating WhatsApp button. */
-.kmq-stack__rail {
+.kmq-cycle__kicker {
+  font-family: var(--kmq-font-meta);
+  font-size: var(--kmq-micro);
+  font-weight: 600;
+  letter-spacing: var(--kmq-track-meta);
+  text-transform: uppercase;
+  color: var(--brand-300);
   display: flex;
-  flex-direction: column;
-  min-width: 190px;
-  padding-block-end: 76px;
-}
-
-.kmq-stack__step {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px;
   align-items: center;
-  padding-block: clamp(7px, 1.2vh, 12px);
-  border-block-start: 1px solid var(--kmq-line);
+  gap: 14px;
 }
 
-.kmq-stack__step:last-of-type { border-block-end: 1px solid var(--kmq-line); }
-
-.kmq-stack__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--kmq-ink-35);
-  transition: background var(--kmq-quick), box-shadow var(--kmq-quick);
+.kmq-cycle__kicker::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--edge-shield);
 }
 
-.kmq-stack__dot[data-state="done"] { background: var(--kmq-blue); }
+.kmq-cycle__copy { max-width: 44ch; }
 
-.kmq-stack__dot[data-state="now"] {
-  background: var(--kmq-blue);
-  box-shadow: 0 0 0 5px var(--kmq-blue-18);
+/* Not --kmq-h1. That scale is sized for a headline running the full shell;
+   here it shares the row with the car and gets roughly half the width, where
+   82px breaks four Arabic words across four lines. The vw term is tuned to
+   the column rather than the viewport. */
+.kmq-cycle__copy h1 {
+  font-size: clamp(32px, 3.6vw, 54px);
+  font-weight: 800;
+  margin-block: 18px 0;
 }
 
-.kmq-stack__label {
-  font-family: var(--kmq-font-latin);
-  font-size: 11px;
-  letter-spacing: .18em;
-  color: var(--kmq-ink-35);
+.kmq-cycle__accent {
+  background: var(--kmq-grad-head);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.kmq-cycle__sub {
+  margin-block-start: 20px;
+  font-size: var(--kmq-lede);
+  color: var(--text-mid);
+  max-width: var(--kmq-measure);
+}
+
+.kmq-cycle__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-block-start: 32px;
+}
+
+/* ---- State rail --------------------------------------------------------
+   Four buttons, not four divs with click handlers: they are controls, they
+   need to be tabbable, and Enter and Space have to work without being
+   re-implemented. Arrow keys are app.js's job; everything else is free. */
+
+.kmq-cycle__rail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(8px, 1.4vw, 18px);
+  margin-block-start: clamp(24px, 4vw, 44px);
+  max-width: 820px;
+}
+
+.kmq-cycle__step {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  text-align: start;
+  background: none;
+  border: 0;
+  padding: 14px 0 0;
+  color: var(--text-low);
   transition: color var(--kmq-quick);
 }
 
-.kmq-stack__label[data-state="done"] { color: var(--kmq-ink-55); }
-.kmq-stack__label[data-state="now"]  { color: var(--kmq-ink); }
-
-.kmq-stack__bar { margin-block-start: 14px; height: 2px; background: var(--kmq-line); }
-
-.kmq-stack__bar i { display: block; height: 100%; width: 0; background: var(--kmq-grad-cta); }
-
-/* Phones: the rail cannot share a row with the caption at this width — the
-   caption grows past its reserved box and lands on the car. One column, and
-   the numbered steps go with it; the caption already names the stage, so only
-   the progress bar is doing work the copy is not. */
-@media (max-width: 700px) {
-  /* A thumb swipe travels further than a wheel flick and the pin is shorter,
-     so a step that reads as one gesture here is a shorter one. */
-  .kmq-stack { --kmq-stack-step: 150px; }
-
-  .kmq-stack__foot { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .kmq-stack__step { display: none; }
-  .kmq-stack__rail { min-width: 0; }
-  .kmq-stack__bar { margin-block-start: 0; }
-
-  /* The lit caption goes back into flow and the rest leave the box entirely,
-     so the row sizes to whichever caption is showing. Reserving a fixed height
-     instead means guessing: too little and the caption climbs onto the car on
-     a short phone, too much and the hero carries a dead band. Losing the
-     cross-fade overlap here costs nothing — one caption is on screen at a time. */
-  .kmq-stack__caps { min-height: 0; }
-  .kmq-stack__cap { position: static; }
-  .kmq-stack__cap:not(:first-child),
-  .kmq-stack__cap[data-lit="false"] { display: none; }
-  .kmq-stack__cap[data-lit="true"] { display: block; }
+/* The track and the fill. The fill is scaled, never widened: animating width
+   is a layout write and was one of the old hero's per-frame costs. */
+.kmq-cycle__step::before,
+.kmq-cycle__step::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 2px;
+  border-radius: var(--kmq-radius-pill);
 }
 
-/* Reduced motion deliberately has NO overrides here, and that is the whole
-   point: an earlier version collapsed the track to one screen, which handed
-   everyone with the OS setting on a hero with no sequence in it at all.
-   The build is scroll-driven — the visitor moves it, nothing moves on its
-   own — so it stays. What goes is the travel: app.js skips the caption slide
-   under the setting, leaving a plain swap, and the global rule in base.css
-   already flattens every duration to nothing.
-   Coating reveal and caption order survive; only the movement is gone. */
+.kmq-cycle__step::before { background: var(--glass-line); }
+
+.kmq-cycle__step::after {
+  background: var(--kmq-accent);
+  transform: scaleX(0);
+  transform-origin: inline-start;
+}
+
+/* States already played read as full; the live one fills over its own dwell.
+   The duration is app.js's timing, handed over as a property rather than
+   hardcoded twice. */
+.kmq-cycle__step[data-state="done"]::after { transform: scaleX(1); }
+
+.kmq-cycle__step[data-state="live"]::after {
+  transform: scaleX(1);
+  transition: transform var(--kmq-hold, 2.8s) linear;
+}
+
+.kmq-cycle__step[data-state="live"] { color: var(--text-hi); }
+
+.kmq-cycle__step:hover { color: var(--text-mid); }
+
+.kmq-cycle__step-name {
+  display: block;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.kmq-cycle__step-num {
+  display: block;
+  font-family: var(--kmq-font-meta);
+  font-size: 11px;
+  letter-spacing: var(--kmq-track-code);
+  color: var(--kmq-accent);
+  margin-block-end: 6px;
+}
+
+.kmq-cycle__step:focus-visible {
+  outline: 2px solid var(--brand-300);
+  outline-offset: 4px;
+  border-radius: var(--kmq-radius);
+}
+
+/* The signature edge, closing the hero. The old version ended on a hard cut. */
+.kmq-cycle__edge {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  block-size: 1px;
+  background: var(--edge-shield);
+}
+
+/* ---- Layout ------------------------------------------------------------ */
+
+@media (min-width: 900px) {
+  .kmq-cycle__grid {
+    grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 64px);
+  }
+
+  /* The stage leads in reading order on wide screens — first in the DOM would
+     put it before the h1, which is wrong for a screen reader and wrong for
+     the document outline, so it is ordered here instead. */
+  .kmq-cycle__stage { grid-column: 2; grid-row: 1; }
+  .kmq-cycle__side  { grid-column: 1; grid-row: 1; }
+}
+
+@media (max-width: 899px) {
+  .kmq-cycle__rail { grid-template-columns: repeat(2, 1fr); }
+  .kmq-cycle__stage { order: -1; }
+}
+
+@media (max-width: 420px) {
+  .kmq-cycle__step-name { font-size: 13px; }
+}
+
+/* ---- Reduced motion ----------------------------------------------------
+   No auto-cycling at all: app.js never starts the timer. The dots still
+   switch states on click, and the swap is a short fade rather than an instant
+   cut, because an instant cut on a photograph reads as a glitch. base.css's
+   global rule would otherwise flatten this to nothing, hence the !important —
+   it is re-asserting a deliberate 120ms, not opting out of the setting. */
+@media (prefers-reduced-motion: reduce) {
+  .kmq-cycle__state,
+  .kmq-cycle__accentglow {
+    transition-duration: 120ms !important;
+  }
+
+  .kmq-cycle__step[data-state="live"]::after {
+    transition: none !important;
+  }
+}
