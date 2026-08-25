@@ -328,7 +328,7 @@ reasoning and the measurements. Typography is the last open brand item.
 
 **Redesigned 2026-08-25.** The client's 2026 brief lands: a deep-blue-to-violet
 palette, glass surfaces, one light section breaking the dark ones, and a hero
-that plays on its own. `docs/milestones/11-redesign-2026.md` carries the scope
+that plays on its own. `docs/milestones/12-redesign-2026.md` carries the scope
 and the acceptance numbers; `scripts/audit.py` regenerates them.
 
 Two decisions here rather than in the milestone, because they constrain what

@@ -166,13 +166,27 @@
   flex-shrink: 0;
 }
 
-/* The client's logo, dark-mode cut. It is a square combination mark with
-   the wordmark inside it, so it is sized by height and given room to be
-   read: 54px in the bar, 44px once the burger takes over. The artwork
-   carries its own padding, hence no box around it. */
+/* The mark sits on a plate, and that is not decoration.
+
+   The wordmark's "SHIELD" is white and overhangs the shield on all three cuts
+   the client supplied, so on a paper header those letters disappear into the
+   page — the mark reads as a shield with KMQ on it and nothing underneath.
+   Cropping or recolouring the artwork is not ours to do.
+
+   A plate solves it with the asset untouched, and it is how the brand is
+   actually presented: every storefront photograph in the kit shows the mark on
+   a dark or blue sign panel, never bare on a wall. So the header gets a small
+   --deep chip and the dark-ground cut goes back on it, which is the pairing
+   the artwork was drawn for. */
+.kmq-brand {
+  padding: 7px 12px;
+  border-radius: var(--kmq-radius);
+  background: var(--deep);
+}
+
 .kmq-brand__logo {
   display: block;
-  height: 48px;
+  height: 40px;
   width: auto;
   flex-shrink: 0;
 }

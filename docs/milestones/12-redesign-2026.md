@@ -1,4 +1,4 @@
-# 11 — 2026 redesign
+# 12 — 2026 redesign
 
 **Goal.** The client's 2026 brief: a new colour system, a hero that plays on
 its own instead of lagging on scroll, real branch photography, and photographs

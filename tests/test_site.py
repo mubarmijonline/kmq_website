@@ -400,14 +400,17 @@ def test_each_logo_cut_sits_on_the_ground_it_was_drawn_for(client):
     FOR a light one. On the wrong ground the letters that overhang the shield
     lose their keyline and disappear.
 
-    The page is paper now, so the header wears the light cut; the footer is the
-    one deep band left, so it keeps the dark one. The favicon stays the light
-    cut because a browser tab is white in half the browsers on the market."""
+    The page is paper, but the header mark sits on a --deep plate — the white
+    "SHIELD" overhangs the shield on every cut the client supplied and would
+    vanish on a bare paper header — so the header wears the dark-ground cut on
+    that plate. The footer is deep, so it wears the dark cut too. The favicon
+    is the light cut, because a browser tab is white in half the browsers."""
     html = client.get("/ar/").get_data(as_text=True)
 
     brand = re.search(r'<a class="kmq-brand.*?</a>', html, re.DOTALL)
     assert brand, "no brand link in the header"
-    assert "kmq-logo-light.svg" in brand.group(0)
+    assert "img/brand/kmq-logo.svg" in brand.group(0)
+    assert "kmq-logo-light.svg" not in brand.group(0)
 
     footer = re.search(r'<footer class="kmq-footer.*?</footer>', html, re.DOTALL)
     assert footer, "no footer"
