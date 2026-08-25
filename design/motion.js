@@ -231,10 +231,22 @@
     var halo = seal.querySelector('.kmq-seal__halo');
     var num = seal.querySelector('.kmq-seal__num');
 
-    /* The rings are already rotated 45deg in CSS to make the square a
-       diamond, so these go from there rather than from zero. */
-    if (outer) gsap.to(outer, { rotation: 405, duration: 62, ease: 'none', repeat: -1 });
-    if (inner) gsap.to(inner, { rotation: -315, duration: 48, ease: 'none', repeat: -1 });
+    /* The rings sway a few degrees either side of 45 rather than turning all
+       the way round. A full rotation was tried and rejected: these are squares
+       rotated 45deg to read as diamonds, so anywhere except 45 is a tilted
+       square, and a continuous turn spends almost all of its time with the
+       mark out of shape. Six degrees of sway keeps the diamond and still
+       moves. They lean opposite ways so the pair counter-rotates. */
+    if (outer) {
+      gsap.fromTo(outer, { rotation: 45 }, {
+        rotation: 51, duration: 7, ease: 'sine.inOut', repeat: -1, yoyo: true
+      });
+    }
+    if (inner) {
+      gsap.fromTo(inner, { rotation: 45 }, {
+        rotation: 39, duration: 5.5, ease: 'sine.inOut', repeat: -1, yoyo: true
+      });
+    }
 
     if (halo) {
       gsap.to(halo, {
