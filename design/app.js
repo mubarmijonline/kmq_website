@@ -250,6 +250,7 @@
 
     var states = root.querySelectorAll('[data-kmq-state]');
     var steps = root.querySelectorAll('[data-kmq-step]');
+    var fills = root.querySelectorAll('.kmq-cycle__fill');
     if (states.length < 2 || steps.length !== states.length) return;
 
     /* Per-state accents. Sampling the images was the original plan and does
@@ -300,13 +301,44 @@
         el.setAttribute('data-leaving', i === previous && i !== current ? 'true' : 'false');
       });
 
+      /* The fill is driven here rather than by a CSS transition.
+         State 1 ships data-state="live" in the markup so the section is not
+         blank without JS — which meant scaleX(1) was its *initial* computed
+         style, and a transition has nothing to run from. Its bar sat full for
+         the whole dwell while every other state's filled correctly. Returning
+         to a state already visited had the same problem.
+
+         Restarting a CSS transition means setting the from-value, forcing a
+         reflow and setting the to-value, and the fill was a ::after, which
+         the Web Animations API cannot touch — so the restart depended on how
+         the engine batched style recalculation, and it did not survive the
+         case where the element was already in the target state. The fill is a
+         real element now and this cancels and replays outright, which needs
+         no reflow and cannot be coalesced away. */
       steps.forEach(function (el, i) {
-        /* "done" holds the fill at full without a transition; "live" runs it
-           across the dwell. Setting live last, after a reflow-free attribute
-           write, is enough — the transition is declared in CSS against the
-           data-state value, so the browser starts it. */
-        el.setAttribute('data-state', i === current ? 'live' : (i < current ? 'done' : 'idle'));
+        el.setAttribute('data-state', i < current ? 'done' : (i === current ? 'live' : 'idle'));
         el.setAttribute('aria-pressed', i === current ? 'true' : 'false');
+
+        var fill = fills[i];
+        if (!fill) return;
+        fill.getAnimations().forEach(function (a) { a.cancel(); });
+        if (i < current) {
+          fill.style.transform = 'scaleX(1)';
+        } else if (i > current) {
+          fill.style.transform = 'scaleX(0)';
+        } else {
+          fill.style.transform = 'scaleX(0)';
+          /* Under the setting the cycle never runs, but a click still lands
+             here — so the live bar shows full rather than animating to it. */
+          if (reduce) {
+            fill.style.transform = 'scaleX(1)';
+          } else {
+            fill.animate(
+              [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+              { duration: HOLD, easing: 'linear', fill: 'forwards' }
+            );
+          }
+        }
       });
 
       root.style.setProperty('--kmq-accent', accents[current] || accents[0]);
@@ -351,6 +383,10 @@
       if (running || reduce || !ready || !visible || d.hidden) return;
       running = true;
       root.setAttribute('data-running', 'true');
+      /* Paint the state we are already on before waiting on the first timer,
+         so the bar for state 1 runs its fill like every other one rather
+         than standing full for the whole dwell. */
+      paint(current);
       tick();
     }
 

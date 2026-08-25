@@ -90,6 +90,11 @@
                 data-state="{{ 'live' if loop.first else 'idle' }}"
                 aria-pressed="{{ 'true' if loop.first else 'false' }}"
                 title="{{ s.tagline }}">
+          {# A real element, not a ::after. The fill has to be restarted from
+             JS on every state change, and the Web Animations API cannot touch
+             a pseudo-element — restarting one means reflow tricks that depend
+             on how the engine batches style recalculation. #}
+          <i class="kmq-cycle__fill" aria-hidden="true"></i>
           <span class="kmq-cycle__step-num" dir="ltr">0{{ loop.index }}</span>
           <span class="kmq-cycle__step-name">{{ s.name }}</span>
         </button>

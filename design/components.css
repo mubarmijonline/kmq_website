@@ -2673,10 +2673,12 @@
   transition: color var(--kmq-quick);
 }
 
-/* The track and the fill. The fill is scaled, never widened: animating width
-   is a layout write and was one of the old hero's per-frame costs. */
+/* The track is a pseudo-element; the fill is a real one. The fill is scaled,
+   never widened — animating width is a layout write and was one of the old
+   hero's per-frame costs — and app.js drives it with the Web Animations API,
+   which is why it cannot be a ::after like the track. */
 .kmq-cycle__step::before,
-.kmq-cycle__step::after {
+.kmq-cycle__fill {
   content: "";
   position: absolute;
   inset-block-start: 0;
@@ -2687,21 +2689,15 @@
 
 .kmq-cycle__step::before { background: var(--glass-line); }
 
-.kmq-cycle__step::after {
+.kmq-cycle__fill {
   background: var(--kmq-accent);
   transform: scaleX(0);
-  transform-origin: inline-start;
+  transform-origin: left center;
 }
 
-/* States already played read as full; the live one fills over its own dwell.
-   The duration is app.js's timing, handed over as a property rather than
-   hardcoded twice. */
-.kmq-cycle__step[data-state="done"]::after { transform: scaleX(1); }
-
-.kmq-cycle__step[data-state="live"]::after {
-  transform: scaleX(1);
-  transition: transform var(--kmq-hold, 2.8s) linear;
-}
+/* RTL fills from the right, and transform-origin does not follow direction
+   on its own. */
+[dir="rtl"] .kmq-cycle__fill { transform-origin: right center; }
 
 .kmq-cycle__step[data-state="live"] { color: var(--kmq-ink); }
 
@@ -2775,7 +2771,6 @@
     transition-duration: 120ms !important;
   }
 
-  .kmq-cycle__step[data-state="live"]::after {
-    transition: none !important;
-  }
+  /* The fill is a WAAPI animation now, and app.js does not start it under
+     the setting — nothing to suppress here. */
 }

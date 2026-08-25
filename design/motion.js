@@ -87,10 +87,38 @@
           trigger: grid.parent,
           start: 'top 85%',
           once: true
-        }
+        },
+        onComplete: function () { float(grid.items); }
       });
     });
   }());
+
+  /* ---- Cards keep moving -------------------------------------------------
+     A slow vertical drift that never stops, so a grid is alive whether or not
+     a pointer is anywhere near it.
+
+     Started from the reveal's onComplete rather than at init, because both
+     write `y` and the reveal's clearProps would wipe the float's transform if
+     they overlapped. By the time this runs the reveal is finished and gone.
+
+     Each card gets its own duration and its own delay. Identical timings look
+     like the whole grid is on one hinge; a couple of tenths of drift between
+     neighbours is what makes it read as several separate objects. The offsets
+     are derived from the index rather than random so a reload looks the same
+     as the last one. */
+
+  function float(items) {
+    items.forEach(function (el, i) {
+      gsap.to(el, {
+        y: i % 2 ? -7 : -5,
+        duration: 2.6 + (i % 3) * .45,
+        delay: i * .18,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true
+      });
+    });
+  }
 
   /* ---- Section heads ----------------------------------------------------- */
 
@@ -153,6 +181,14 @@
       var to = gsap.quickTo(card, 'rotationY', { duration: .5, ease: EASE });
       var toX = gsap.quickTo(card, 'rotationX', { duration: .5, ease: EASE });
 
+      /* The lift moves to scale here, and that is forced rather than chosen.
+         The idle float owns `y` for the life of the page, so the CSS
+         :hover translateY is overridden the moment GSAP touches the element —
+         it is left in the stylesheet on purpose, because without this bundle
+         it is the only lift there is. With the bundle, scale does the job and
+         does not contend for a property something else is already animating. */
+      var toScale = gsap.quickTo(card, 'scale', { duration: .35, ease: EASE });
+
       /* quickTo keeps one tween alive per property and retargets it, so
          moving the pointer across a card is not a new tween per event. */
       card.addEventListener('pointermove', function (e) {
@@ -161,7 +197,10 @@
         toX(((e.clientY - b.top) / b.height - .5) * -2 * MAX);
       });
 
-      card.addEventListener('pointerleave', function () { to(0); toX(0); });
+      card.addEventListener('pointerenter', function () { toScale(1.02); });
+      card.addEventListener('pointerleave', function () {
+        to(0); toX(0); toScale(1);
+      });
     });
 
     /* Perspective has to live on the parent or the rotation is an affine squash
@@ -170,6 +209,57 @@
     each('[data-kmq-grid]', function (grid) {
       grid.style.perspective = '1200px';
     });
+  }());
+
+  /* ---- The warranty seal -------------------------------------------------
+     The two diamonds counter-rotate and the halo breathes, so the seal reads
+     as a mark being stamped rather than a graphic sitting still. Slow on
+     purpose: a full turn takes a minute, which is under the threshold where
+     the eye starts tracking it instead of reading the copy beside it.
+
+     The numeral counts up when the band arrives. It ends on exactly the
+     string the content file holds — the tween drives a number and the last
+     frame writes the original text back, so nothing here can leave a value
+     the copy did not say. */
+
+  (function seal() {
+    var seal = d.querySelector('.kmq-seal');
+    if (!seal) return;
+
+    var outer = seal.querySelector('.kmq-seal__ring:not(.kmq-seal__ring--inner)');
+    var inner = seal.querySelector('.kmq-seal__ring--inner');
+    var halo = seal.querySelector('.kmq-seal__halo');
+    var num = seal.querySelector('.kmq-seal__num');
+
+    /* The rings are already rotated 45deg in CSS to make the square a
+       diamond, so these go from there rather than from zero. */
+    if (outer) gsap.to(outer, { rotation: 405, duration: 62, ease: 'none', repeat: -1 });
+    if (inner) gsap.to(inner, { rotation: -315, duration: 48, ease: 'none', repeat: -1 });
+
+    if (halo) {
+      gsap.to(halo, {
+        scale: 1.06, opacity: .72,
+        duration: 3.4, ease: 'sine.inOut', repeat: -1, yoyo: true
+      });
+    }
+
+    if (num) {
+      var text = num.textContent.trim();
+      var target = parseInt(text, 10);
+      if (!isNaN(target)) {
+        var box = { v: 0 };
+        gsap.to(box, {
+          v: target,
+          duration: 1.1,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: seal, start: 'top 80%', once: true },
+          onUpdate: function () { num.textContent = String(Math.round(box.v)); },
+          /* Whatever the tween rounded to on its last frame, the element ends
+             holding the exact string the content file shipped. */
+          onComplete: function () { num.textContent = text; }
+        });
+      }
+    }
   }());
 
   /* ---- The CTA band lifts ------------------------------------------------ */
