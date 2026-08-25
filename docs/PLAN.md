@@ -120,6 +120,20 @@ cut of the greenhouse thresholded off the image itself — and the grid overlay
 the cutout is measured on. Swapping the hero photograph means re-running that
 script, not re-tracing anything by hand.
 
+**Icons are generated, not hand-kept.** `templates/partials/icons.html` is
+written by `scripts/build_icons.py` out of `WEBSITE/`, the client's kit: the
+Illustrator wrappers are dropped and the kit's #00B3FF becomes
+`currentColor`, so a glyph takes the colour of whatever labels it. Templates
+ask for a name — `kit("car-shield", 96)` — and `content.py`'s `ICONS` is the
+list of names content may use. A new drawing from the client is a file drop
+and one command, never an edit to the partial.
+
+**The glyph leads the text.** Sections that pair an icon with words stack
+them: the drawing first at display size on its plate, the words under it.
+`.kmq-glyph` sizes and colours the drawing, `.kmq-glyph-plate` is the ring
+and glow behind it, and `--lead` / `--tile` / `--bare` are the three sizes
+in use. Nothing else in the stylesheet paints an icon.
+
 The admin is a fourth file, `admin.css`, bundled separately with `tokens.css`
 and nothing else. Two bundles rather than one because the two audiences share
 a palette and no components: a visitor should never download the staff
@@ -193,7 +207,11 @@ Environment keeps precedence where set, so a deploy can still pin them.
 
 **`branch`** and **`warranty`** keep their existing typed columns. They have
 real constraints (E.164 checks, the status foreign key, the normalisation
-contract) and those constraints are the point.
+contract) and those constraints are the point. `branch` gained the display
+strings the templates render — both languages of city, short label and opening
+hours — in `db/migrations/003_branch_editable.sql`, and the overlay builds the
+branches list out of the table rather than out of `content_entry`. One row per
+branch, with the checks on it, beats a document and a row disagreeing.
 
 ### Cache and invalidation
 
@@ -248,6 +266,15 @@ placeholder where a body would go, because no body copy was ever approved. With
 a body editor that gap closes, so the placeholder is replaced by the stored body
 and falls back to the placeholder when a post has none.
 
+A body is stored and rendered as plain text — a blank line starts a paragraph,
+a line opening with `##` is a subheading, and nothing else is interpreted. The
+alternative, a rich-text field rendered as markup, makes every article an
+injection surface in exchange for formatting nobody asked for.
+
+(Two smaller changes followed in milestone 08: the branch card prefers a
+branch's own WhatsApp number where one is set, and the branches page passes it
+in.)
+
 ## Sequencing
 
 Milestones in `docs/milestones/`, delivered in order:
@@ -264,6 +291,8 @@ Milestones in `docs/milestones/`, delivered in order:
 8. **08 — admin editors.** Every content section above.
 9. **09 — operations.** Leads inbox, warranty CRUD, settings, users, audit.
 10. **10 — admin launch.** Tests, migration against prod, verification.
+11. **11 — icon kit.** The client's drawings lead every section; the
+    traced placeholder glyphs go.
 
 ## Risks
 

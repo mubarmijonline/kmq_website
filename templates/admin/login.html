@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block title %}Sign in{% endblock %}
+
+{# No rail: there is nothing to navigate to until you are signed in. #}
+{% block frame %}
+<div class="adm-gate">
+  <div class="adm-gate__card">
+    <img class="adm-gate__mark" src="{{ url_for('static', filename='img/brand/kmq-logo.svg') }}" alt="KMQ">
+    <h1>Sign in</h1>
+    <p class="adm-gate__sub">KMQ site administration</p>
+
+    {% include "admin/flashes.html" %}
+    {% if error %}<p class="adm-note adm-note--bad">{{ error }}</p>{% endif %}
+
+    <form class="adm-form" method="post" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="adm-field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="{{ email }}"
+               autocomplete="username" required autofocus>
+      </div>
+
+      <div class="adm-field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"
+               autocomplete="current-password" required>
+      </div>
+
+      <button class="adm-btn" type="submit">Sign in</button>
+    </form>
+
+    <p class="adm-gate__foot">
+      Locked out? An owner can issue a new password with
+      <code>flask reset-password</code>.
+    </p>
+  </div>
+</div>
+{% endblock %}

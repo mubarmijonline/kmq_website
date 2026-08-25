@@ -7,6 +7,7 @@ import logging
 import os
 from datetime import date
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
 from flask import Flask, g, request
@@ -14,6 +15,7 @@ from werkzeug.routing import BaseConverter
 
 from . import assets
 from . import content as C
+from . import text
 
 ROOT = Path(__file__).resolve().parent.parent
 DESIGN_DIR = ROOT / "design"
@@ -69,6 +71,16 @@ def create_app(config: dict | None = None) -> Flask:
         app.config.update(config)
 
     is_prod = app.config["ENV_NAME"] == "prod"
+    if is_prod and not os.environ.get("SECRET_KEY"):
+        # The os.urandom fallback above is fine for one dev process and wrong
+        # for two gunicorn workers: each would sign cookies with a different
+        # key, so an admin session would survive one request in two. Refusing
+        # to boot is the only honest response.
+        raise RuntimeError(
+            "SECRET_KEY must be set when KMQ_ENV=prod: without it each worker "
+            "signs sessions with a different key and admins are logged out at "
+            "random."
+        )
     app.config["SESSION_COOKIE_SECURE"] = is_prod
     app.config["PREFERRED_URL_SCHEME"] = "https" if is_prod else "http"
 
@@ -82,10 +94,14 @@ def create_app(config: dict | None = None) -> Flask:
     _wire_locale(app)
     _wire_context(app)
 
+    from . import cli
+    from .admin import bp as admin_bp
     from .routes import bp, register_errors
 
     app.register_blueprint(bp)
+    app.register_blueprint(admin_bp)
     register_errors(app)
+    cli.register(app)
 
     return app
 
@@ -120,10 +136,22 @@ def _wire_assets(app: Flask, *, rebuild: bool) -> None:
 # --------------------------------------------------------------------------
 
 def _wire_database(app: Flask) -> None:
+    from . import store
     from .db import Database
 
     database = Database(app.config["DATABASE_URL"])
     app.extensions["kmq_db"] = database
+
+    # The content overlay: stored edits layered over the copy in content.py.
+    # Installed only when there is a pool to read from, so a site running
+    # without DATABASE_URL keeps the shipped copy and pays nothing for it.
+    overlay = store.Overlay(database)
+    app.extensions["kmq_overlay"] = overlay
+    # content.py holds one module-level overlay, which is right for the single
+    # application a worker process builds and matters in tests, where an app
+    # built without a database must not keep reading through the previous
+    # app's pool.
+    C.use_overlay(overlay if database.enabled else None)
 
     @app.teardown_appcontext
     def _noop(_exc):  # pooled connections are returned by the context manager
@@ -169,10 +197,14 @@ def _wire_context(app: Flask) -> None:
             "TBD": C.TBD,
             "asset": _asset_url,
             "wa": _whatsapp_url,
+            "wa_at": _whatsapp_url_at,
             "wa_configured": bool(app.config["WHATSAPP_NUMBER"]),
             "show_prices": app.config["SHOW_PRICES"],
             "current_year": date.today().year,
             "icons": C.ICONS,
+            # Article bodies are plain text; this is the whole of the markup
+            # they are allowed to imply. See app/text.py:blocks.
+            "blocks": text.blocks,
             # The lead form is described once, in content.py, and rendered by
             # one loop. Everything that loop needs is resolved here so the
             # template never calls into Python.
@@ -192,6 +224,21 @@ def _wire_context(app: Flask) -> None:
         from flask import url_for
 
         return url_for("static", filename=f"build/{manifest[kind]}")
+
+    def _whatsapp_url_at(number: Any, message: str | None = None) -> str | None:
+        """A wa.me link to one branch's own number, or ``None``.
+
+        Falsy covers both an unset number and the ``TBD`` sentinel, which is
+        what an unconfirmed branch phone is; callers fall back to
+        :func:`_whatsapp_url` and then to the contact page.
+        """
+        if not number:
+            return None
+        digits = "".join(ch for ch in str(number) if ch.isdigit())
+        if not digits:
+            return None
+        text = message or C.content(getattr(g, "locale", C.DEFAULT_LOCALE))["wa_default"]
+        return f"https://wa.me/{digits}?text={quote(text)}"
 
     def _whatsapp_url(text: str | None = None) -> str | None:
         """A wa.me link, or ``None`` when no number is configured.

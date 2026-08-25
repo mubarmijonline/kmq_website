@@ -11,6 +11,13 @@
 {# ---- Lookup ---- #}
 <section id="check" class="kmq-section kmq-section--raised" style="border-block-end:1px solid var(--kmq-blue-18)">
   <div class="kmq-shell" style="max-width:1000px">
+    {# The lookup takes a plate number or an invoice number, and the kit
+       draws both. They head the section so the two ways in are visible
+       before the field is read. #}
+    <div class="kmq-lookup__ways" aria-hidden="true">
+      {{ m.glyph('plate', 'lead') }}
+      {{ m.glyph('invoice', 'lead') }}
+    </div>
     <h2 style="font-weight:900;font-size:30px;margin-block-end:12px">{{ t.war_check_title }}</h2>
     <p style="font-size:15px;line-height:1.95;color:var(--kmq-ink-60);margin-block-end:32px">{{ t.war_check_sub }}</p>
 
@@ -74,6 +81,7 @@
   <div class="kmq-grid kmq-grid--wide">
     {% for w in blocks %}
       <article class="kmq-panel kmq-panel--card">
+        {{ m.glyph(w.icon, 'lead') }}
         <h3>{{ w.title }}</h3>
         <div class="kmq-ltr" style="font-family:var(--kmq-font-latin);font-size:40px;font-weight:600;color:var(--kmq-blue);margin-block-end:6px">{{ w.years }}</div>
         <div style="font-size:14px;color:var(--kmq-ink-45);margin-block-end:30px">{{ w.years_label }}</div>
@@ -90,6 +98,7 @@
 <section class="kmq-shell" style="padding-block:60px 120px">
   <div class="kmq-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))">
     <div class="kmq-panel">
+      {{ m.glyph('no-bubbles', 'tile') }}
       <h3>{{ t.not_covered_title }}</h3>
       <ul class="kmq-ticks kmq-ticks--minus">
         {% for c in t.not_covered %}<li>{{ c }}</li>{% endfor %}
@@ -97,6 +106,7 @@
     </div>
 
     <div class="kmq-panel">
+      {{ m.glyph('uv', 'tile') }}
       <h3>{{ t.conditions_title }}</h3>
       <ul class="kmq-ticks kmq-ticks--muted">
         {% for c in t.conditions %}<li>{{ c }}</li>{% endfor %}
@@ -104,6 +114,7 @@
     </div>
 
     <div class="kmq-panel kmq-panel--lit">
+      {{ m.glyph('self-healing', 'tile') }}
       <h3>{{ t.after_sales_title }}</h3>
       <p style="font-size:15px;line-height:2;color:var(--kmq-ink-80)">{{ t.after_sales_body }}</p>
     </div>

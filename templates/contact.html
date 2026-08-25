@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "partials/macros.html" as m %}
+{% from "partials/icons.html" import kit %}
 
 {% block title %}{{ t.nav[7].label }} — KMQ{% endblock %}
 {% block description %}{{ t.contact_sub }}{% endblock %}
@@ -14,6 +15,7 @@
 {% if link %}
   <section class="kmq-shell" style="padding-block:70px 0">
     <div class="kmq-prompt">
+      {{ m.glyph('whatsapp-solid', 'tile') }}
       <div>
         <h3>{{ t.cta_whatsapp }}</h3>
         <p>{{ t.final_sub }}</p>
@@ -35,6 +37,7 @@
       {% else %}
         <div class="kmq-formcard">
         <div class="kmq-formcard__head">
+          {{ m.glyph('form', 'lead') }}
           <h2>{{ t.contact_form_title }}</h2>
           <p>{{ t.contact_form_sub }}</p>
         </div>
@@ -64,10 +67,11 @@
 
               <div class="kmq-field {% if err %}kmq-field--bad{% endif %} {% if field.type == 'textarea' %}kmq-formgrid__wide{% endif %}">
                 <label class="kmq-field__label" for="f-{{ name }}">
-                  {{ lead_labels[name] }}
+                  {{ kit(field.icon, 17, 'kmq-glyph--bare') }}
+                  <span>{{ lead_labels[name] }}
                   {% if field.required %}<span class="kmq-field__req" aria-hidden="true">*</span>
                     <span class="kmq-sr">({{ t.required_mark }})</span>
-                  {% else %}<span style="color:var(--kmq-ink-45);font-weight:400"> — {{ t.optional_mark }}</span>{% endif %}
+                  {% else %}<span style="color:var(--kmq-ink-45);font-weight:400"> — {{ t.optional_mark }}</span>{% endif %}</span>
                 </label>
 
                 {% if field.type == 'select' %}
@@ -117,7 +121,7 @@
 
     <aside class="kmq-aside">
       <div class="kmq-aside__card">
-        <h2 class="kmq-aside__title">{{ t.contact_phones_title }}</h2>
+        <h2 class="kmq-aside__title">{{ kit('phone', 18, 'kmq-glyph--bare') }}{{ t.contact_phones_title }}</h2>
         <dl class="kmq-footer__phones">
           {% for b in t.branches %}
             <div>
@@ -131,7 +135,7 @@
       </div>
 
       <div class="kmq-aside__card">
-        <h2 class="kmq-aside__title">{{ t.footer_hours }}</h2>
+        <h2 class="kmq-aside__title">{{ kit('clock', 18, 'kmq-glyph--bare') }}{{ t.footer_hours }}</h2>
         <div class="kmq-footer__hours" style="margin:0">
           <div>{{ t.hours_week }}</div>
           <div>{{ t.hours_fri }}</div>

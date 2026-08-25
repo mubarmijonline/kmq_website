@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}Branches{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>Branches</h1>
+    <p>The one list that is a table rather than a document: every lead and
+       every warranty points at a branch by id, and the phone numbers are
+       checked as E.164 by the database itself. Leave a field empty and the
+       page prints "to be confirmed" rather than a blank.</p>
+  </div>
+</div>
+
+<div class="adm-panel">
+  <table class="adm-table">
+    <thead>
+      <tr><th>Branch</th><th>City</th><th>Phone</th><th>Hours</th><th>State</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.name_en }}<br><span dir="rtl">{{ row.name_ar }}</span></td>
+        <td>{{ row.city }}</td>
+        <td>{% if row.phone_e164 %}<code>{{ row.phone_e164 }}</code>{% else %}<span class="adm-tag adm-tag--warn">pending</span>{% endif %}</td>
+        <td>{% if row.hours_en %}{{ row.hours_en }}{% else %}<span class="adm-tag adm-tag--warn">pending</span>{% endif %}</td>
+        <td>
+          {% if row.is_published %}<span class="adm-tag adm-tag--ok">live</span>
+          {% else %}<span class="adm-tag adm-tag--warn">hidden</span>{% endif %}
+        </td>
+        <td><a href="{{ url_for('admin.branch', bid=row.id) }}">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

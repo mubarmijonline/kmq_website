@@ -199,7 +199,7 @@ folder is gitignored with the rest of the client source; what ships is under
 | `H instagram.svg`, `H tiktok.svg`, `H snap.svg`, `H facebook.svg` | the four social tiles in the footer |
 | `H whatsapp.svg` | the floating WhatsApp button, replacing the glyph ported from the prototype |
 | `H clock.svg`, `H mobile.svg` | the footer's "Working hours" and "Branch phones" headings |
-| `location.svg` | not used yet — it belongs on the branch cards, which are waiting on the addresses |
+| `location.svg` | the branch cards and the pickup prompt |
 
 **The two cuts are not interchangeable.** Both draw the same lockup, but the
 dark cut's white letters overhang the shield, so on a light ground the parts
@@ -215,12 +215,43 @@ for and pads the header with dead space the gutter cannot see. Each copy's
 dark, `84 78 342 355` light. Nothing else in either file is touched.
 
 **The glyphs are re-emitted, not copied.** `templates/partials/icons.html`
-holds the eight paths behind a `brand_icon(name, size)` macro. Two changes from
-the kit: the wrapping `<defs>`/`<style>`/`<g>` are dropped, carrying the one
-`fill-rule: evenodd` they held onto the paths that need it; and every glyph is
+holds them behind a `kit(name, size)` macro — `brand_icon` is the older name
+for the same thing. Two changes from the kit: the wrapping
+`<defs>`/`<style>`/`<g>` are dropped, carrying the one `fill-rule: evenodd`
+they held onto the paths that need it; and every glyph is
 `fill="currentColor"`. The kit paints them #00B3FF, which is the logo's blue —
-right on the logo, wrong on a gold section heading and wrong on a green
-WhatsApp button.
+right on the logo, wrong on a section heading and wrong on a green WhatsApp
+button.
+
+**The rest of the kit followed on 2026-08-22.** `WEBSITE/` holds thirty-seven
+SVGs in eight folders, not ten in one; the other twenty-nine were unused while
+the pages drew twelve traced line icons of their own. `scripts/build_icons.py`
+now re-emits all of them, on the same two rules, into the same partial:
+thirty-two names, since six files are the same drawing delivered into two
+folders. Two names are exceptions to the recolour — `pay-tabby` and
+`pay-emkan` are third-party payment logos and keep their own colours, on a
+light chip, on the packages page. Their `viewBox` is cropped to the artwork
+the way the two logo cuts are, for the same reason: the marks arrive as a
+35-unit band adrift in a 128 square.
+
+**The instalment marks lost their own backgrounds on 2026-08-22.** Tabby
+shipped as a black wordmark on a green pill and Tamara as a black one on a
+rainbow pill, so a row that already gives all three providers one shared light
+chip showed two of them wearing a second, differently coloured box inside it.
+`build_icons.py` grew a `PLATES` rule that drops a named brand fill and a
+tighter `pay-tabby` crop to match; `scripts/build_paymarks.py` lifts Tamara's
+letters off its pill by luminance and chroma and re-cuts them at 4x on
+transparency, since Tamara arrives as a 108x35 PNG rather than as kit SVG.
+Each mark is now given its chip's whole content box to fill instead of a fixed
+30px height.
+
+**Icons are named, not pasted.** `content.py`'s `ICONS` used to be twelve
+strings of SVG path data lifted from the prototype; it is now the list of
+names the kit draws, which is what the admin's icon fields always claimed to
+offer. `why`, `wb_points`, the warranty blocks, the About values and the seven
+lead-form fields each gained one. Three tests hold the two ends together: the
+set matches the partial, every icon in either locale is one the kit draws, and
+no traced path data has crept back.
 
 Facebook joined `social` in `content.py` on the strength of the kit shipping
 that glyph. Its URL is `TBD` like the other three, so all four render as

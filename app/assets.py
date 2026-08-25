@@ -18,6 +18,12 @@ from pathlib import Path
 CSS_SOURCES = ("tokens.css", "base.css", "components.css")
 JS_SOURCES = ("app.js",)
 
+#: The admin is a separate bundle: a visitor should never download the staff
+#: interface, and staff should not wait for the public site's 56 KB of
+#: components to edit a string. It shares tokens.css, which is where the two
+#: interfaces genuinely agree.
+ADMIN_CSS_SOURCES = ("tokens.css", "admin.css")
+
 MANIFEST = "manifest.json"
 
 
@@ -75,7 +81,15 @@ def build(design_dir: Path, build_dir: Path) -> dict[str, str]:
         (design_dir / name).read_text(encoding="utf-8") for name in JS_SOURCES
     ))
 
-    manifest = {"css": f"kmq.{_digest(css)}.css", "js": f"kmq.{_digest(js)}.js"}
+    admin_css = _squeeze_css("\n".join(
+        (design_dir / name).read_text(encoding="utf-8") for name in ADMIN_CSS_SOURCES
+    ))
+
+    manifest = {
+        "css": f"kmq.{_digest(css)}.css",
+        "js": f"kmq.{_digest(js)}.js",
+        "admin_css": f"kmq-admin.{_digest(admin_css)}.css",
+    }
 
     # Clear superseded fingerprints so the directory does not grow forever.
     keep = set(manifest.values()) | {MANIFEST}
@@ -85,6 +99,7 @@ def build(design_dir: Path, build_dir: Path) -> dict[str, str]:
 
     _write(build_dir / manifest["css"], css)
     _write(build_dir / manifest["js"], js)
+    _write(build_dir / manifest["admin_css"], admin_css)
     (build_dir / MANIFEST).write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return manifest
 
@@ -92,7 +107,7 @@ def build(design_dir: Path, build_dir: Path) -> dict[str, str]:
 def newest_mtime(design_dir: Path) -> float:
     return max(
         (design_dir / name).stat().st_mtime
-        for name in CSS_SOURCES + JS_SOURCES
+        for name in CSS_SOURCES + JS_SOURCES + ADMIN_CSS_SOURCES
     )
 
 
@@ -101,6 +116,12 @@ def load_manifest(build_dir: Path) -> dict[str, str] | None:
     if not path.exists():
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        manifest = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return None
+    # A manifest from an older build is missing whichever bundle was added
+    # since. Treat it as absent so the caller rebuilds, rather than letting a
+    # template fail on a KeyError at request time.
+    if not all(key in manifest for key in ("css", "js", "admin_css")):
+        return None
+    return manifest

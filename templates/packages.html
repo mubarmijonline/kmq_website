@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "partials/macros.html" as m %}
+{% from "partials/icons.html" import kit %}
 
 {% block title %}{{ t.nav[3].label }} — KMQ{% endblock %}
 {% block description %}{{ t.packages_page_title }}{% endblock %}
@@ -21,9 +22,24 @@
   <h2 style="font-weight:900;font-size:32px;margin-block-end:32px">{{ t.addons_title }}</h2>
   <div class="kmq-grid">
     {% for a in t.addons %}
-      <div class="kmq-panel kmq-panel--card" style="padding:32px 30px">
-        <span class="kmq-iconframe" style="width:48px;height:48px;margin-block-end:26px">{{ m.icon(a.icon, 24) }}</span>
+      <div class="kmq-panel kmq-panel--card" style="padding:34px 30px 32px">
+        {{ m.glyph(a.icon, 'lead', 'kmq-addon__glyph') }}
         <p style="font-size:16px;line-height:1.9;color:var(--kmq-ink-80)">{{ a.text }}</p>
+
+        {# The instalment providers' own marks, on the row that mentions
+           them. Each is stripped to its wordmark -- no backing pill of its
+           own -- and the three share one light chip, because the ink they are
+           drawn in would vanish against the page's near-black. #}
+        {% if a.icon == 'invoice' %}
+          <div class="kmq-paymarks">
+            <span class="kmq-paymarks__chip">{{ kit('pay-tabby') }}</span>
+            <span class="kmq-paymarks__chip">
+              <img src="{{ url_for('static', filename='img/pay/tamara-mark.png') }}"
+                   alt="Tamara" width="341" height="67" loading="lazy" decoding="async">
+            </span>
+            <span class="kmq-paymarks__chip">{{ kit('pay-emkan') }}</span>
+          </div>
+        {% endif %}
       </div>
     {% endfor %}
   </div>

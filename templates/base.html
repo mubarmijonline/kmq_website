@@ -42,9 +42,17 @@
 <a class="kmq-fab" href="{{ wa(t.wa_contact) or url_for('site.contact') }}"
    {% if wa(t.wa_contact) %}target="_blank" rel="noopener"{% endif %}
    title="{{ t.cta_whatsapp }}" aria-label="{{ t.cta_whatsapp }}">
-  {{ brand_icon("whatsapp", 30) }}
+  <span class="kmq-fab__pulse">{{ brand_icon("whatsapp", 30) }}</span>
 </a>
 
+{# Pinned and integrity-checked. With defer, execution stays in document order,
+   so the app can register ScrollTrigger before it installs the motion layer. #}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"
+        integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly"
+        crossorigin="anonymous" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"
+        integrity="sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF"
+        crossorigin="anonymous" defer></script>
 <script src="{{ asset('js') }}" defer></script>
 </body>
 </html>

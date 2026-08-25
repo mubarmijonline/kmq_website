@@ -41,23 +41,24 @@ TBD = _Tbd()
 
 
 # --------------------------------------------------------------------------
-# Icons. Path data lifted verbatim from the design file's ICONS constant.
+# Icons. Names, not drawings.
+#
+# The drawings are the client's own kit, re-emitted as
+# templates/partials/icons.html by scripts/build_icons.py; a template asks for
+# one by name and gets the client's artwork in the colour of whatever labels
+# it. This is the list of names content may use, which is also what the admin
+# offers whoever edits an icon field. A test asserts every name here is one
+# the kit emits, so a rename in the kit fails the suite rather than leaving a
+# hole in a page.
 # --------------------------------------------------------------------------
 
-ICONS = {
-    "shield": "M12 3l7 2.6v5.6c0 4.6-3 7.8-7 9.8-4-2-7-5.2-7-9.8V5.6z M9 12l2.2 2.2L15.4 10",
-    "blade": "M3.5 20.5l6.5-6.5 M10 14l3.6-10.5 6.9 6.9L10 14z",
-    "pin": "M12 21.5s6.8-6.2 6.8-11.6a6.8 6.8 0 10-13.6 0C5.2 15.3 12 21.5 12 21.5z M12 11.6a1.9 1.9 0 100-3.8 1.9 1.9 0 000 3.8z",
-    "chat": "M20 4.5H4v11.5h4.5V20l4.6-3.9H20z M8.5 10.2h7",
-    "shieldLine": "M12 3l7 2.6v5.6c0 4.6-3 7.8-7 9.8-4-2-7-5.2-7-9.8V5.6z M12 8.4v7.2",
-    "droplet": "M12 20.5c3.4 0 6-2.5 6-5.7C18 10.5 12 3.5 12 3.5S6 10.5 6 14.8c0 3.2 2.6 5.7 6 5.7z M9.6 14.9c0 1.4 1.1 2.5 2.4 2.5",
-    "sun": "M12 6.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11z M12 2v2.2 M12 19.8V22 M2 12h2.2 M19.8 12H22 M5 5l1.6 1.6 M17.4 17.4L19 19 M19 5l-1.6 1.6 M6.6 17.4L5 19",
-    "roller": "M8 20.5H4.5v-3.4L15.6 6l3.4 3.4z M13.4 8.2l3.4 3.4",
-    "frontKit": "M2.8 14.6h18.4 M4.6 14.6l1.8-5.1a2 2 0 011.9-1.3h7.4a2 2 0 011.9 1.3l1.8 5.1 M4.6 14.6v3.2h14.8v-3.2 M7.2 17.8v1.7 M16.8 17.8v1.7 M9 8.2v6.4",
-    "truck": "M2.8 7.6h9.6v9.2H2.8z M12.4 11h4l3 3v2.8h-7 M6.4 20a1.8 1.8 0 100-3.6 1.8 1.8 0 000 3.6z M16.6 20a1.8 1.8 0 100-3.6 1.8 1.8 0 000 3.6z",
-    "card": "M3 6.6h18v10.8H3z M3 10.4h18 M6.6 14.2h3.4",
-    "tick": "M5 12.5l4.5 4.5L19 7.5",
-}
+ICONS: tuple[str, ...] = (
+    "branch", "car-gloss", "car-shield", "clock", "cool", "drop", "facebook",
+    "form", "hand-install", "heat", "instagram", "invoice", "location",
+    "no-bubbles", "palette", "pay-emkan", "pay-tabby", "person", "phone",
+    "plate", "rating", "response", "self-healing", "service-type", "snapchat",
+    "sparkle", "sun", "tiktok", "uv", "warranty", "whatsapp", "whatsapp-solid",
+)
 
 
 # --------------------------------------------------------------------------
@@ -185,10 +186,10 @@ AR: dict[str, Any] = {
 
     # ---- Home: trust strip ----
     "trust": [
-        {"title": "ضمان يصل إلى 10 سنوات", "meta": "UP TO 10 YEARS", "icon": ICONS["shield"]},
-        {"title": "دقة تركيب يدوي احترافي", "meta": "HAND-CUT PRECISION", "icon": ICONS["blade"]},
-        {"title": "6 فروع — الرياض وجدة والدمام", "meta": "3 CITIES · 6 BRANCHES", "icon": ICONS["pin"]},
-        {"title": "رد فوري على واتساب", "meta": "REPLY IN MINUTES", "icon": ICONS["chat"]},
+        {"title": "ضمان يصل إلى 10 سنوات", "meta": "UP TO 10 YEARS", "icon": "warranty"},
+        {"title": "دقة تركيب يدوي احترافي", "meta": "HAND-CUT PRECISION", "icon": "hand-install"},
+        {"title": "6 فروع — الرياض وجدة والدمام", "meta": "3 CITIES · 6 BRANCHES", "icon": "branch"},
+        {"title": "رد فوري على واتساب", "meta": "REPLY IN MINUTES", "icon": "response"},
     ],
 
     # ---- Services ----
@@ -198,7 +199,7 @@ AR: dict[str, Any] = {
     "services": [
         _svc(
             "ppf-gloss", "حماية PPF لامع", "الحماية الهيكلية الحقيقية لطلاء سيارتك من الخدوش والحصى.",
-            ICONS["shieldLine"],
+            "car-gloss",
             "فيلم حماية شفاف بسماكة 7.5 مللي يحمي طلاء سيارتك من الخدوش اليومية والحصى، بلمعان يبرز لون الوكالة الأصلي.",
             [
                 "مقاومة عالية للخدوش اليومية",
@@ -210,7 +211,7 @@ AR: dict[str, Any] = {
         ),
         _svc(
             "ppf-matte", "حماية PPF مطفي", "تمايز جمالي بدقة تركيب عالية.",
-            ICONS["shieldLine"],
+            "car-shield",
             "فيلم حماية بلمسة نهائية غير لامعة يمنح السيارة مظهرًا مختلفًا عن طلاء الوكالة الأصلي، مع نفس مستوى الحماية الهيكلية.",
             [
                 "مظهر جمالي فريد يميّز سيارتك",
@@ -222,7 +223,7 @@ AR: dict[str, Any] = {
         ),
         _svc(
             "nano-ceramic", "نانو سيراميك", "لمعان استثنائي بديل اقتصادي.",
-            ICONS["droplet"],
+            "drop",
             "النانو سيراميك بديل أوفر للـ PPF، لكنه ليس بنفس مستوى الحماية. هو طبقة كيميائية رقيقة تحسّن اللمعان وتقاوم الأتربة والماء، لكنها لا تمنع الخدوش أو الحصى مثل فيلم الـ PPF السميك.",
             [
                 "لمعان يتجاوز 75% (كطبقة إضافية مع PPF أو بشكل مستقل)",
@@ -234,7 +235,7 @@ AR: dict[str, Any] = {
         ),
         _svc(
             "window-tint", "تظليل عازل حراري", "راحة داخل السيارة من أول يوم.",
-            ICONS["sun"],
+            "sun",
             "عازل حراري يقلل من دخول الحرارة والأشعة داخل السيارة.",
             [
                 "تقليل الحرارة داخل المقصورة",
@@ -246,7 +247,7 @@ AR: dict[str, Any] = {
         ),
         _svc(
             "colour-change", "تغيير اللون", "أعد تعريف شكل سيارتك بالكامل.",
-            ICONS["roller"],
+            "palette",
             "تغيير لون كامل الهيكل الخارجي بأي لون تختاره، بجودة تركيب احترافية وضمان يصل إلى 7 سنوات.",
             [
                 "اختيار حر بين عشرات الألوان والتشطيبات",
@@ -287,9 +288,9 @@ AR: dict[str, Any] = {
     ],
     "addons_title": "إضافات اختيارية",
     "addons": [
-        {"text": "حماية جزئية للواجهة الأمامية فقط (Front Kit)", "icon": ICONS["frontKit"]},
-        {"text": "خدمة استلام وتوصيل مجانية داخل نطاق محدد", "icon": ICONS["truck"]},
-        {"text": "تقسيط عبر تابي وتمارا وإمكان", "icon": ICONS["card"]},
+        {"text": "حماية جزئية للواجهة الأمامية فقط (Front Kit)", "icon": "car-shield"},
+        {"text": "خدمة استلام وتوصيل مجانية داخل نطاق محدد", "icon": "location"},
+        {"text": "تقسيط عبر تابي وتمارا وإمكان", "icon": "invoice"},
     ],
     "unsure_title": "غير متأكد من الباقة المناسبة؟",
     "unsure_body": "أرسل لنا نوع سيارتك ونرشّح لك الباقة الأنسب خلال دقائق.",
@@ -298,11 +299,11 @@ AR: dict[str, Any] = {
     # ---- Why KMQ ----
     "why_title": "لماذا KMQ",
     "why": [
-        {"title": "دقة التركيب", "body": "أغلب عمليات التركيب تتم يدويًا بخبرة فنيين متخصصين لضمان أعلى مستوى دقة، مع توفر خيار القص بالليزر عند الطلب."},
-        {"title": "فيلم أمريكي الخامة", "body": "فيلم حماية بمواد خام أمريكية وتصنيع صيني، سماكة 7.5 مللي، بخاصية المعالجة الذاتية للخدوش."},
-        {"title": "ضمان حقيقي موثّق", "body": "10 سنوات على الباقة اللامعة، 7 سنوات على المطفية."},
-        {"title": "خدمة ما بعد البيع", "body": "أي خدش أو تلف بسيط بعد التركيب يتم إصلاحه على حساب المركز، دون أي تكلفة على العميل."},
-        {"title": "تواصل فوري", "body": "رد أول خلال دقائق على واتساب."},
+        {"title": "دقة التركيب", "body": "أغلب عمليات التركيب تتم يدويًا بخبرة فنيين متخصصين لضمان أعلى مستوى دقة، مع توفر خيار القص بالليزر عند الطلب.", "icon": "hand-install"},
+        {"title": "فيلم أمريكي الخامة", "body": "فيلم حماية بمواد خام أمريكية وتصنيع صيني، سماكة 7.5 مللي، بخاصية المعالجة الذاتية للخدوش.", "icon": "sparkle"},
+        {"title": "ضمان حقيقي موثّق", "body": "10 سنوات على الباقة اللامعة، 7 سنوات على المطفية.", "icon": "warranty"},
+        {"title": "خدمة ما بعد البيع", "body": "أي خدش أو تلف بسيط بعد التركيب يتم إصلاحه على حساب المركز، دون أي تكلفة على العميل.", "icon": "self-healing"},
+        {"title": "تواصل فوري", "body": "رد أول خلال دقائق على واتساب.", "icon": "response"},
     ],
 
     # ---- Warranty pitch on the home page ----
@@ -312,9 +313,9 @@ AR: dict[str, Any] = {
     "wb_years_label": "سنوات ضمان",
     "wb_seal": "ضمان موثّق",
     "wb_points": [
-        {"title": "جودة التركيب", "body": "التصاق كامل دون فقاعات أو عيوب"},
-        {"title": "ثبات اللون", "body": "بدون اصفرار أو تشهيب أو ضبابية"},
-        {"title": "إصلاح على حسابنا", "body": "أي خدش بسيط بعد التركيب نتحمله بالكامل"},
+        {"title": "جودة التركيب", "body": "التصاق كامل دون فقاعات أو عيوب", "icon": "no-bubbles"},
+        {"title": "ثبات اللون", "body": "بدون اصفرار أو تشهيب أو ضبابية", "icon": "uv"},
+        {"title": "إصلاح على حسابنا", "body": "أي خدش بسيط بعد التركيب نتحمله بالكامل", "icon": "self-healing"},
     ],
     "wb_cta": "اقرأ تفاصيل الضمان",
     "wb_cta2": "تحقق من ضمانك",
@@ -361,6 +362,7 @@ AR: dict[str, Any] = {
     "warranty_blocks": [
         {
             "title": "ضمان حماية PPF",
+            "icon": "car-shield",
             "years": "10 / 7",
             "years_label": "سنوات — لامع / مطفي وتغيير اللون",
             "covered": [
@@ -375,6 +377,7 @@ AR: dict[str, Any] = {
         },
         {
             "title": "ضمان النانو سيراميك",
+            "icon": "drop",
             "years": "2",
             "years_label": "سنتان، مع طبقة نانو سيراميك مجانية كل سنة",
             "covered": [
@@ -386,6 +389,7 @@ AR: dict[str, Any] = {
         },
         {
             "title": "ضمان التظليل العازل الحراري",
+            "icon": "sun",
             "years": "10",
             "years_label": "سنوات",
             "covered": [
@@ -430,9 +434,9 @@ AR: dict[str, Any] = {
     "about_lead2": "نؤمن أن حماية سيارتك قرار يستحق الشفافية الكاملة، وأن التجربة داخل الفرع يجب أن تكون بمستوى فخامة السيارات التي نعتني بها.",
     "about_values": "قيمنا",
     "about_value_list": [
-        {"title": "الشفافية", "body": "تسعير ثابت في 3 باقات، بدون تفاوض مطوّل."},
-        {"title": "الدقة الفنية", "body": "تركيب يدوي دقيق بخبرة فنيين متخصصين، مع خيار القص بالليزر عند الطلب."},
-        {"title": "الضمان الحقيقي", "body": "10 سنوات على اللامع، 7 سنوات على المطفي."},
+        {"title": "الشفافية", "body": "تسعير ثابت في 3 باقات، بدون تفاوض مطوّل.", "icon": "invoice"},
+        {"title": "الدقة الفنية", "body": "تركيب يدوي دقيق بخبرة فنيين متخصصين، مع خيار القص بالليزر عند الطلب.", "icon": "hand-install"},
+        {"title": "الضمان الحقيقي", "body": "10 سنوات على اللامع، 7 سنوات على المطفي.", "icon": "warranty"},
     ],
     "about_numbers": "KMQ بالأرقام",
     "about_stats": [
@@ -497,7 +501,6 @@ AR: dict[str, Any] = {
     "prev": "السابق",
     "next": "التالي",
     "min_read": " دقائق قراءة",
-    "article_shot": "[ article thumbnail ]",
     "article_cta": "احجز فحص مجاني على واتساب",
     "article_pending": "هذا المقال قيد التحرير. العنوان والملخص معتمدان من ملف المحتوى؛ النص الكامل يصل مع الدفعة التحريرية القادمة.",
     "back_to_blog": "← كل المقالات",
@@ -632,10 +635,10 @@ EN: dict[str, Any] = {
     "stack_shot": "Three-quarter front view of an SUV",
 
     "trust": [
-        {"title": "Warranty up to 10 years", "meta": "UP TO 10 YEARS", "icon": ICONS["shield"]},
-        {"title": "Precise hand-cut installation", "meta": "HAND-CUT PRECISION", "icon": ICONS["blade"]},
-        {"title": "6 branches — Riyadh, Jeddah, Dammam", "meta": "3 CITIES · 6 BRANCHES", "icon": ICONS["pin"]},
-        {"title": "Instant reply on WhatsApp", "meta": "REPLY IN MINUTES", "icon": ICONS["chat"]},
+        {"title": "Warranty up to 10 years", "meta": "UP TO 10 YEARS", "icon": "warranty"},
+        {"title": "Precise hand-cut installation", "meta": "HAND-CUT PRECISION", "icon": "hand-install"},
+        {"title": "6 branches — Riyadh, Jeddah, Dammam", "meta": "3 CITIES · 6 BRANCHES", "icon": "branch"},
+        {"title": "Instant reply on WhatsApp", "meta": "REPLY IN MINUTES", "icon": "response"},
     ],
 
     "services_title": "Complete protection and finishing services for your car",
@@ -644,7 +647,7 @@ EN: dict[str, Any] = {
     "services": [
         _svc(
             "ppf-gloss", "Gloss PPF", "Real structural protection for your paint against scratches and stone chips.",
-            ICONS["shieldLine"],
+            "car-gloss",
             "A 7.5 mil clear protection film that shields your paint from daily scratches and stone chips, with a gloss that brings out the original factory colour.",
             [
                 "High resistance to daily scratches",
@@ -656,7 +659,7 @@ EN: dict[str, Any] = {
         ),
         _svc(
             "ppf-matte", "Matte PPF", "A distinctive finish, installed to the same precision.",
-            ICONS["shieldLine"],
+            "car-shield",
             "A protection film with a non-gloss finish that gives the car a look distinct from the original factory paint, with the same level of structural protection.",
             [
                 "A distinctive look that sets your car apart",
@@ -668,7 +671,7 @@ EN: dict[str, Any] = {
         ),
         _svc(
             "nano-ceramic", "Nano ceramic", "Exceptional gloss, as the economical alternative.",
-            ICONS["droplet"],
+            "drop",
             "Nano ceramic is a cheaper alternative to PPF, but not at the same level of protection. It is a thin chemical layer that improves gloss and resists dust and water, but it does not stop scratches or stone chips the way thick PPF film does.",
             [
                 "Over 75% gloss (as an added layer over PPF, or on its own)",
@@ -680,7 +683,7 @@ EN: dict[str, Any] = {
         ),
         _svc(
             "window-tint", "Heat-insulating tint", "A cooler cabin from the first day.",
-            ICONS["sun"],
+            "sun",
             "Heat-insulating film that reduces the heat and radiation entering the car.",
             [
                 "Lower cabin temperature",
@@ -692,7 +695,7 @@ EN: dict[str, Any] = {
         ),
         _svc(
             "colour-change", "Colour change", "Redefine how your car looks, completely.",
-            ICONS["roller"],
+            "palette",
             "A full exterior colour change in any colour you choose, professionally installed, with a warranty of up to 7 years.",
             [
                 "A free choice of dozens of colours and finishes",
@@ -731,9 +734,9 @@ EN: dict[str, Any] = {
     ],
     "addons_title": "Optional add-ons",
     "addons": [
-        {"text": "Partial front-end protection only (Front Kit)", "icon": ICONS["frontKit"]},
-        {"text": "Free pickup and delivery within a set radius", "icon": ICONS["truck"]},
-        {"text": "Instalments via Tabby, Tamara and Emkan", "icon": ICONS["card"]},
+        {"text": "Partial front-end protection only (Front Kit)", "icon": "car-shield"},
+        {"text": "Free pickup and delivery within a set radius", "icon": "location"},
+        {"text": "Instalments via Tabby, Tamara and Emkan", "icon": "invoice"},
     ],
     "unsure_title": "Not sure which package fits?",
     "unsure_body": "Send us your car model and we will recommend the right package within minutes.",
@@ -741,11 +744,11 @@ EN: dict[str, Any] = {
 
     "why_title": "Why KMQ",
     "why": [
-        {"title": "Installation precision", "body": "Most installation work is done by hand by specialist technicians for the highest level of precision, with laser cutting available on request."},
-        {"title": "American-made film", "body": "Protection film made from American raw materials with Chinese manufacturing, 7.5 mil thick, with self-healing for scratches."},
-        {"title": "A real, documented warranty", "body": "10 years on the gloss package, 7 years on the matte package."},
-        {"title": "After-sales service", "body": "Any minor scratch or damage after installation is repaired at the centre's expense, at no cost to the customer."},
-        {"title": "Instant contact", "body": "First reply within minutes on WhatsApp."},
+        {"title": "Installation precision", "body": "Most installation work is done by hand by specialist technicians for the highest level of precision, with laser cutting available on request.", "icon": "hand-install"},
+        {"title": "American-made film", "body": "Protection film made from American raw materials with Chinese manufacturing, 7.5 mil thick, with self-healing for scratches.", "icon": "sparkle"},
+        {"title": "A real, documented warranty", "body": "10 years on the gloss package, 7 years on the matte package.", "icon": "warranty"},
+        {"title": "After-sales service", "body": "Any minor scratch or damage after installation is repaired at the centre's expense, at no cost to the customer.", "icon": "self-healing"},
+        {"title": "Instant contact", "body": "First reply within minutes on WhatsApp.", "icon": "response"},
     ],
 
     "wb_title": "Ten years in writing, not a verbal promise",
@@ -754,9 +757,9 @@ EN: dict[str, Any] = {
     "wb_years_label": "year warranty",
     "wb_seal": "Documented warranty",
     "wb_points": [
-        {"title": "Installation quality", "body": "Full adhesion with no bubbles or defects"},
-        {"title": "Colour stability", "body": "No yellowing, staining or hazing"},
-        {"title": "Repairs at our expense", "body": "Any minor scratch after installation is fully on us"},
+        {"title": "Installation quality", "body": "Full adhesion with no bubbles or defects", "icon": "no-bubbles"},
+        {"title": "Colour stability", "body": "No yellowing, staining or hazing", "icon": "uv"},
+        {"title": "Repairs at our expense", "body": "Any minor scratch after installation is fully on us", "icon": "self-healing"},
     ],
     "wb_cta": "Read the warranty details",
     "wb_cta2": "Check your warranty",
@@ -801,6 +804,7 @@ EN: dict[str, Any] = {
     "warranty_blocks": [
         {
             "title": "PPF warranty",
+            "icon": "car-shield",
             "years": "10 / 7",
             "years_label": "years — gloss / matte and colour change",
             "covered": [
@@ -815,6 +819,7 @@ EN: dict[str, Any] = {
         },
         {
             "title": "Nano ceramic warranty",
+            "icon": "drop",
             "years": "2",
             "years_label": "years, with a free nano ceramic layer every year",
             "covered": [
@@ -826,6 +831,7 @@ EN: dict[str, Any] = {
         },
         {
             "title": "Heat-insulating tint warranty",
+            "icon": "sun",
             "years": "10",
             "years_label": "years",
             "covered": [
@@ -868,9 +874,9 @@ EN: dict[str, Any] = {
     "about_lead2": "We believe protecting your car is a decision that deserves complete transparency, and that the experience inside the branch should match the quality of the cars we look after.",
     "about_values": "Our values",
     "about_value_list": [
-        {"title": "Transparency", "body": "Fixed pricing across 3 packages, without drawn-out haggling."},
-        {"title": "Technical precision", "body": "Precise hand installation by specialist technicians, with laser cutting available on request."},
-        {"title": "A real warranty", "body": "10 years on gloss, 7 years on matte."},
+        {"title": "Transparency", "body": "Fixed pricing across 3 packages, without drawn-out haggling.", "icon": "invoice"},
+        {"title": "Technical precision", "body": "Precise hand installation by specialist technicians, with laser cutting available on request.", "icon": "hand-install"},
+        {"title": "A real warranty", "body": "10 years on gloss, 7 years on matte.", "icon": "warranty"},
     ],
     "about_numbers": "KMQ in numbers",
     "about_stats": [
@@ -933,7 +939,6 @@ EN: dict[str, Any] = {
     "prev": "Previous",
     "next": "Next",
     "min_read": " min read",
-    "article_shot": "[ article thumbnail ]",
     "article_cta": "Book a free inspection on WhatsApp",
     "article_pending": "This article is being written. The title and summary are approved in the content file; the full text arrives with the next editorial batch.",
     "back_to_blog": "← All articles",
@@ -1008,16 +1013,24 @@ EN: dict[str, Any] = {
 
 #: ``name``, input type, whether it is required, and where its options come
 #: from. Rendered by one template loop, validated by one server-side pass.
+#: ``icon`` is the kit glyph that marks the field on the contact page. The
+#: client's kit draws one for four of the seven; the rest carry the nearest
+#: thing it does draw, and none of them is decorative enough to invent.
 LEAD_FIELDS: tuple[dict[str, Any], ...] = (
     {"name": "full_name", "type": "text", "required": True, "maxlength": 120,
-     "autocomplete": "name"},
+     "autocomplete": "name", "icon": "person"},
     {"name": "phone", "type": "tel", "required": True, "maxlength": 20,
-     "autocomplete": "tel", "dir": "ltr", "inputmode": "tel"},
-    {"name": "service", "type": "select", "required": True, "options": "service_options"},
-    {"name": "car_model", "type": "text", "required": True, "maxlength": 120},
-    {"name": "branch", "type": "select", "required": True, "options": "branch_options"},
-    {"name": "timing", "type": "select", "required": True, "options": "timing_options"},
-    {"name": "notes", "type": "textarea", "required": False, "maxlength": 2000},
+     "autocomplete": "tel", "dir": "ltr", "inputmode": "tel", "icon": "phone"},
+    {"name": "service", "type": "select", "required": True,
+     "options": "service_options", "icon": "service-type"},
+    {"name": "car_model", "type": "text", "required": True, "maxlength": 120,
+     "icon": "car-gloss"},
+    {"name": "branch", "type": "select", "required": True,
+     "options": "branch_options", "icon": "branch"},
+    {"name": "timing", "type": "select", "required": True,
+     "options": "timing_options", "icon": "clock"},
+    {"name": "notes", "type": "textarea", "required": False, "maxlength": 2000,
+     "icon": "form"},
 )
 
 LEAD_LABELS = {
@@ -1110,10 +1123,44 @@ DEFAULT_LOCALE = "ar"
 
 _BY_LOCALE = {"ar": AR, "en": EN}
 
+#: The database overlay, installed by the application factory once it has a
+#: pool to read from. ``None`` in the CLI, in tests, and whenever the site runs
+#: without a database — which is the case this module exists to survive.
+_OVERLAY: Any = None
+
+
+def use_overlay(overlay: Any) -> None:
+    """Layer stored edits over the shipped copy.
+
+    Called once at start-up. Every accessor below reads through
+    :func:`content`, so installing it here is the whole of the swap the plan
+    promised: no template and no view changes hands.
+    """
+    global _OVERLAY
+    _OVERLAY = overlay
+
+
+def shipped(locale: str) -> dict[str, Any]:
+    """The copy this repository ships, ignoring anything an editor changed.
+
+    The overlay itself reads through this — merging its rows over
+    :func:`content` would call back into the overlay and recurse — and so does
+    seeding, which must copy what was written here rather than what is already
+    stored.
+    """
+    return _BY_LOCALE.get(locale, AR)
+
 
 def content(locale: str) -> dict[str, Any]:
-    """Copy for ``locale``, falling back to Arabic."""
-    return _BY_LOCALE.get(locale, AR)
+    """Copy for ``locale``, falling back to Arabic.
+
+    With an overlay installed this is the edited copy; without one, or with a
+    database that cannot be reached, it is exactly what :func:`shipped`
+    returns.
+    """
+    if _OVERLAY is not None:
+        return _OVERLAY.content(locale)
+    return shipped(locale)
 
 
 def _indexed(locale: str, key: str, id_key: str) -> dict[str, Any]:

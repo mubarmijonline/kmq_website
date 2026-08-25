@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}All lists{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>All lists</h1>
+    <p>Every list the public site renders. Branches are not here: they are a
+       table with real constraints, and they have
+       <a href="{{ url_for('admin.branches') }}">their own editor</a>.</p>
+  </div>
+</div>
+
+{% for label, specs in sections %}
+  <div class="adm-panel">
+    <div class="adm-panel__title">{{ label }}</div>
+    <table class="adm-table">
+      <tbody>
+        {% for spec in specs %}
+        <tr>
+          <td><a href="{{ url_for('admin.collection', kind=spec.kind) }}">{{ spec.label }}</a></td>
+          <td><code>{{ spec.kind }}</code></td>
+          <td>{{ spec.note }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endfor %}
+{% endblock %}

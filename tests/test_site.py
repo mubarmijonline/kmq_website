@@ -189,6 +189,47 @@ def test_faq_is_on_the_home_page(client):
             assert item["q"] in html
 
 
+def test_home_service_and_warranty_icons_are_replaced_by_photos(client):
+    """The two photographed home sections must not regress to glyph tiles."""
+    service_photos = {
+        "ppf-gloss": "service-gloss.webp",
+        "ppf-matte": "service-matte.webp",
+        "nano-ceramic": "service-nano-tint.webp",
+        "window-tint": "service-window-tint.webp",
+    }
+    expected = {
+        *service_photos.values(),
+        "warranty-installation.webp", "warranty-colour.webp",
+        "warranty-repair.webp",
+    }
+
+    for lang in LOCALES:
+        html = client.get(f"/{lang}/").get_data(as_text=True)
+        services = html.split('data-kmq-section="services"', 1)[1].split(
+            '<hr class="kmq-rule">', 1
+        )[0]
+        warranty = html.split('data-kmq-section="warranty"', 1)[1].split(
+            '03 — WHY KMQ', 1
+        )[0]
+
+        assert services.count('class="kmq-card__photo"') == 4
+        assert warranty.count('class="kmq-points__photo"') == 3
+        assert "kmq-glyph-plate" not in services
+        assert "kmq-glyph-plate" not in warranty
+        cards = re.findall(r'<article class="kmq-card">(.*?)</article>', services,
+                           flags=re.DOTALL)
+        for slug, filename in service_photos.items():
+            card = next(card for card in cards if f"/services/{slug}" in card)
+            assert f"/static/img/home/{filename}" in card
+        for filename in expected:
+            assert f"/static/img/home/{filename}" in html
+
+    for filename in expected:
+        response = client.get(f"/static/img/home/{filename}")
+        assert response.status_code == 200
+        assert response.content_type == "image/webp"
+
+
 # --------------------------------------------------------------------------
 # Blog filtering — must work as plain query parameters
 # --------------------------------------------------------------------------
@@ -404,14 +445,53 @@ def test_the_site_wears_the_dark_cut(client):
     assert 'rel="icon"' in html and "kmq-logo-light.svg" in html
 
 
-def test_every_social_glyph_is_one_the_kit_supplies(client):
-    """`icon` names a branch of brand_icon(); a typo renders an empty tile."""
+def _kit_names() -> set[str]:
+    """The names templates/partials/icons.html actually draws."""
     macro = (Path(__file__).resolve().parent.parent
              / "templates" / "partials" / "icons.html").read_text()
-    known = set(re.findall(r'name == "([a-z]+)"', macro))
+    return set(re.findall(r'name == "([a-z][a-z-]*)"', macro))
+
+
+def test_every_social_glyph_is_one_the_kit_supplies(client):
+    """`icon` names a branch of the kit macro; a typo renders nothing."""
+    known = _kit_names()
     for lang in LOCALES:
         for s in C.content(lang)["social"]:
             assert s["icon"] in known, s["icon"]
+
+
+def test_the_icon_set_is_exactly_what_the_kit_draws():
+    """`C.ICONS` is what the admin offers whoever edits an icon field. An
+    entry the kit does not draw is an empty space on a page, offered as a
+    choice."""
+    assert set(C.ICONS) == _kit_names()
+
+
+def test_every_icon_in_the_content_is_one_the_kit_draws():
+    """Icons now name a drawing rather than carrying path data, so a rename
+    in the kit has to fail here rather than on the page."""
+    known = _kit_names()
+
+    def walk(node, trail):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "icon" and isinstance(value, str):
+                    assert value in known, f"{trail}: {value}"
+                walk(value, f"{trail}.{key}")
+        elif isinstance(node, (list, tuple)):
+            for index, value in enumerate(node):
+                walk(value, f"{trail}[{index}]")
+
+    for lang in LOCALES:
+        walk(C.content(lang), lang)
+    walk(list(C.LEAD_FIELDS), "LEAD_FIELDS")
+
+
+def test_no_traced_icon_path_data_survives():
+    """The placeholder set was twelve strings of SVG path data in
+    content.py. The kit replaced them; nothing should be drawing its own."""
+    source = (Path(__file__).resolve().parent.parent / "app" / "content.py").read_text()
+    assert "M12 3l7" not in source, "traced icon path data is back in content.py"
 
 
 def test_no_style_attribute_uses_a_physical_side():

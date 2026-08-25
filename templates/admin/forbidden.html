@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block title %}Not allowed{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>Not allowed</h1>
+    <p>This section is limited to owner accounts. Your account is an editor.</p>
+  </div>
+</div>
+<p><a href="{{ url_for('admin.dashboard') }}">Back to the dashboard</a></p>
+{% endblock %}

@@ -17,7 +17,7 @@
 </section>
 
 <section class="kmq-shell kmq-section">
-  <div class="kmq-split">
+  <div class="kmq-split kmq-split--center">
     <div class="kmq-prose">
       <h2>{{ t.about_values }}</h2>
       <p>{{ t.about_lead2 }}</p>
@@ -44,7 +44,8 @@
   <div class="kmq-grid kmq-grid--wide">
     {% for v in t.about_value_list %}
       <article class="kmq-panel kmq-panel--card">
-        <div class="kmq-cell__num">0{{ loop.index }}</div>
+        <div class="kmq-cell__num kmq-cell__num--sm">0{{ loop.index }}</div>
+        {{ m.glyph(v.icon, 'lead') }}
         <h3 style="font-size:21px;font-weight:800;margin-block-end:14px">{{ v.title }}</h3>
         <p style="font-size:15px;line-height:1.95;color:var(--kmq-ink-60)">{{ v.body }}</p>
       </article>
@@ -72,6 +73,7 @@
 
 <section class="kmq-shell kmq-section">
   <div class="kmq-prompt">
+    {{ m.glyph('branch', 'tile') }}
     <h3 style="margin:0">{{ t.about_cta }}</h3>
     <a class="kmq-btn kmq-btn--blue" href="{{ url_for('site.branches') }}">{{ t.all_branches_link }}</a>
   </div>

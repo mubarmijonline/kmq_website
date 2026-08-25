@@ -13,7 +13,7 @@
     {% for s in t.services %}
       <article class="kmq-card">
         <div class="kmq-card__code">S/0{{ loop.index }}</div>
-        <span class="kmq-iconframe">{{ m.icon(s.icon) }}</span>
+        {{ m.glyph(s.icon, 'lead') }}
         <h3 class="kmq-card__title">{{ s.name }}</h3>
         <p class="kmq-card__body">{{ s.tagline }}</p>
         <dl class="kmq-pkg__warranty" style="margin-block-end:24px">

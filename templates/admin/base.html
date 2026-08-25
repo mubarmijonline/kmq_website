@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Admin{% endblock %} — KMQ</title>
+
+{# Staff only. Nothing under /admin should ever appear in a search index,
+   including the sign-in page, which is the only part of it a crawler can
+   reach at all. #}
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ asset('admin_css') }}">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/brand/kmq-logo-light.svg') }}">
+<meta name="theme-color" content="#0D0D0D">
+</head>
+<body class="adm">
+{% block frame %}
+<div class="adm__frame">
+
+  <nav class="adm__rail" aria-label="Admin sections">
+    <a class="adm__brand" href="{{ url_for('admin.dashboard') }}">
+      <img src="{{ url_for('static', filename='img/brand/kmq-logo.svg') }}" alt="">
+      <span>Admin</span>
+    </a>
+
+    <div class="adm__nav">
+      {% for endpoint, label, role, args in admin_nav %}
+        {% if role != 'owner' or is_owner %}
+          <a href="{{ url_for(endpoint, **args) }}"
+             {% if here(endpoint, args) %}aria-current="page"{% endif %}>{{ label }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="adm__who">
+      <strong>{{ admin_user.display_name }}</strong>
+      {{ admin_user.role_label }}
+      <form method="post" action="{{ url_for('admin.logout') }}" style="margin-top:10px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="adm-btn adm-btn--ghost" type="submit">Sign out</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="adm__main">
+    {% include "admin/flashes.html" %}
+    {% block main %}{% endblock %}
+  </main>
+
+</div>
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block title %}Copy{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>Copy</h1>
+    <p>The site's flat strings, Arabic and English side by side, grouped by the
+       page that uses them. A string edited back to what the site shipped with
+       stops being an edit.</p>
+  </div>
+</div>
+
+<div class="adm-panel">
+  <table class="adm-table">
+    <thead><tr><th>Group</th><th>Strings</th><th>Edited</th><th></th></tr></thead>
+    <tbody>
+      {% for group in groups %}
+      <tr>
+        <td><a href="{{ url_for('admin.copy_group', slug=group.slug) }}">{{ group.label }}</a></td>
+        <td>{{ group.count }}</td>
+        <td>{% if group.edited %}<span class="adm-tag adm-tag--ok">{{ group.edited }}</span>{% else %}—{% endif %}</td>
+        <td><a href="{{ url_for('admin.copy_group', slug=group.slug) }}">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

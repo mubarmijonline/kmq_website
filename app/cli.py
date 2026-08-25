@@ -46,6 +46,7 @@ def seed_content(force: bool) -> None:
     counts = store.seed(database, force=force)
     click.echo(f"copy strings: {counts['copy']}")
     click.echo(f"content entries: {counts['entries']}")
+    click.echo(f"branch columns filled: {counts['branches']}")
 
     with database.cursor() as conn:
         store.bump_version(conn)

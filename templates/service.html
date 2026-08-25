@@ -12,6 +12,7 @@
   <div class="kmq-hero__layer kmq-hero__layer--veil" aria-hidden="true"></div>
 
   <div class="kmq-shell kmq-hero__body">
+    {{ m.glyph(service.icon, 'lead', 'kmq-hero__glyph') }}
     <div class="kmq-eyebrow">SERVICES / {{ service.slug | upper | replace('-', ' ') }}</div>
     <h1 style="font-weight:900;font-size:clamp(30px,5.4vw,72px);line-height:1.18;margin-block-end:26px;max-width:900px">{{ service.name }} — {{ service.tagline }}</h1>
     <p class="kmq-lede" style="margin-block-end:40px">{{ service.lede }}</p>
@@ -62,6 +63,7 @@
 {# ---- Warranty pointer ---- #}
 <section class="kmq-shell kmq-section">
   <div class="kmq-prompt">
+    {{ m.glyph('warranty', 'tile') }}
     <div>
       <h3>{{ t.warranty_label }}: {{ service.warranty }}</h3>
       <p>{{ t.war_note }}</p>
@@ -78,6 +80,7 @@
       <a class="kmq-panel" href="{{ url_for('site.service', slug=s.slug) }}"
          style="color:inherit;display:block;transition:border-color var(--kmq-lift),transform var(--kmq-lift)">
         <div class="kmq-card__code">S/0{{ loop.index }}</div>
+        {{ m.glyph(s.icon, 'tile') }}
         <h3 style="font-size:21px;font-weight:800;margin-block-end:12px">{{ s.name }}</h3>
         <p style="font-size:14px;line-height:1.9;color:var(--kmq-ink-60)">{{ s.tagline }}</p>
       </a>

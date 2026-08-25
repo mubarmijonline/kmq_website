@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ label }}{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>{{ label }}</h1>
+    <p><a href="{{ url_for('admin.copy') }}">All groups</a></p>
+  </div>
+</div>
+
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {% for key in keys %}
+    <div class="adm-panel">
+      <div class="adm-panel__title">{{ key }}</div>
+      {% if key in locked %}
+        <p class="adm-empty">
+          Fixed: this names the language rather than saying anything in it.
+          Arabic <code>{{ values[key]['ar'] }}</code>, English
+          <code>{{ values[key]['en'] }}</code>.
+        </p>
+      {% else %}
+        <div class="adm-pair">
+          {% for locale in locales %}
+            <div class="adm-field">
+              <label for="{{ key }}__{{ locale }}">{{ 'Arabic' if locale == 'ar' else 'English' }}</label>
+              {% if values[key][locale] | length > 90 %}
+                <textarea id="{{ key }}__{{ locale }}" name="{{ key }}__{{ locale }}"
+                          dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}"
+                          rows="3">{{ values[key][locale] }}</textarea>
+              {% else %}
+                <input id="{{ key }}__{{ locale }}" name="{{ key }}__{{ locale }}"
+                       dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}"
+                       value="{{ values[key][locale] }}">
+              {% endif %}
+              {% if values[key][locale] != shipped[key][locale] %}
+                <span class="adm-field__hint">
+                  Shipped: <span dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}">{{ shipped[key][locale] }}</span>
+                </span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <div class="adm-actions" style="margin-top:18px">
+    <button class="adm-btn" type="submit">Save</button>
+    <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.copy') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

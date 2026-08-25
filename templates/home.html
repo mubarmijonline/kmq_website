@@ -88,7 +88,7 @@
   <div class="kmq-shell kmq-strip__grid">
     {% for item in t.trust %}
       <div class="kmq-strip__cell">
-        <span class="kmq-iconframe kmq-iconframe--sm">{{ m.icon(item.icon, 22) }}</span>
+        {{ m.glyph(item.icon, 'tile') }}
         <div>
           <div class="kmq-strip__title">{{ item.title }}</div>
           <div class="kmq-strip__meta">{{ item.meta }}</div>
@@ -99,6 +99,12 @@
 </section>
 
 {# ═══════════ Services ═══════════ #}
+{% set service_photos = {
+  'ppf-gloss': 'img/home/service-gloss.webp',
+  'ppf-matte': 'img/home/service-matte.webp',
+  'nano-ceramic': 'img/home/service-nano-tint.webp',
+  'window-tint': 'img/home/service-window-tint.webp'
+} %}
 <section class="kmq-shell kmq-section" data-kmq-section="services">
   <div class="kmq-sectionhead">
     <div class="kmq-eyebrow">01 — SERVICES</div>
@@ -108,7 +114,10 @@
     {% for s in t.services[:4] %}
       <article class="kmq-card">
         <div class="kmq-card__code">S/0{{ loop.index }}</div>
-        <span class="kmq-iconframe">{{ m.icon(s.icon) }}</span>
+        <div class="kmq-card__photo">
+          <img src="{{ url_for('static', filename=service_photos[s.slug]) }}"
+               alt="" aria-hidden="true" loading="lazy" decoding="async">
+        </div>
         <h3 class="kmq-card__title">{{ s.name }}</h3>
         <p class="kmq-card__body">{{ s.tagline }}</p>
         <a class="kmq-link" href="{{ url_for('site.service', slug=s.slug) }}">{{ t.learn_more }}</a>
@@ -152,7 +161,7 @@
         <div class="kmq-seal__num">{{ t.wb_years }}</div>
         <div class="kmq-seal__label">{{ t.wb_years_label }}</div>
         <div class="kmq-seal__stamp">
-          {{ m.icon(icons.tick, 14, 1.8) }}<span>{{ t.wb_seal }}</span>
+          {{ m.tick() }}<span>{{ t.wb_seal }}</span>
         </div>
       </div>
     </div>
@@ -161,10 +170,18 @@
       <div class="kmq-eyebrow">WARRANTY</div>
       <h2>{{ t.wb_title }}</h2>
       <p class="kmq-band__sub">{{ t.wb_sub }}</p>
+      {% set warranty_photos = [
+        'img/home/warranty-installation.webp',
+        'img/home/warranty-colour.webp',
+        'img/home/warranty-repair.webp'
+      ] %}
       <ul class="kmq-points">
         {% for p in t.wb_points %}
           <li>
-            {{ m.icon(icons.shield, 18, 1.6) }}
+            <div class="kmq-points__photo">
+              <img src="{{ url_for('static', filename=warranty_photos[loop.index0]) }}"
+                   alt="" aria-hidden="true" loading="lazy" decoding="async">
+            </div>
             <div>
               <div class="kmq-points__title">{{ p.title }}</div>
               <div class="kmq-points__body">{{ p.body }}</div>
@@ -187,7 +204,8 @@
   <div class="kmq-grid kmq-grid--narrow kmq-grid--hairline">
     {% for w in t.why %}
       <div class="kmq-cell">
-        <div class="kmq-cell__num">0{{ loop.index }}</div>
+        <div class="kmq-cell__num kmq-cell__num--sm">0{{ loop.index }}</div>
+        {{ m.glyph(w.icon, 'lead') }}
         <h3>{{ w.title }}</h3>
         <p>{{ w.body }}</p>
       </div>
@@ -209,6 +227,7 @@
       <a class="kmq-branch" href="{{ url_for('site.branches') }}" style="color:inherit">
         {{ m.shot(t.branch_shot, 'kmq-shot--branch', 'img/branch-entrance.jpg') }}
         <div class="kmq-branch__body">
+          {{ m.glyph('branch', 'tile') }}
           <div class="kmq-branch__city">{{ b.city_en }}</div>
           <h3>{{ b.name }}</h3>
           <p class="kmq-branch__loc">{{ b.location }}</p>

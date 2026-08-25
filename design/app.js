@@ -13,6 +13,12 @@
 
   function on(el, ev, fn, opts) { if (el) el.addEventListener(ev, fn, opts); }
 
+  function refreshMotion(delay) {
+    window.setTimeout(function () {
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh(true);
+    }, delay || 0);
+  }
+
   /* ---- Header: opaque past 40px --------------------------------------- */
 
   (function header() {
@@ -37,6 +43,7 @@
     function set(open) {
       btn.setAttribute('aria-expanded', String(open));
       nav.setAttribute('data-open', String(open));
+      refreshMotion();
     }
 
     on(btn, 'click', function () {
@@ -156,6 +163,7 @@
       else url.searchParams.delete('q');
       url.searchParams.delete('page');
       window.history.replaceState(null, '', url);
+      refreshMotion();
     }
 
     on(input, 'input', function () {
@@ -191,7 +199,10 @@
       /* Animate rows rather than max-height: it resolves to the answer's
          real height, so long answers are never clipped. */
       panel.style.transition = 'grid-template-rows .3s cubic-bezier(.4,0,.2,1)';
-      var sync = function () { panel.style.gridTemplateRows = item.open ? '1fr' : '0fr'; };
+      var sync = function () {
+        panel.style.gridTemplateRows = item.open ? '1fr' : '0fr';
+        refreshMotion(320);
+      };
       sync();
       on(item, 'toggle', sync);
     });
@@ -211,6 +222,415 @@
           btn.setAttribute('aria-busy', 'true');
         }, 0);
       });
+    });
+  }());
+
+  /* ---- GSAP motion ----------------------------------------------------- */
+
+  (function motion() {
+    var gsap = window.gsap;
+    var ScrollTrigger = window.ScrollTrigger;
+    if (!gsap || !ScrollTrigger) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+    var media = gsap.matchMedia();
+
+    function floatButton(button, lift, i, scrollTrigger, paused) {
+      return gsap.fromTo(button, {
+        translate: '0px 0px',
+        '--kmq-ambient-scale': 1
+      }, {
+        translate: '0px ' + lift + 'px',
+        '--kmq-ambient-scale': 1.04,
+        duration: 1.3 + (i % 3) * 0.15,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        paused: !!paused,
+        scrollTrigger: scrollTrigger || undefined
+      });
+    }
+
+    media.add('(prefers-reduced-motion: no-preference)', function () {
+      var revealing = [];
+      var cleanups = [];
+
+      d.querySelectorAll('.kmq-grid, .kmq-strip__grid, .kmq-points, .kmq-faq').forEach(function (group) {
+        var items = Array.prototype.filter.call(group.children, function (el) { return !el.hidden; });
+        if (!items.length) return;
+        revealing = revealing.concat(items);
+        items.forEach(function (el) { el.setAttribute('data-kmq-revealing', ''); });
+        gsap.from(items, {
+          opacity: 0,
+          y: 28,
+          duration: 0.72,
+          stagger: 0.12,
+          ease: 'power3.out',
+          clearProps: 'opacity,transform',
+          onComplete: function () {
+            items.forEach(function (el) { el.removeAttribute('data-kmq-revealing'); });
+          },
+          scrollTrigger: { trigger: group, start: 'top 88%', once: true }
+        });
+      });
+
+      d.querySelectorAll('.kmq-seal__ring').forEach(function (ring, i) {
+        gsap.to(ring, {
+          rotation: i ? '-=360' : '+=360',
+          duration: i ? 14 : 18,
+          repeat: -1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: ring.closest('.kmq-seal') || ring,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        });
+      });
+
+      d.querySelectorAll('.kmq-seal__halo').forEach(function (halo) {
+        gsap.to(halo, {
+          scale: 1.15,
+          opacity: 0.82,
+          duration: 1.8,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          scrollTrigger: {
+            trigger: halo.closest('.kmq-seal') || halo,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        });
+      });
+
+      d.querySelectorAll('.kmq-hero__layer--glow, .kmq-band__layer--glow, .kmq-close__glow, .kmq-stack__glow').forEach(function (glow, i) {
+        gsap.to(glow, {
+          xPercent: i % 2 ? 2.5 : -2.5,
+          yPercent: i % 2 ? -1.5 : 1.5,
+          scale: 1.08,
+          duration: 4.5 + (i % 3),
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          scrollTrigger: {
+            trigger: glow.parentElement || glow,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        });
+      });
+
+      d.querySelectorAll('.kmq-fab__pulse').forEach(function (pulse) {
+        gsap.to(pulse, {
+          scale: 1.12,
+          opacity: 0.78,
+          duration: 1.4,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+      });
+
+      d.querySelectorAll('.kmq-btn--blue').forEach(function (button, i) {
+        var sheen = d.createElement('span');
+        sheen.className = 'kmq-btn__sheen';
+        sheen.setAttribute('aria-hidden', 'true');
+        button.appendChild(sheen);
+        cleanups.push(function () { sheen.remove(); });
+        gsap.fromTo(sheen, {
+          xPercent: -320,
+          rotation: 18
+        }, {
+          xPercent: 520,
+          rotation: 18,
+          duration: 2.4 + (i % 3) * 0.25,
+          repeat: -1,
+          repeatDelay: 1.2,
+          ease: 'power1.inOut',
+          scrollTrigger: {
+            trigger: button,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        });
+      });
+
+      d.querySelectorAll('.kmq-btn').forEach(function (button) {
+        function press() {
+          gsap.to(button, { scale: 0.96, duration: 0.12, ease: 'power2.out', overwrite: 'auto' });
+        }
+
+        function release() {
+          gsap.to(button, {
+            scale: 1,
+            duration: 0.28,
+            ease: 'back.out(2)',
+            clearProps: 'transform',
+            overwrite: 'auto'
+          });
+        }
+
+        button.addEventListener('pointerdown', press);
+        button.addEventListener('pointerup', release);
+        button.addEventListener('pointercancel', release);
+        button.addEventListener('pointerleave', release);
+        cleanups.push(function () {
+          button.removeEventListener('pointerdown', press);
+          button.removeEventListener('pointerup', release);
+          button.removeEventListener('pointercancel', release);
+          button.removeEventListener('pointerleave', release);
+        });
+      });
+
+      var heroStage = d.querySelector('.kmq-stack__stage');
+      if (heroStage) {
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: heroStage.closest('.kmq-stack') || heroStage,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        }).from(heroStage, {
+          opacity: 0,
+          y: 72,
+          scale: 0.84,
+          duration: 1.05,
+          ease: 'power4.out',
+          clearProps: 'opacity'
+        }).to(heroStage, {
+          y: -14,
+          rotation: 0.45,
+          scale: 1.018,
+          duration: 2.6,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+      }
+
+      var stack = d.querySelector('[data-kmq-stack]');
+      var car = stack && stack.querySelector('[data-kmq-car]');
+      if (car) {
+        gsap.to(car, {
+          y: -24,
+          scale: 1.025,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: stack,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 0.6
+          }
+        });
+      }
+
+      return function () {
+        revealing.forEach(function (el) { el.removeAttribute('data-kmq-revealing'); });
+        cleanups.forEach(function (cleanup) { cleanup(); });
+      };
+    });
+
+    media.add({
+      motion: '(prefers-reduced-motion: no-preference)',
+      compact: '(max-width: 1023px)'
+    }, function (context) {
+      if (!context.conditions.motion) return;
+      var compact = context.conditions.compact;
+      var cards = d.querySelectorAll(
+        '.kmq-card, .kmq-pkg, .kmq-branch, .kmq-post, .kmq-panel--card, ' +
+        '.kmq-cell, .kmq-strip__cell, .kmq-formcard, .kmq-aside__card'
+      );
+
+      cards.forEach(function (card, i) {
+        var direction = i % 2 ? 1 : -1;
+        var lift = direction * (compact ? 10 : 28);
+        gsap.fromTo(card, {
+          translate: '0px 0px',
+          '--kmq-ambient-scale': 1,
+          '--kmq-ambient-rotate': '0deg'
+        }, {
+          translate: '0px ' + lift + 'px',
+          '--kmq-ambient-scale': compact ? 1.01 : 1.028,
+          '--kmq-ambient-rotate': direction * (compact ? 0.3 : 0.9) + 'deg',
+          duration: 1.45 + (i % 4) * 0.18,
+          delay: -(i % 5) * 0.2,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        });
+      });
+
+      d.querySelectorAll('.kmq-btn--blue').forEach(function (button, i) {
+        if (button.classList.contains('kmq-header__cta') || button.closest('.kmq-mobilenav')) return;
+        floatButton(button, compact ? -6 : -12, i, {
+          trigger: button,
+          start: 'top bottom',
+          end: 'bottom top',
+          toggleActions: 'play pause resume pause'
+        });
+      });
+    });
+
+    media.add({
+      motion: '(prefers-reduced-motion: no-preference)',
+      compact: '(max-width: 1023px)'
+    }, function (context) {
+      if (!context.conditions.motion) return;
+      d.querySelectorAll('.kmq-sectionhead, .kmq-pagehead__body, .kmq-close__body').forEach(function (el, i) {
+        var direction = (i % 2 ? -1 : 1) * (d.documentElement.dir === 'rtl' ? -1 : 1);
+        gsap.from(el, {
+          opacity: 0,
+          x: context.conditions.compact ? 0 : direction * 42,
+          y: 36,
+          duration: 0.95,
+          ease: 'power3.out',
+          clearProps: 'opacity,transform',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+        });
+      });
+    });
+
+    media.add({
+      motion: '(prefers-reduced-motion: no-preference)',
+      desktopHeader: '(min-width: 1024px)'
+    }, function (context) {
+      if (!context.conditions.motion || !context.conditions.desktopHeader) return;
+      d.querySelectorAll('.kmq-header__cta').forEach(function (button, i) {
+        floatButton(button, -12, i);
+      });
+    });
+
+    media.add({
+      motion: '(prefers-reduced-motion: no-preference)',
+      mobileHeader: '(max-width: 1023px)'
+    }, function (context) {
+      if (!context.conditions.motion || !context.conditions.mobileHeader) return;
+      var nav = d.querySelector('.kmq-mobilenav');
+      var button = nav && nav.querySelector('.kmq-btn--blue');
+      if (!nav || !button) return;
+      var tween = floatButton(button, -6, 0, null, true);
+      var sync = function () {
+        if (nav.getAttribute('data-open') === 'true') tween.play();
+        else tween.pause(0);
+      };
+      var observer = new MutationObserver(sync);
+      observer.observe(nav, { attributes: true, attributeFilter: ['data-open'] });
+      sync();
+      return function () { observer.disconnect(); };
+    });
+
+    media.add({
+      motion: '(prefers-reduced-motion: no-preference)',
+      desktop: '(min-width: 701px) and (hover: hover) and (pointer: fine)'
+    }, function (context) {
+      if (!context.conditions.motion || !context.conditions.desktop) return;
+
+      d.querySelectorAll('.kmq-glyph-plate .kmq-glyph').forEach(function (icon, i) {
+        gsap.to(icon, {
+          y: i % 2 ? 7 : -7,
+          rotation: i % 2 ? 1.5 : -1.5,
+          duration: 2.4 + (i % 4) * 0.25,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          scrollTrigger: {
+            trigger: icon.closest('.kmq-glyph-plate') || icon,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause'
+          }
+        });
+      });
+
+      d.querySelectorAll('.kmq-shot--filled img, .kmq-card__photo img, .kmq-points__photo img').forEach(function (photo) {
+        gsap.to(photo, {
+          yPercent: -5,
+          scale: 1.14,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: photo,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 0.8
+          }
+        });
+      });
+    });
+
+    media.add({
+      motion: '(prefers-reduced-motion: no-preference)',
+      hover: '(hover: hover) and (pointer: fine)'
+    }, function (context) {
+      if (!context.conditions.motion || !context.conditions.hover) return;
+      var cleanups = [];
+
+      d.querySelectorAll('.kmq-card, .kmq-pkg, .kmq-branch, .kmq-post, .kmq-panel--card').forEach(function (card) {
+        var bounds = null;
+        var tiltX = gsap.quickTo(card, 'rotationX', { duration: 0.35, ease: 'power2.out' });
+        var tiltY = gsap.quickTo(card, 'rotationY', { duration: 0.35, ease: 'power2.out' });
+        var lift = gsap.quickTo(card, 'y', { duration: 0.35, ease: 'power2.out' });
+        var grow = gsap.quickTo(card, 'scale', { duration: 0.35, ease: 'power2.out' });
+
+        function enter() {
+          if (card.hasAttribute('data-kmq-revealing')) return;
+          bounds = {
+            rect: card.getBoundingClientRect(),
+            scrollX: window.scrollX,
+            scrollY: window.scrollY,
+            width: window.innerWidth,
+            height: window.innerHeight
+          };
+          gsap.set(card, { transformPerspective: 900 });
+        }
+
+        function move(e) {
+          if (card.hasAttribute('data-kmq-revealing')) return;
+          if (bounds && (bounds.scrollX !== window.scrollX || bounds.scrollY !== window.scrollY ||
+                         bounds.width !== window.innerWidth || bounds.height !== window.innerHeight)) {
+            bounds = null;
+          }
+          if (!bounds) enter();
+          if (!bounds) return;
+          tiltX(-((e.clientY - bounds.rect.top) / bounds.rect.height - 0.5) * 6);
+          tiltY(((e.clientX - bounds.rect.left) / bounds.rect.width - 0.5) * 6);
+          lift(-6);
+          grow(1.01);
+        }
+
+        function leave() {
+          bounds = null;
+          if (card.hasAttribute('data-kmq-revealing')) return;
+          tiltX(0);
+          tiltY(0);
+          lift(0);
+          grow(1);
+        }
+
+        card.addEventListener('pointerenter', enter);
+        card.addEventListener('pointermove', move);
+        card.addEventListener('pointerleave', leave);
+        cleanups.push(function () {
+          card.removeEventListener('pointerenter', enter);
+          card.removeEventListener('pointermove', move);
+          card.removeEventListener('pointerleave', leave);
+        });
+      });
+
+      return function () {
+        cleanups.forEach(function (cleanup) { cleanup(); });
+      };
     });
   }());
 

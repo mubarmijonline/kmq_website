@@ -1,5 +1,7 @@
 {# Pieces that appear on more than one page. #}
 
+{% from "partials/icons.html" import kit %}
+
 {% macro shot(label, extra='', src='') -%}
   {%- if src %}
   <div class="kmq-shot kmq-shot--filled {{ extra }}">
@@ -13,10 +15,23 @@
 {%- endmacro %}
 
 
-{% macro icon(path, size=26, width=1.4) -%}
+{# One of the client's drawings on its plate, sized by the variant:
+   `lead` heads a card, `tile` marks a row, `sm` sits beside a heading.
+   The glyph is decorative in every case — the words under it carry the
+   meaning — so it is hidden from assistive technology. #}
+{% macro glyph(name, variant='lead', extra='') -%}
+  <span class="kmq-glyph-plate kmq-glyph-plate--{{ variant }} {{ extra }}"
+        aria-hidden="true">{{ kit(name) }}</span>
+{%- endmacro %}
+
+
+{# A check mark. Not part of the kit and not an icon slot: it is the tick in
+   the warranty seal and in nothing else, at a size where any of the client's
+   drawings would be a smudge. #}
+{% macro tick(size=14, width=1.8) -%}
   <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none"
-       stroke="#2EA8E5" stroke-width="{{ width }}" stroke-linecap="round"
-       stroke-linejoin="round" aria-hidden="true"><path d="{{ path }}"></path></svg>
+       stroke="currentColor" stroke-width="{{ width }}" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
 {%- endmacro %}
 
 
@@ -97,10 +112,13 @@
 {%- endmacro %}
 
 
-{% macro branch_card(b, t, wa, shot_label, shot_src='img/branch-entrance.jpg') -%}
+{# wa_at is optional so the macro keeps working for any caller that predates
+   per-branch numbers; without it the site-wide number is used, as before. #}
+{% macro branch_card(b, t, wa, shot_label, shot_src='img/branch-entrance.jpg', wa_at=none) -%}
   <article class="kmq-branch">
     {{ shot(shot_label, 'kmq-shot--branch', shot_src) }}
     <div class="kmq-branch__body">
+      {{ glyph('branch', 'tile') }}
       <div class="kmq-branch__city">{{ b.city_en }}</div>
       <h3>{{ b.name }}</h3>
       <p class="kmq-branch__loc">{{ b.location }}</p>
@@ -113,7 +131,7 @@
       </dl>
 
       <div class="kmq-branch__actions">
-        {% set link = wa(t.wa_book ~ b.name) %}
+        {% set link = (wa_at(b.whatsapp, t.wa_book ~ b.name) if wa_at else none) or wa(t.wa_book ~ b.name) %}
         <a class="kmq-btn kmq-btn--blue" href="{{ link or url_for('site.contact') }}"
            {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.branch_wa }}</a>
         {# No map link until the client supplies each branch's exact address. #}

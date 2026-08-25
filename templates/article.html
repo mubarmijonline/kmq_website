@@ -31,10 +31,21 @@
   <div class="kmq-prose" style="margin-block-start:50px">
     <p class="kmq-lede">{{ post.excerpt }}</p>
 
-    {# The content file supplies the eight article titles and nothing else.
-       Rather than generate body copy nobody at KMQ has approved, the page
-       says plainly that the text is still being written. #}
-    <div class="kmq-notice" style="margin-block-start:40px">{{ t.article_pending }}</div>
+    {# A body arrives from the admin as plain text: blank lines separate
+       paragraphs and ## opens a subheading. Until an article has one, the page
+       still says plainly that the text is being written, rather than inventing
+       copy nobody at KMQ has approved. #}
+    {% if post.body %}
+      {% for kind, chunk in blocks(post.body) %}
+        {% if kind == 'h' %}
+          <h2 style="margin-block:40px 16px">{{ chunk }}</h2>
+        {% else %}
+          <p>{{ chunk }}</p>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="kmq-notice" style="margin-block-start:40px">{{ t.article_pending }}</div>
+    {% endif %}
   </div>
 
   <div class="kmq-prompt" style="margin-block-start:50px">
@@ -53,7 +64,7 @@
 <section class="kmq-section kmq-section--raised">
   <div class="kmq-shell">
     <h2 style="font-weight:900;font-size:var(--kmq-h2-sm);margin-block-end:40px">{{ t.blog_title }}</h2>
-    <div class="kmq-grid kmq-grid--wide">
+    <div class="kmq-grid kmq-grid--wide kmq-grid--cards">
       {% for p in related %}
         {{ m.post_card(p, t, cat_label(p.category)) }}
       {% endfor %}

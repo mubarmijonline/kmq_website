@@ -27,6 +27,8 @@
 /* ═══════════ Buttons ═══════════ */
 
 .kmq-btn {
+  position: relative;
+  overflow: hidden;
   display: inline-block;
   font-family: var(--kmq-head);
   font-weight: 800;
@@ -38,9 +40,28 @@
   transition: filter var(--kmq-quick), border-color var(--kmq-quick), color var(--kmq-quick);
 }
 
+.kmq-btn__sheen {
+  position: absolute;
+  inset-block: -55%;
+  inset-inline-start: 0;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .42), transparent);
+  pointer-events: none;
+}
+
 .kmq-btn--blue {
   background: var(--kmq-grad-cta);
   color: var(--kmq-bg);
+  box-shadow: 0 0 0 6px rgba(46, 168, 229, .10), 0 14px 32px rgba(0, 0, 0, .30);
+}
+
+:where(
+  .kmq-card, .kmq-pkg, .kmq-branch, .kmq-post, .kmq-panel--card,
+  .kmq-cell, .kmq-strip__cell, .kmq-formcard, .kmq-aside__card,
+  .kmq-btn--blue
+) {
+  rotate: var(--kmq-ambient-rotate, 0deg);
+  scale: var(--kmq-ambient-scale, 1);
 }
 
 .kmq-btn--blue:hover { filter: brightness(1.12); color: var(--kmq-bg); }
@@ -328,6 +349,11 @@
   transform: translateY(-3px);
 }
 
+.kmq-fab__pulse {
+  display: grid;
+  place-items: center;
+}
+
 /* ═══════════ Hero ═══════════ */
 
 .kmq-hero {
@@ -478,25 +504,33 @@
 }
 
 .kmq-strip__cell {
-  padding: 40px 28px;
+  padding: 46px 26px 42px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 18px;
+  text-align: center;
+  gap: 22px;
   border-inline-start: 1px solid var(--kmq-line-soft);
 }
 
 .kmq-strip__cell:first-child { border-inline-start: 0; }
 
+.kmq-strip .kmq-glyph-plate--tile {
+  --kmq-plate: 118px;
+  --kmq-glyph: 70px;
+}
+
 .kmq-strip__title {
   font-family: var(--kmq-head);
-  font-weight: 800;
-  font-size: 17px;
+  font-weight: 900;
+  font-size: 18px;
   line-height: 1.4;
 }
 
 .kmq-strip__meta {
   font-family: var(--kmq-font-latin);
-  font-size: var(--kmq-micro);
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: var(--kmq-track-code);
   color: rgba(46, 168, 229, .85);
   margin-block-start: 6px;
@@ -528,18 +562,191 @@
   margin-block-start: 16px;
 }
 
-/* ═══════════ Icon frame ═══════════ */
+/* ═══════════ The client's icon kit ═══════════
+   Every glyph on the site is one of the drawings in WEBSITE/, re-emitted by
+   scripts/build_icons.py with fill="currentColor". Two rules follow from
+   that: colour is inherited, so a glyph is coloured by setting `color` on
+   whatever holds it; and size is set here rather than in the markup, so one
+   plate class governs both the tile and the drawing inside it.
 
+   The glyph leads. Where a section pairs a drawing with words, the drawing
+   goes above them at display size and the words read underneath — which is
+   the whole point of a kit this good. */
+
+/* The drawing itself. It keeps the width and height the macro wrote unless
+   it sits somewhere that sizes it — a plate, a chip, or one of the two
+   plateless variants below. */
+.kmq-glyph { flex-shrink: 0; }
+
+.kmq-glyph-plate .kmq-glyph,
+.kmq-glyph--bare,
+.kmq-glyph--lg {
+  display: block;
+  inline-size: var(--kmq-glyph);
+  block-size: var(--kmq-glyph);
+}
+
+/* The plate: a hairline square, a wash of the accent, and a glow that bleeds
+   past its own edge. Sized by two custom properties so the variants below
+   are two declarations each. */
+.kmq-glyph-plate {
+  --kmq-plate: 92px;
+  --kmq-glyph: 50px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: var(--kmq-plate);
+  block-size: var(--kmq-plate);
+  flex-shrink: 0;
+  color: var(--kmq-blue-hi);
+  background: var(--kmq-grad-panel);
+  border: 1px solid var(--kmq-blue-18);
+  transition: color var(--kmq-lift), border-color var(--kmq-lift),
+              transform var(--kmq-lift);
+}
+
+/* A pseudo-element rather than a box-shadow: the glow has to spill outside
+   the plate without lighting the hairline that defines it. */
+.kmq-glyph-plate::before {
+  content: "";
+  position: absolute;
+  inset: -22%;
+  background: radial-gradient(circle at 50% 45%,
+              rgba(46, 168, 229, .20), transparent 68%);
+  pointer-events: none;
+}
+
+.kmq-glyph-plate .kmq-glyph {
+  position: relative;
+  filter: drop-shadow(0 8px 20px rgba(46, 168, 229, .30));
+}
+
+/* Three sizes in use. --lead heads a card or a section; --tile marks a row;
+   --sm sits in a heading or a form label. */
+.kmq-glyph-plate--lead { --kmq-plate: clamp(84px, 9vw, 112px); --kmq-glyph: clamp(46px, 5vw, 62px); }
+.kmq-glyph-plate--tile { --kmq-plate: 68px; --kmq-glyph: 38px; }
+.kmq-glyph-plate--sm   { --kmq-plate: 46px; --kmq-glyph: 24px; }
+
+/* Plateless: the drawing alone, taking the colour of the text it labels. */
+.kmq-glyph--bare {
+  --kmq-glyph: 20px;
+  color: var(--kmq-blue);
+}
+
+.kmq-glyph--lg {
+  --kmq-glyph: clamp(64px, 8vw, 96px);
+  color: var(--kmq-blue-hi);
+  filter: drop-shadow(0 10px 26px rgba(46, 168, 229, .32));
+}
+
+/* Hover belongs to the card, not to the glyph: the whole tile lifts and the
+   drawing brightens with it. */
+.kmq-card:hover .kmq-glyph-plate,
+.kmq-cell:hover .kmq-glyph-plate,
+.kmq-branch:hover .kmq-glyph-plate,
+.kmq-panel:hover .kmq-glyph-plate {
+  color: #FFF;
+  border-color: var(--kmq-blue-45);
+  transform: translateY(-3px);
+}
+
+/* Where a plate heads a panel, a warranty block or an aside card, it stands
+   clear of the heading under it. */
+.kmq-panel .kmq-glyph-plate,
+.kmq-aside__card .kmq-glyph-plate { margin-block-end: 24px; }
+
+/* The warranty lookup: a plate and an invoice, the two things a visitor can
+   type into the field under them. */
+.kmq-lookup__ways {
+  display: flex;
+  gap: 16px;
+  margin-block-end: 32px;
+}
+
+/* Form labels. The drawing sits on the label's own line, at its size, and
+   takes its colour — the field is the thing being labelled, not the icon. */
+.kmq-field__label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.kmq-field__label .kmq-glyph {
+  --kmq-glyph: 17px;
+  color: var(--kmq-blue);
+  opacity: .85;
+}
+
+.kmq-aside__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kmq-aside__title .kmq-glyph { --kmq-glyph: 18px; }
+
+/* A prompt is a row — glyph, words, button — so the plate keeps its size and
+   the words take the space that is left. */
+.kmq-prompt .kmq-glyph-plate { margin-block-end: 0; }
+
+.kmq-prompt > div { flex: 1 1 260px; }
+
+/* A service page opens on its own drawing. */
+.kmq-hero__glyph { margin-block-end: 30px; }
+
+.kmq-formcard__head .kmq-glyph-plate { margin-block-end: 26px; }
+
+/* The payment marks are someone else's logos in someone else's colours, so
+   they are shown the way a payment mark is always shown: on a light chip,
+   at cheque size, in a row. */
+/* Three instalment providers, three equal columns, so the row of chips spans
+   the panel rather than trailing off after the third. */
+.kmq-paymarks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-block-start: 26px;
+}
+
+.kmq-paymarks__chip {
+  display: grid;
+  place-items: center;
+  block-size: 62px;
+  padding: 6px 14px;
+  background: #F5F5F0;
+  border-radius: var(--kmq-radius);
+}
+
+/* Each mark is now background-free -- Tabby's green pill and Tamara's rainbow
+   one are stripped in the build, so all three are ink on the shared chip --
+   and each is given the chip's whole content box to fill. Both sizes are
+   named because the kit macro writes square width and height attributes: with
+   one side left `auto` the intrinsic ratio those imply is 1:1, and the mark
+   collapses to a sliver letterboxed inside a square. At 100% both ways the
+   drawing's own preserveAspectRatio does the fitting instead, so a wordmark
+   three to five times wider than it is tall takes the full width of its chip.
+   The chip is tall enough that width is what binds, which is what keeps the
+   three marks to one shared width. */
+.kmq-paymarks__chip .kmq-glyph,
+.kmq-paymarks__chip img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+}
+
+/* Superseded by .kmq-glyph-plate, but still carrying the icons on four pages
+   while the kit lands. With its rule gone the span fell back to inline, so a
+   26px icon sat in a 21px line box and spilled out of the top and bottom of
+   its own frame. Frame it, without the border the plate replaced. */
 .kmq-iconframe {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  border: 1px solid var(--kmq-blue-45);
+  inline-size: 52px;
+  block-size: 52px;
   flex-shrink: 0;
 }
 
-.kmq-iconframe--sm { width: 44px; height: 44px; }
+.kmq-iconframe--sm { inline-size: 44px; block-size: 44px; }
 
 /* ═══════════ Card grids ═══════════ */
 
@@ -550,6 +757,13 @@
 }
 
 .kmq-grid--wide { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+
+/* Cards whose count is not known in advance. A category can hold as few as two
+   articles, which leaves a single related card: auto-fit collapses the empty
+   tracks and lets that one card span the row, taking its photo to the full
+   1250px of the shell. auto-fill keeps the tracks, so a lone card is card
+   sized. */
+.kmq-grid--cards { grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
 
 .kmq-grid--narrow { grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); }
 
@@ -603,14 +817,51 @@
   font-size: var(--kmq-micro);
   letter-spacing: .16em;
   color: rgba(46, 168, 229, .9);
-  margin-block-end: 26px;
+  margin-block-end: 22px;
   direction: ltr;
+}
+
+.kmq-card .kmq-glyph-plate,
+.kmq-cell .kmq-glyph-plate,
+.kmq-branch .kmq-glyph-plate { margin-block-end: 28px; }
+
+.kmq-card__photo,
+.kmq-points__photo {
+  position: relative;
+  overflow: hidden;
+  inline-size: 100%;
+  background: var(--kmq-bg-sunk);
+  border: 1px solid var(--kmq-blue-18);
+}
+
+.kmq-card__photo {
+  aspect-ratio: 4 / 3;
+  margin-block-end: 28px;
+}
+
+.kmq-card__photo::after,
+.kmq-points__photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 56%, rgba(4, 7, 11, .48));
+  box-shadow: inset 0 0 34px rgba(46, 168, 229, .10);
+}
+
+.kmq-card__photo img,
+.kmq-points__photo img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  scale: 1.04;
 }
 
 .kmq-card__title {
   font-weight: 800;
   font-size: var(--kmq-h3);
-  margin-block: 32px 14px;
+  margin-block: 0 14px;
 }
 
 .kmq-card__body {
@@ -1119,22 +1370,31 @@
   max-width: 560px;
 }
 
+/* One column, or all three. auto-fit would settle on two at some widths and
+   leave a lit hole where the fourth point would be — the 1px gap is painted
+   by the background, so an empty cell is visible. */
 .kmq-points {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 1px;
   background: var(--kmq-line);
   margin-block-end: 38px;
 }
 
-.kmq-points li {
-  background: var(--kmq-bg-sunk);
-  padding: 20px 22px;
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
+@media (min-width: 760px) {
+  .kmq-points { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-.kmq-points svg { flex-shrink: 0; margin-block-start: 3px; }
+.kmq-points li {
+  background: var(--kmq-bg-sunk);
+  padding: 28px 22px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.kmq-points__photo { aspect-ratio: 4 / 3; }
 
 .kmq-points__title {
   font-family: var(--kmq-head);
@@ -1169,21 +1429,41 @@
   text-align: center;
 }
 
+/* The label is centred by place-items, but a photo has to fill the frame, and
+   a centred grid item is not stretched: block-size: 100% then resolves against
+   an auto-sized implicit row and falls back to auto, so every photo rendered
+   at its own height and spilled out of the box overflow: hidden was clipping.
+   Put the photo in an explicit area and stretch it into the whole of it. */
 .kmq-shot--filled { overflow: hidden; }
 .kmq-shot--filled img {
+  grid-area: 1 / 1;
+  align-self: stretch;
+  justify-self: stretch;
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
   display: block;
 }
 
-.kmq-shot--tall { min-height: 300px; }
-/* The article's own lead photo. It stands alone in a one-column measure, so
-   unlike the shots inside a grid it needs a height of its own — without one a
-   square photo would open the article 800px tall. */
-.kmq-shot--hero { height: clamp(240px, 38vw, 420px); }
-.kmq-shot--branch { height: 180px; }
-.kmq-shot--article { height: 190px; }
+/* Each frame carries the ratio of the photography that goes in it, so cover
+   has nothing left to crop: the whole photo is visible and none of it spills.
+   The blog and about photographs are square (1080x1080); the branch entrance
+   is 1400x788. A frame with no photo yet keeps the same shape, so delivering
+   one does not move the page. */
+.kmq-shot--tall { aspect-ratio: 1; }
+
+/* The article's own lead photo stands alone in a one-column measure, where a
+   square at the full 820px would open the article almost a screen tall. Cap
+   the width instead of the height — the frame stays square, so the photo is
+   still whole, and it centres in the measure. */
+.kmq-shot--hero {
+  aspect-ratio: 1;
+  max-inline-size: min(100%, 460px);
+  margin-inline: auto;
+}
+
+.kmq-shot--branch { aspect-ratio: 1400 / 788; }
+.kmq-shot--article { aspect-ratio: 1; }
 .kmq-shot--map { height: 320px; border: 1px solid var(--kmq-line); }
 
 /* ═══════════ Branch card ═══════════ */
@@ -1447,7 +1727,7 @@
 
 .kmq-feature:hover { border-color: var(--kmq-blue); color: inherit; }
 
-.kmq-feature__body { padding: clamp(30px, 5vw, 56px); }
+.kmq-feature__body { padding: clamp(30px, 5vw, 56px); align-self: center; }
 
 .kmq-feature h2 {
   font-weight: 900;
@@ -2057,7 +2337,7 @@
 
 /* Kit glyphs inherit the heading's blue through currentColor, and sit on
    the text baseline rather than stretching the line box. */
-.kmq-footer__title .kmq-i { flex-shrink: 0; }
+.kmq-footer__title .kmq-glyph { flex-shrink: 0; }
 
 .kmq-footer__blurb {
   font-size: var(--kmq-small);
