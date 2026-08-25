@@ -2,217 +2,241 @@
 
    Two layers, and the order matters.
 
-   PALETTE is the client's 2026 redesign brief, transcribed exactly. It is the
-   only place in the codebase a colour is written as a literal — everything
-   downstream resolves through a var().
+   PALETTE is the brand. It is the only place in the codebase a colour is
+   written as a literal — everything downstream resolves through a var().
 
-   ALIASES re-point the older --kmq-* names at that palette. The site had ~2600
-   lines of components.css naming colours as --kmq-blue, --kmq-ink-70 and so
-   on; renaming all of them would have produced a 2500-line diff that buried
-   every real change under a search-and-replace. Pointing the old names at the
-   new palette gets the same two guarantees the brief asks for — one source of
-   truth, no stray hex in components — for a diff you can actually read.
+   ALIASES re-point the older --kmq-* names at that palette. components.css is
+   ~2600 lines that name colours as --kmq-blue, --kmq-ink-70 and so on;
+   renaming all of them would produce a diff nobody could review for a result
+   identical in the browser. Pointing the old names at the palette gets the
+   guarantee that matters — one source of truth, no stray colour in
+   components — with a diff you can read.
+
+   WHY THIS IS A LIGHT PALETTE. The first cut of this redesign followed a
+   written brief that specified near-black surfaces and an indigo-to-violet
+   accent. Built and measured, it read as a dark SaaS product rather than as
+   KMQ: the logo is white and #2EA8E5 cyan over an #0C6BBF gradient, and every
+   photograph the client supplied — six storefronts, five service shots — is
+   daylight. The brand is bright. So the surfaces are paper, the accents are
+   the logo's own two blues, and the only dark left on the page is the panel
+   the black car sits on and the footer that grounds it.
 
    Contrast numbers in the comments are measured, not guessed. They are
    WCAG 2.1 relative-luminance ratios against the ground named beside them.
 
-   ONE CONVENTION TO KNOW. components.css carries no hex values and no colours
-   of its own, but it does write rgba() where a one-off alpha is wanted — a
-   hairline at .09, a wash at .07, a glow stop at .22. Every one of those
-   triples is a value from the palette below, and only the alpha is local:
+   ONE CONVENTION TO KNOW. components.css carries no hex values, but it does
+   write rgba() where a one-off alpha is wanted — a hairline at .09, a wash at
+   .07, a glow stop at .22. Every one of those triples is a palette value with
+   only the alpha local:
 
-       rgba(37, 71, 255, a)     --brand-600      rgba(5, 7, 15, a)    --ink-950
-       rgba(61, 107, 255, a)    --brand-500      rgba(11, 16, 32, a)  --ink-900
-       rgba(143, 176, 255, a)   --brand-300      rgba(19, 26, 50, a)  --ink-800
-       rgba(185, 204, 255, a)   --brand-200      rgba(246, 248, 255, a) --text-hi
-       rgba(124, 77, 255, a)    --violet-500     rgba(255, 107, 107, a) --danger-500
+       rgba(12, 107, 191, a)   --brand-600     rgba(11, 22, 38, a)   --ink
+       rgba(46, 168, 229, a)   --brand-400     rgba(61, 75, 99, a)   --ink-mid
+       rgba(10, 86, 152, a)    --brand-700     rgba(92, 107, 133, a) --ink-low
+       rgba(10, 37, 64, a)     --deep          rgba(255, 255, 255, a) white
+                                               rgba(198, 40, 61, a)  --danger
 
-   color-mix() would let those name the token directly, and was considered.
-   It is not used because an unsupported color-mix makes the whole declaration
-   invalid, which turns a border into no border and a panel into no panel —
-   a worse failure than a literal that is merely harder to trace. Anything
-   added later follows this table rather than inventing a triple. */
+   color-mix() would let those name the token directly, and was considered. It
+   is not used because an unsupported color-mix invalidates the whole
+   declaration, which turns a border into no border. A literal that is merely
+   harder to trace fails better than one that fails open. Anything added later
+   follows this table rather than inventing a triple. */
 
 :root {
 
   /* ══════════════════════════════════════════════════════════════════════
-     PALETTE — the brief
+     PALETTE — the brand
      ══════════════════════════════════════════════════════════════════════ */
 
-  /* ---- Surfaces --------------------------------------------------------
-     Three darks and one light. The single light section is what makes the
-     dark ones read as deliberate rather than as a default.               */
-  --ink-950:    #05070F;   /* page base, top of hero                      */
-  --ink-900:    #0B1020;   /* section base                                */
-  --ink-800:    #131A32;   /* raised surfaces                             */
-
-  /* One extension, for the hover state above --ink-800. The brief stops at
-     three darks; a card that lifts on hover needs a fourth or it lifts into
-     nothing. */
-  --ink-750:    #1B2440;
-
-  --glass:      rgba(255, 255, 255, .05);
-  --glass-line: rgba(255, 255, 255, .12);
-
-  /* Softer than --glass-line, for hairlines that divide rather than edge. */
-  --glass-line-soft: rgba(255, 255, 255, .07);
-
-  /* ---- Brand -----------------------------------------------------------
-     Measured on --ink-900:
-
-         --brand-600   3.09 : 1   gradients and the light section only
-         --brand-500   4.28 : 1   borders, glows, dots — not body text
-         --brand-300   8.86 : 1   the on-dark text and icon accent
-         --brand-200  11.85 : 1   its hover state
-
-     --brand-600 is the client's "primary electric blue" and it cannot carry
-     body text on this ground: 3.09 fails AA at any size below 24px. It earns
-     its keep in --grad-brand (where the label is white, and white holds
-     4.81 : 1 at the gradient's worst point) and on --paper-50, where it
-     measures 5.73. Everywhere else on dark, --brand-300 is the accent.    */
-  --brand-600:  #2547FF;
-  --brand-500:  #3D6BFF;
-  --brand-300:  #8FB0FF;
-
-  /* Extension: the hover step above --brand-300. */
-  --brand-200:  #B9CCFF;
-
-  /* Secondary. Gradients and glows only, per the brief — never a solid fill
-     behind text and never a button. */
-  --violet-500: #7C4DFF;
-
-  /* Accent, sparingly: active dots, small icons, hairline highlights.
-     Nothing larger. 10.74 : 1 on --ink-900, so it is safe where it lands. */
-  --cyan-400:   #45D2FF;
-
   /* ---- Paper ------------------------------------------------------------
-     The one light break. --text-on-paper measures 17.70 : 1 here.        */
-  --paper-50:   #F5F7FF;
-  --paper-100:  #E8EDFB;
+     The page. Four steps, cool rather than neutral, so white cards sitting on
+     --paper-50 still read as raised rather than as the same sheet.        */
+  --paper-0:    #FFFFFF;   /* cards, raised surfaces                       */
+  --paper-50:   #F7F9FF;   /* page base                                    */
+  --paper-100:  #EBF1FB;   /* alternating sections                         */
+  --paper-200:  #DCE6F5;   /* wells, hairlines, inactive tracks            */
 
-  /* ---- Text -------------------------------------------------------------
-     On --ink-900: hi 17.84, mid 9.67, low 5.23. All three clear AA for body
-     copy, which is why --text-low is usable for real sentences and not only
-     for labels. On --paper-50 it drops to 3.38 — large text and UI only.  */
-  --text-hi:    #F6F8FF;
-  --text-mid:   #AEB9D8;
-  --text-low:   #7A86A8;
-  --text-on-paper: #0B1020;
+  /* ---- Brand ------------------------------------------------------------
+     The logo's own two blues and one step below them. Measured on --paper-50:
 
-  /* Labels that sit on --grad-brand. White is the only value that clears AA
-     across the whole sweep: it holds 4.81 : 1 at the violet end, its worst
-     point, where the near-black these used to carry measured 3.09. */
-  --text-on-brand: #FFFFFF;
+         --brand-700  #0A5698   7.13 : 1   text, and the CTA gradient's tail
+         --brand-600  #0C6BBF   5.15 : 1   links, icons, the working accent
+         --brand-400  #2EA8E5   2.54 : 1   NEVER text on paper
 
-  /* Form errors were the one role with no token at all — two literals sat in
-     components.css. Measured on --ink-900: 500 is 6.82, 300 is 10.29.      */
-  --danger-500: #FF6B6B;
-  --danger-300: #FFA8A8;
+     --brand-400 is the logo's cyan and the colour the brand reads as, but on
+     paper it carries nothing: 2.54 fails at any size. It earns its place on
+     --deep, where it measures 5.81, and in glows, hairlines and tints where
+     no letter depends on it.                                              */
+  --brand-700:  #0A5698;
+  --brand-600:  #0C6BBF;
+  --brand-400:  #2EA8E5;
+  --brand-100:  #D6ECF9;   /* tints, active chips, icon wells              */
 
-  /* ---- Gradients and glow ----------------------------------------------- */
-  --grad-brand: linear-gradient(135deg, #2547FF 0%, #7C4DFF 100%);
-  --glow-brand: radial-gradient(60% 60% at 50% 40%, rgba(37, 71, 255, .35), transparent 70%);
+  /* Two steps above the logo's cyan, for use ON --deep where the cyan itself
+     is the working accent and its hover needs to go lighter, not darker.
+     --brand-200 measures 9.06 on --deep and --brand-50 measures 13.62.     */
+  --brand-200:  #7FD0F5;
+  --brand-50:   #DFF3FF;
+
+  /* ---- Deep -------------------------------------------------------------
+     The one dark ground left: the hero panel the black car needs to be seen
+     against, and the footer. Navy rather than near-black, because it is the
+     bottom of the logo's own gradient and not a different idea. White reads
+     15.54 on it and --brand-400 reads 5.81, so the cyan finally gets to be
+     text somewhere.                                                       */
+  --deep:       #0A2540;
+  --deep-700:   #123252;   /* raised surface inside a deep section         */
+
+  /* ---- Ink --------------------------------------------------------------
+     On --paper-50: 17.24, 8.36, 5.12. All three clear AA for body copy, so
+     --ink-low is usable for real sentences and not only for labels.       */
+  --ink:        #0B1626;
+  --ink-mid:    #3D4B63;
+  --ink-low:    #5C6B85;
+
+  /* Form errors. 5.94 on --paper-50, and the deep variant is for the same
+     message sitting inside a dark section.                                */
+  --danger:     #C6283D;
+  --danger-300: #FF9AA6;
+
+  /* ---- Glass ------------------------------------------------------------
+     On paper, "glass" is a white card with a hairline, not a translucent
+     film over a dark ground. The names stay because components use them. */
+  --glass:      var(--paper-0);
+  --glass-line: rgba(11, 22, 38, .10);
+  --glass-line-soft: rgba(11, 22, 38, .06);
+
+  /* ---- Gradients and glow -----------------------------------------------
+     The CTA sweep deliberately stops short of --brand-400. The logo's own
+     gradient end to end cannot carry a label — white measures 5.42 at the
+     #0C6BBF end and 2.68 at the #2EA8E5 end, and dark ink fails the other
+     way round at 3.35. No single label colour survives the full sweep, so
+     the sweep runs in the darker half and white clears AA across all of it,
+     5.42 at worst.                                                        */
+  --grad-brand: linear-gradient(135deg, #0C6BBF 0%, #0A5698 100%);
+
+  /* Free to use the cyan: nothing is written on a glow. */
+  --glow-brand: radial-gradient(60% 60% at 50% 40%, rgba(46, 168, 229, .28), transparent 70%);
 
   /* Per-state hero glow. --kmq-accent is rewritten by the hero cycle; the
      gradient itself never changes, so no per-frame gradient interpolation. */
   --glow-accent: radial-gradient(58% 58% at 50% 42%,
-                   color-mix(in srgb, var(--kmq-accent, var(--brand-500)) 34%, transparent),
+                   color-mix(in srgb, var(--kmq-accent, var(--brand-400)) 40%, transparent),
                    transparent 72%);
 
   /* ---- Signature motif ---------------------------------------------------
      One repeated element, derived from the shield: a hairline that runs
      bright at the leading edge and fades across, the way light catches a
      coated panel. Four uses — section rules, card top edges, the hero's
-     lower boundary, the closing band — and then it stops.                */
+     lower boundary, the closing band — and then it stops.
+
+     Two cuts, because a hairline that reads on paper is invisible on --deep
+     and vice versa. Components take --kmq-grad-rule; the deep sections
+     override it.                                                          */
   --edge-shield: linear-gradient(100deg,
                    transparent 0%,
-                   rgba(143, 176, 255, .55) 18%,
-                   rgba(69, 210, 255, .75) 34%,
-                   rgba(143, 176, 255, .30) 55%,
+                   rgba(12, 107, 191, .35) 18%,
+                   rgba(46, 168, 229, .70) 34%,
+                   rgba(12, 107, 191, .22) 55%,
+                   transparent 82%);
+  --edge-shield-deep: linear-gradient(100deg,
+                   transparent 0%,
+                   rgba(46, 168, 229, .45) 18%,
+                   rgba(150, 220, 255, .85) 34%,
+                   rgba(46, 168, 229, .30) 55%,
                    transparent 82%);
 
   /* The select chevron, as a shape only — the colour comes from --kmq-blue
-     where it is used, so it follows the section rather than being frozen
-     into a data URI that no token can reach. */
+     where it is used, so it follows the section rather than being frozen into
+     a data URI that no token can reach. */
   --kmq-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5'/%3E%3C/svg%3E");
 
-  /* The "coated surface" sheen, used where the old design used a pin-stripe
-     weave: a wide, shallow diagonal, closer to a reflection than a texture. */
+  /* The "coated surface" sheen. Barely there on paper by design — on a light
+     ground this is a suggestion of gloss, not a texture. */
   --sheen: repeating-linear-gradient(115deg,
-             rgba(255, 255, 255, .020) 0 1px,
+             rgba(11, 22, 38, .014) 0 1px,
              transparent 1px 14px);
+
+  /* Labels that sit on --grad-brand or on --deep. */
+  --text-on-brand: #FFFFFF;
 
 
   /* ══════════════════════════════════════════════════════════════════════
      ALIASES — the older --kmq-* names, re-pointed at the palette above
      ══════════════════════════════════════════════════════════════════════ */
 
-  /* ---- Surfaces --------------------------------------------------------- */
-  --kmq-bg:          var(--ink-950);
-  --kmq-bg-sunk:     var(--ink-950);
-  --kmq-bg-raised:   var(--ink-900);
-  --kmq-bg-raised-2: var(--ink-800);
-  --kmq-bg-accent:   var(--ink-800);
-  --kmq-bg-hover:    var(--ink-750);
+  /* ---- Surfaces ---------------------------------------------------------
+     --kmq-bg-sunk is the footer, which stays dark to ground the page. Every
+     other surface is paper now. Sections that need the dark treatment take
+     .kmq-section--deep, which re-points these inside itself.              */
+  --kmq-bg:          var(--paper-50);
+  --kmq-bg-sunk:     var(--deep);
+  --kmq-bg-raised:   var(--paper-100);
+  --kmq-bg-raised-2: var(--paper-0);
+  --kmq-bg-accent:   var(--paper-100);
+  --kmq-bg-hover:    var(--paper-0);
 
-  /* ---- Ink -------------------------------------------------------------
-     The old ramp was six alphas of one off-white. Four of them map onto the
-     brief's three text roles; the two dimmest are decorative only —
-     placeholder labels and disabled glyphs — and stay as alphas.          */
-  --kmq-ink:         var(--text-hi);
-  --kmq-ink-80:      var(--text-mid);
-  --kmq-ink-70:      var(--text-mid);
-  --kmq-ink-60:      var(--text-low);
-  --kmq-ink-55:      var(--text-low);
-  --kmq-ink-45:      rgba(246, 248, 255, .45);
-  --kmq-ink-35:      rgba(246, 248, 255, .32);
+  /* ---- Ink --------------------------------------------------------------
+     The old ramp was six alphas of one off-white over black. Four map onto
+     the three ink roles; the two dimmest are decorative — placeholder
+     labels, disabled glyphs — and stay as alphas.                         */
+  --kmq-ink:         var(--ink);
+  --kmq-ink-80:      var(--ink-mid);
+  --kmq-ink-70:      var(--ink-mid);
+  --kmq-ink-60:      var(--ink-low);
+  --kmq-ink-55:      var(--ink-low);
+  --kmq-ink-45:      rgba(11, 22, 38, .45);
+  --kmq-ink-35:      rgba(11, 22, 38, .32);
 
-  /* ---- Blue ------------------------------------------------------------
-     --kmq-blue is the general on-dark accent: link text, icon strokes,
-     active states. It has to clear 4.5, so it resolves to --brand-300 and
-     not to the brief's --brand-600, which would fail at 3.09.             */
-  --kmq-blue:        var(--brand-300);
-  --kmq-blue-bright: var(--brand-200);
-  --kmq-blue-hi:     var(--brand-200);
-  --kmq-blue-deep:   var(--brand-500);
+  /* ---- Blue -------------------------------------------------------------
+     --kmq-blue is the general accent: link text, icon strokes, active
+     states. It has to clear 4.5 on paper, so it is --brand-600 at 5.15 and
+     not the logo's cyan at 2.54.
 
-  /* Washes, borders and glows — never text, so these are built from
-     --brand-500 (61 107 255), which is the more saturated of the two safe
-     stops and reads as electric rather than pastel at low alpha.          */
-  --kmq-blue-70:     rgba(61, 107, 255, .70);
-  --kmq-blue-50:     rgba(61, 107, 255, .50);
-  --kmq-blue-45:     rgba(61, 107, 255, .45);
-  --kmq-blue-35:     rgba(61, 107, 255, .35);
-  --kmq-blue-18:     rgba(61, 107, 255, .20);
-  --kmq-blue-wash:   rgba(143, 176, 255, .07);
+     On light, "bright" and "hi" mean *more* contrast, which is darker. The
+     hover step therefore goes down the ramp, not up — the opposite of what
+     these names meant when the ground was black.                         */
+  --kmq-blue:        var(--brand-600);
+  --kmq-blue-bright: var(--brand-700);
+  --kmq-blue-hi:     var(--brand-700);
+  --kmq-blue-deep:   var(--brand-700);
 
-  /* ---- Hairlines -------------------------------------------------------- */
+  /* Washes, borders and glows — never text, so these are free to be the
+     logo's cyan, which is what makes the page read as KMQ blue rather than
+     as a generic corporate navy.                                          */
+  --kmq-blue-70:     rgba(46, 168, 229, .70);
+  --kmq-blue-50:     rgba(46, 168, 229, .50);
+  --kmq-blue-45:     rgba(46, 168, 229, .45);
+  --kmq-blue-35:     rgba(46, 168, 229, .35);
+  --kmq-blue-18:     rgba(46, 168, 229, .22);
+  --kmq-blue-wash:   rgba(46, 168, 229, .08);
+
+  /* ---- Hairlines --------------------------------------------------------- */
   --kmq-line:        var(--glass-line);
   --kmq-line-soft:   var(--glass-line-soft);
 
-  /* ---- Gradients --------------------------------------------------------
-     The CTA sweep is now the brief's own: white on it holds 4.81 : 1 at the
-     violet end, which is its worst point, so the label clears AA across the
-     whole run. The old note about stopping short of #0C6BBF no longer
-     applies — that constraint belonged to the logo's blues.               */
+  /* ---- Errors ------------------------------------------------------------ */
+  --danger-500:      var(--danger);
+
+  /* ---- Gradients --------------------------------------------------------- */
   --kmq-grad-cta:    var(--grad-brand);
 
   /* Clipped to text, so every stop has to survive on its own. Worst stop is
-     --brand-500 at 4.28 on --ink-900; headings clipped with this are 24px
-     and up, where AA large wants 3.0.                                     */
-  --kmq-grad-head:   linear-gradient(120deg, #D8E3FF, #8FB0FF 55%, #3D6BFF);
-  --kmq-grad-stat:   linear-gradient(160deg, #D8E3FF, #8FB0FF 55%, #3D6BFF);
-  --kmq-grad-numeral:linear-gradient(160deg, #E4EBFF, #B9CCFF 45%, #3D6BFF);
+     --brand-600 at 5.15 on paper; these are only ever used at 24px and up,
+     where AA large wants 3.0.                                             */
+  --kmq-grad-head:   linear-gradient(120deg, #0A5698, #0C6BBF 55%, #1B87CC);
+  --kmq-grad-stat:   linear-gradient(160deg, #0A5698, #0C6BBF 55%, #1B87CC);
+  --kmq-grad-numeral:linear-gradient(160deg, #0A5698, #0C6BBF 45%, #2EA8E5);
 
-  --kmq-grad-card:     linear-gradient(165deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .012));
-  --kmq-grad-card-lit: linear-gradient(165deg, rgba(61, 107, 255, .14), rgba(124, 77, 255, .04));
-  --kmq-grad-panel:    linear-gradient(140deg, rgba(61, 107, 255, .10), transparent);
+  /* A card on paper is white with a hairline; the "lit" one takes a wash of
+     the brand rather than a film of light.                                */
+  --kmq-grad-card:     linear-gradient(165deg, #FFFFFF, #FBFCFF);
+  --kmq-grad-card-lit: linear-gradient(165deg, rgba(46, 168, 229, .10), rgba(12, 107, 191, .03));
+  --kmq-grad-panel:    linear-gradient(140deg, rgba(46, 168, 229, .12), transparent);
   --kmq-grad-rule:     var(--edge-shield);
 
-  /* The old pin-stripe weave, restated as the sheen. Kept under the old
-     names so the three places that use it need no edit. */
-  --kmq-weave:       linear-gradient(160deg, var(--ink-900), var(--ink-950));
-  --kmq-weave-soft:  linear-gradient(160deg, var(--ink-800), var(--ink-900));
+  /* Placeholder wells, where a photograph has not been delivered. */
+  --kmq-weave:       linear-gradient(160deg, var(--paper-100), var(--paper-200));
+  --kmq-weave-soft:  linear-gradient(160deg, var(--paper-50), var(--paper-100));
   --kmq-weave-fine:  var(--sheen);
 
   /* ---- Type ------------------------------------------------------------
@@ -268,44 +292,40 @@
   --kmq-measure:  66ch;
 
   /* ---- Depth ------------------------------------------------------------
-     Depth, not drop shadow: a hairline of light along the top edge to say
-     the surface has a lip, a short contact shadow to pin it down, and a wide
-     heavily-negative-spread ambient one to lift it off the section without
-     fogging the gap between cards.                                       */
+     Rebuilt for paper. The dark cut leaned on heavy black spreads, which is
+     right on near-black and reads as a grey smudge on #F7F9FF. Here the
+     shadow is short, tinted toward the brand rather than neutral grey, and
+     paired with a hairline — on light it is the hairline that says "edge"
+     and the shadow only says "raised".                                   */
   --kmq-shadow-card:
-    inset 0 1px 0 rgba(255, 255, 255, .06),
-    0 2px 4px rgba(0, 0, 0, .38),
-    0 24px 48px -20px rgba(0, 0, 0, .60);
-  --kmq-shadow-head: 0 18px 50px rgba(0, 0, 0, .45);
-  --kmq-shadow-fab:  0 18px 40px rgba(0, 0, 0, .60);
+    0 1px 2px rgba(11, 22, 38, .05),
+    0 12px 28px -14px rgba(10, 37, 64, .16);
+  --kmq-shadow-head: 0 8px 26px -12px rgba(10, 37, 64, .18);
+  --kmq-shadow-fab:  0 10px 26px -8px rgba(10, 37, 64, .34);
 
   --kmq-shadow-pkg:
-    inset 0 1px 0 rgba(255, 255, 255, .055),
-    0 2px 4px rgba(0, 0, 0, .40),
-    0 16px 32px -14px rgba(0, 0, 0, .62),
-    0 40px 74px -34px rgba(0, 0, 0, .78);
+    0 1px 2px rgba(11, 22, 38, .05),
+    0 10px 22px -12px rgba(10, 37, 64, .14),
+    0 30px 58px -34px rgba(10, 37, 64, .22);
   --kmq-shadow-pkg-hover:
-    inset 0 1px 0 rgba(255, 255, 255, .12),
-    0 3px 7px rgba(0, 0, 0, .46),
-    0 26px 50px -18px rgba(0, 0, 0, .70),
-    0 62px 96px -40px rgba(0, 0, 0, .85);
+    0 2px 4px rgba(11, 22, 38, .07),
+    0 18px 34px -14px rgba(10, 37, 64, .20),
+    0 44px 74px -40px rgba(10, 37, 64, .28);
   --kmq-shadow-pkg-lit:
-    inset 0 1px 0 rgba(185, 204, 255, .24),
-    0 2px 4px rgba(0, 0, 0, .40),
-    0 20px 40px -14px rgba(0, 0, 0, .66),
-    0 46px 84px -34px rgba(0, 0, 0, .80),
-    0 22px 64px -28px rgba(61, 107, 255, .36);
+    0 1px 2px rgba(11, 22, 38, .05),
+    0 12px 26px -12px rgba(10, 37, 64, .16),
+    0 34px 62px -34px rgba(10, 37, 64, .24),
+    0 16px 44px -22px rgba(46, 168, 229, .30);
   --kmq-shadow-pkg-lit-hover:
-    inset 0 1px 0 rgba(185, 204, 255, .32),
-    0 3px 7px rgba(0, 0, 0, .46),
-    0 30px 56px -18px rgba(0, 0, 0, .72),
-    0 66px 104px -40px rgba(0, 0, 0, .86),
-    0 30px 80px -28px rgba(61, 107, 255, .50);
+    0 2px 4px rgba(11, 22, 38, .07),
+    0 20px 38px -14px rgba(10, 37, 64, .22),
+    0 48px 80px -40px rgba(10, 37, 64, .30),
+    0 24px 56px -22px rgba(46, 168, 229, .42);
   --kmq-shadow-flag:
-    0 6px 16px -6px rgba(0, 0, 0, .80),
-    0 4px 14px -4px rgba(61, 107, 255, .52);
-  --kmq-shadow-cta:  0 14px 30px -12px rgba(61, 107, 255, .60);
-  --kmq-shadow-cta-hover: 0 18px 42px -12px rgba(61, 107, 255, .78);
+    0 4px 12px -4px rgba(10, 37, 64, .28),
+    0 3px 10px -3px rgba(12, 107, 191, .42);
+  --kmq-shadow-cta:       0 10px 24px -10px rgba(12, 107, 191, .45);
+  --kmq-shadow-cta-hover: 0 14px 32px -10px rgba(12, 107, 191, .62);
 
   /* ---- Motion ----------------------------------------------------------- */
   --kmq-ease:      cubic-bezier(.4, 0, .2, 1);

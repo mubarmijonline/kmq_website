@@ -23,7 +23,7 @@
 {% set states = t.services[:4] %}
 {% set slugs  = ['ppf-gloss', 'ppf-matte', 'nano-ceramic', 'window-tint'] %}
 
-<section class="kmq-cycle" data-kmq-cycle>
+<section class="kmq-cycle kmq-deep" data-kmq-cycle>
   <div class="kmq-cycle__glow" aria-hidden="true"></div>
   <div class="kmq-cycle__accentglow" data-kmq-accentglow aria-hidden="true"></div>
 
@@ -117,16 +117,11 @@
 
 {# ═══════════ Services ═══════════
 
-   The one light section on the page. It gets the break because it carries the
-   most content now that every card has a photograph, and because a single
-   paper band is what makes the dark sections either side of it read as a
-   decision rather than a default.
-
    All five services, not four. The grid used to slice t.services[:4], which
    left the heat-insulating tint off the homepage while the copy two sections
    down said "five services". No copy changed; the fifth card was already
    written and simply was not rendered. #}
-<section class="kmq-section kmq-section--paper" data-kmq-section="services">
+<section class="kmq-section" data-kmq-section="services">
   <div class="kmq-shell">
     <div class="kmq-sectionhead">
       <div class="kmq-eyebrow">01 — SERVICES</div>

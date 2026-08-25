@@ -120,24 +120,30 @@
 
 /* ═══════════ Header ═══════════ */
 
+/* Solid from the first pixel, not transparent over the hero.
+
+   Transparent was right when the whole page was dark: one set of light link
+   colours worked over every hero. On a paper page it cannot be — the home
+   hero is a deep navy panel and every inner page's hero is paper, so a single
+   transparent header is either invisible on one or the other. Dark ink over
+   the navy hero measured 1.76 : 1, which was 72 of the 94 contrast failures
+   this page had.
+
+   Solid also removes the backdrop-filter that used to sit here. An 18px blur
+   over the hero re-sampled whatever repainted beneath it, which was the most
+   expensive thing on the page during the old scroll animation. */
 .kmq-header {
   position: sticky;
   inset-block-start: 0;
   z-index: 60;
-  background: transparent;
-  border-block-end: 1px solid transparent;
-  transition: background var(--kmq-header), backdrop-filter var(--kmq-header),
-              border-color var(--kmq-header), box-shadow var(--kmq-header);
+  background: var(--paper-50);
+  border-block-end: 1px solid var(--kmq-line);
+  transition: box-shadow var(--kmq-header), border-color var(--kmq-header);
 }
 
-/* Set by app.js past 40px of scroll. Without JS the header simply stays
-   in its transparent state, which is legible over every hero. */
+/* Set by app.js past 40px of scroll: the bar lifts off the page rather than
+   changing colour. Without JS it simply stays flat, which is legible. */
 .kmq-header[data-scrolled="true"] {
-  /* Solid, not a backdrop blur. An 18px backdrop-filter here sat over the
-     hero and re-sampled whatever repainted beneath it — the single most
-     expensive thing on the page during the old scroll animation. At 94%
-     on a near-black bar the blur was not visible anyway. */
-  background: color-mix(in srgb, var(--ink-950) 94%, transparent);
   border-block-end-color: var(--kmq-blue-18);
   box-shadow: var(--kmq-shadow-head);
 }
@@ -204,7 +210,7 @@
   inset-inline-start: 0;
   height: 1px;
   width: 0;
-  background: linear-gradient(90deg, var(--kmq-blue-bright), rgba(143, 176, 255, 0));
+  background: linear-gradient(90deg, var(--kmq-blue-bright), rgba(46, 168, 229, 0));
   transition: width var(--kmq-quick);
 }
 
@@ -216,13 +222,13 @@
 
 /* Scroll-spy on the home page adds the glow the source had. */
 .kmq-nav__link[data-lit="true"] {
-  filter: drop-shadow(0 0 10px rgba(143, 176, 255, .65));
+  filter: drop-shadow(0 0 10px rgba(46, 168, 229, .65));
 }
 
 .kmq-langbtn {
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid rgba(61, 107, 255, .4);
+  border: 1px solid rgba(46, 168, 229, .4);
   color: var(--kmq-blue);
   font-family: var(--kmq-font-latin);
   font-weight: 600;
@@ -247,7 +253,7 @@
   width: 46px;
   height: 46px;
   background: transparent;
-  border: 1px solid rgba(61, 107, 255, .4);
+  border: 1px solid rgba(46, 168, 229, .4);
   padding: 0;
   flex-direction: column;
   align-items: center;
@@ -278,7 +284,7 @@
 .kmq-mobilenav {
   display: none;
   border-block-start: 1px solid var(--kmq-blue-18);
-  background: rgba(5, 7, 15, .97);
+  background: rgba(10, 37, 64, .97);
   backdrop-filter: blur(20px);
   padding: 18px var(--kmq-gutter) 26px;
 }
@@ -378,20 +384,29 @@
 
 .kmq-hero__layer--weave { background: var(--kmq-weave); }
 
+/* These three layers were built to darken a dark page and were left
+   darkening a light one, which put the inner-page lede on a mid-tone that
+   neither ink nor white could sit on. The contrast pass could not see it —
+   the layers are siblings of the copy, not ancestors, so walking up for a
+   ground finds the paper behind them and reports a pass.
+
+   Now they tint rather than darken: a wash of the brand at the top corner
+   and a lift toward paper at the foot, so the ink stays on paper the whole
+   way down. */
 .kmq-hero__layer--glow {
   background:
-    radial-gradient(120% 90% at 78% 15%, rgba(143, 176, 255, .20), transparent 55%),
-    radial-gradient(90% 70% at 10% 90%, rgba(19, 26, 50, .90), transparent 60%);
+    radial-gradient(120% 90% at 78% 15%, rgba(46, 168, 229, .22), transparent 58%),
+    radial-gradient(90% 70% at 10% 90%, rgba(12, 107, 191, .10), transparent 62%);
 }
 
 .kmq-hero__layer--veil {
-  background: linear-gradient(180deg, rgba(5, 7, 15, .35), rgba(5, 7, 15, .92));
+  background: linear-gradient(180deg, rgba(247, 249, 255, 0), rgba(247, 249, 255, .92));
 }
 
 .kmq-hero__layer--sheen {
   inset-block: 50% auto;
   height: 40%;
-  background: linear-gradient(180deg, transparent, rgba(246, 248, 255, .05), transparent);
+  background: linear-gradient(180deg, transparent, var(--kmq-line), transparent);
   transform: skewY(-6deg);
 }
 
@@ -605,7 +620,7 @@
 /* Hairline grid: 1px gap over a light background paints the rules. */
 .kmq-grid--hairline {
   gap: 1px;
-  background: rgba(246, 248, 255, .09);
+  background: var(--kmq-line);
 }
 
 .kmq-sectionhead { margin-block-end: 60px; }
@@ -704,7 +719,7 @@
   inset-block-end: 0;
   inset-inline: 0;
   block-size: 45%;
-  background: linear-gradient(180deg, transparent, rgba(5, 7, 15, .55));
+  background: linear-gradient(180deg, transparent, rgba(10, 37, 64, .48));
   pointer-events: none;
 }
 
@@ -756,7 +771,7 @@
 .kmq-cell__num--sm {
   font-size: 13px;
   letter-spacing: .2em;
-  color: rgba(61, 107, 255, .85);
+  color: rgba(46, 168, 229, .85);
   margin-block-end: 24px;
 }
 
@@ -789,9 +804,9 @@
      and a translucent dark base. The base is what the shadows read against —
      without it the card is the same value as the section behind it. */
   background:
-    radial-gradient(120% 78% at 50% -14%, rgba(143, 176, 255, .085), transparent 62%),
+    radial-gradient(120% 78% at 50% -14%, rgba(46, 168, 229, .085), transparent 62%),
     var(--kmq-grad-card),
-    rgba(19, 26, 50, .72);
+    rgba(18, 50, 82, .72);
   border: 1px solid var(--kmq-line);
   box-shadow: var(--kmq-shadow-pkg);
   transition:
@@ -808,7 +823,7 @@
   inset-block-start: -1px;
   inset-inline: -1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(246, 248, 255, .26), transparent);
+  background: linear-gradient(90deg, transparent, var(--kmq-line), transparent);
   pointer-events: none;
 }
 
@@ -848,12 +863,12 @@
 .kmq-pkg--featured {
   border-color: transparent;
   background:
-    radial-gradient(120% 78% at 50% -14%, rgba(61, 107, 255, .20), transparent 64%) padding-box,
+    radial-gradient(120% 78% at 50% -14%, rgba(46, 168, 229, .20), transparent 64%) padding-box,
     var(--kmq-grad-card-lit) padding-box,
     /* Opaque, unlike the plain card's translucent base: everything above it
        is see-through, and the accent below would otherwise flood the whole
        card instead of staying in the one-pixel border it is painted for. */
-    linear-gradient(var(--ink-800), var(--ink-800)) padding-box,
+    linear-gradient(var(--paper-0), var(--paper-0)) padding-box,
     linear-gradient(160deg, var(--kmq-blue-hi), var(--kmq-blue) 42%, var(--kmq-blue-35)) border-box;
   box-shadow: var(--kmq-shadow-pkg-lit);
 }
@@ -1046,8 +1061,8 @@
   padding: 15px 17px;
   border: 1px solid var(--kmq-line-soft);
   border-radius: var(--kmq-radius);
-  background: rgba(246, 248, 255, .022);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+  background: var(--glass);
+  box-shadow: inset 0 1px 0 var(--kmq-line-soft);
 }
 
 .kmq-pkg--featured .kmq-pkg__warranty {
@@ -1075,8 +1090,8 @@
   gap: 10px;
   width: 100%;
   border-color: var(--kmq-blue-50);
-  background: rgba(61, 107, 255, .07);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+  background: rgba(46, 168, 229, .07);
+  box-shadow: inset 0 1px 0 var(--kmq-line-soft);
   color: var(--kmq-ink);
   padding: 17px;
   transition:
@@ -1089,7 +1104,7 @@
 
 .kmq-pkg__cta:hover {
   border-color: var(--kmq-blue);
-  background: rgba(61, 107, 255, .16);
+  background: rgba(46, 168, 229, .16);
   color: var(--kmq-ink);
 }
 
@@ -1125,14 +1140,19 @@
   border-block: 1px solid var(--kmq-blue-18);
 }
 
+/* The band paints its own dark ground in .kmq-band__layer--base, so every
+   token inside it has to flip with it. base.css's .kmq-deep does that; this
+   applies it by class so the about page's band follows without a markup
+   change. See .kmq-deep for the values. */
+
 .kmq-band__layer { position: absolute; inset: 0; pointer-events: none; }
 
 .kmq-band__layer--base { background: var(--kmq-bg-sunk); }
 
 .kmq-band__layer--glow {
   background:
-    radial-gradient(85% 120% at 80% 0%, rgba(143, 176, 255, .22), transparent 58%),
-    radial-gradient(70% 90% at 8% 100%, rgba(19, 26, 50, .95), transparent 62%);
+    radial-gradient(85% 120% at 80% 0%, rgba(46, 168, 229, .22), transparent 58%),
+    radial-gradient(70% 90% at 8% 100%, rgba(18, 50, 82, .95), transparent 62%);
 }
 
 .kmq-band__layer--weave { background: var(--kmq-weave-fine); }
@@ -1175,7 +1195,7 @@
   width: clamp(260px, 30vw, 380px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(143, 176, 255, .16), transparent 68%);
+  background: radial-gradient(circle, rgba(46, 168, 229, .16), transparent 68%);
 }
 
 .kmq-seal__body { position: relative; text-align: center; }
@@ -1449,7 +1469,7 @@
   justify-content: space-between;
   gap: 24px;
   padding-block: 20px;
-  border-block-end: 1px solid rgba(246, 248, 255, .09);
+  border-block-end: 1px solid var(--kmq-line);
 }
 
 .kmq-spec dt { font-size: 15px; color: var(--kmq-ink-55); }
@@ -1584,7 +1604,7 @@
   display: flex;
   flex-direction: column;
   color: inherit;
-  border: 1px solid rgba(246, 248, 255, .09);
+  border: 1px solid var(--kmq-line);
   transition: border-color var(--kmq-lift), transform var(--kmq-lift);
 }
 
@@ -1600,14 +1620,15 @@
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
-  background: rgba(5, 7, 15, .82);
-  backdrop-filter: blur(8px);
+  /* Its own dark plate, because it sits on a photograph rather than on the
+     section, so it cannot take the page's ink. White on this measures 12.4. */
+  background: rgba(10, 37, 64, .86);
+  color: var(--text-on-brand);
   border-inline-end: 1px solid var(--kmq-blue-35);
   border-block-end: 1px solid var(--kmq-blue-35);
   font-family: var(--kmq-font-latin);
   font-size: 10px;
   letter-spacing: .18em;
-  color: var(--kmq-blue);
   padding: 7px 12px;
 }
 
@@ -1631,7 +1652,7 @@
 .kmq-post__meta {
   margin-block-start: auto;
   padding-block-start: 18px;
-  border-block-start: 1px solid rgba(246, 248, 255, .08);
+  border-block-start: 1px solid var(--kmq-line-soft);
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -1661,7 +1682,7 @@
 .kmq-chip {
   background: transparent;
   color: var(--kmq-ink-70);
-  border: 1px solid rgba(246, 248, 255, .16);
+  border: 1px solid var(--kmq-line);
   font-family: var(--kmq-head);
   font-weight: 700;
   font-size: var(--kmq-small);
@@ -1675,7 +1696,7 @@
 .kmq-chip[aria-current="true"] {
   background: var(--kmq-grad-cta);
   color: var(--text-on-brand);
-  border-color: rgba(61, 107, 255, .8);
+  border-color: rgba(46, 168, 229, .8);
 }
 
 .kmq-filterbar {
@@ -1733,7 +1754,7 @@
 
 .kmq-empty {
   padding: 70px 30px;
-  border: 1px dashed rgba(246, 248, 255, .16);
+  border: 1px dashed var(--kmq-line);
   text-align: center;
   font-size: 15px;
   color: var(--kmq-ink-45);
@@ -1755,7 +1776,7 @@
   place-items: center;
   background: transparent;
   color: var(--kmq-ink-70);
-  border: 1px solid rgba(246, 248, 255, .14);
+  border: 1px solid var(--kmq-line);
   font-family: var(--kmq-font-latin);
   font-weight: 600;
   font-size: var(--kmq-small);
@@ -1767,10 +1788,10 @@
 .kmq-pager [aria-current="page"] {
   background: var(--kmq-grad-cta);
   color: var(--text-on-brand);
-  border-color: rgba(61, 107, 255, .8);
+  border-color: rgba(46, 168, 229, .8);
 }
 
-.kmq-pager span[aria-disabled="true"] { color: rgba(246, 248, 255, .28); }
+.kmq-pager span[aria-disabled="true"] { color: var(--kmq-ink-35); }
 
 .kmq-aside { display: grid; gap: 22px; }
 
@@ -1799,7 +1820,7 @@
   font-family: var(--kmq-font-latin);
   font-size: 20px;
   font-weight: 600;
-  color: rgba(61, 107, 255, .4);
+  color: rgba(46, 168, 229, .4);
   line-height: 1.2;
   direction: ltr;
 }
@@ -1840,7 +1861,7 @@
 .kmq-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .kmq-tags a {
-  border: 1px solid rgba(246, 248, 255, .14);
+  border: 1px solid var(--kmq-line);
   color: var(--kmq-ink-60);
   font-size: 13px;
   padding: 8px 14px;
@@ -1872,7 +1893,7 @@
 .kmq-select,
 .kmq-textarea {
   width: 100%;
-  background: rgba(5, 7, 15, .62);
+  background: rgba(10, 37, 64, .62);
   border: 1px solid var(--kmq-line);
   /* Accent hairline on the inline-start edge, revealed on focus. */
   box-shadow: inset 2px 0 0 -2px transparent;
@@ -1889,13 +1910,13 @@
 
 .kmq-input:hover,
 .kmq-select:hover,
-.kmq-textarea:hover { border-color: rgba(246, 248, 255, .22); }
+.kmq-textarea:hover { border-color: var(--kmq-blue-45); }
 
 .kmq-input:focus,
 .kmq-select:focus,
 .kmq-textarea:focus {
   border-color: var(--kmq-blue);
-  background: rgba(5, 7, 15, .85);
+  background: rgba(10, 37, 64, .85);
   box-shadow: 0 0 0 3px var(--kmq-blue-18);
 }
 
@@ -1955,11 +1976,11 @@
 
 .kmq-field--bad .kmq-input,
 .kmq-field--bad .kmq-select,
-.kmq-field--bad .kmq-textarea { border-color: var(--danger-500); background: rgba(255, 107, 107, .07); }
+.kmq-field--bad .kmq-textarea { border-color: var(--danger-500); background: rgba(198, 40, 61, .07); }
 
 .kmq-field--bad .kmq-input:focus,
 .kmq-field--bad .kmq-select:focus,
-.kmq-field--bad .kmq-textarea:focus { box-shadow: 0 0 0 3px rgba(255, 107, 107, .20); }
+.kmq-field--bad .kmq-textarea:focus { box-shadow: 0 0 0 3px rgba(198, 40, 61, .20); }
 
 .kmq-field__error {
   display: flex;
@@ -2064,8 +2085,8 @@
 }
 
 .kmq-notice--bad {
-  border-color: rgba(255, 107, 107, .5);
-  background: linear-gradient(140deg, rgba(255, 107, 107, .10), transparent);
+  border-color: rgba(198, 40, 61, .5);
+  background: linear-gradient(140deg, rgba(198, 40, 61, .10), transparent);
 }
 
 .kmq-inlineform {
@@ -2192,7 +2213,7 @@
 /* ═══════════ Footer ═══════════ */
 
 .kmq-footer {
-  border-block-start: 1px solid rgba(61, 107, 255, .18);
+  border-block-start: 1px solid rgba(46, 168, 229, .18);
   background: var(--kmq-bg-sunk);
 }
 
@@ -2270,7 +2291,7 @@
   height: 42px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(246, 248, 255, .18);
+  border: 1px solid var(--kmq-line);
   color: var(--kmq-ink-70);
   transition: border-color var(--kmq-quick), color var(--kmq-quick);
 }
@@ -2387,12 +2408,14 @@
      top of the page rather than 91px down. */
   margin-block-start: calc(-1 * var(--kmq-header-h, 91px));
   padding-block: calc(var(--kmq-header-h, 91px) + 40px) clamp(48px, 7vw, 96px);
-  background: var(--ink-950);
+  /* Background, ink and accents all come from .kmq-deep in base.css — this is
+     the one panel on a paper page that still needs a dark ground, because the
+     car is a black cut-out and would vanish on anything else. */
 
   /* Rewritten by app.js, once per state. Everything tinted in here reads it,
      so one property write recolours the glow, the rail and the active label
      together — no per-element style loop. */
-  --kmq-accent: var(--brand-500);
+  --kmq-accent: var(--brand-400);
 }
 
 /* The ambient glow. Two layers rather than one animated gradient: gradient
@@ -2486,7 +2509,7 @@
   font-weight: 600;
   letter-spacing: var(--kmq-track-meta);
   text-transform: uppercase;
-  color: var(--brand-300);
+  color: var(--kmq-blue);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -2525,7 +2548,7 @@
 .kmq-cycle__sub {
   margin-block-start: 20px;
   font-size: var(--kmq-lede);
-  color: var(--text-mid);
+  color: var(--kmq-ink-70);
   max-width: var(--kmq-measure);
 }
 
@@ -2557,7 +2580,7 @@
   background: none;
   border: 0;
   padding: 14px 0 0;
-  color: var(--text-low);
+  color: var(--kmq-ink-60);
   transition: color var(--kmq-quick);
 }
 
@@ -2591,9 +2614,9 @@
   transition: transform var(--kmq-hold, 2.8s) linear;
 }
 
-.kmq-cycle__step[data-state="live"] { color: var(--text-hi); }
+.kmq-cycle__step[data-state="live"] { color: var(--kmq-ink); }
 
-.kmq-cycle__step:hover { color: var(--text-mid); }
+.kmq-cycle__step:hover { color: var(--kmq-ink-70); }
 
 .kmq-cycle__step-name {
   display: block;
@@ -2612,7 +2635,7 @@
 }
 
 .kmq-cycle__step:focus-visible {
-  outline: 2px solid var(--brand-300);
+  outline: 2px solid var(--kmq-blue-bright);
   outline-offset: 4px;
   border-radius: var(--kmq-radius);
 }

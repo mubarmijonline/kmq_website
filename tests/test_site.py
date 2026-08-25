@@ -394,13 +394,26 @@ def test_every_brand_image_resolves(client):
         assert client.get(src).status_code == 200, src
 
 
-def test_the_site_wears_the_dark_cut(client):
-    """The light cut loses the letters that overhang the shield on #0D0D0D's
-    opposite; it is the favicon and nothing else."""
+def test_each_logo_cut_sits_on_the_ground_it_was_drawn_for(client):
+    """The two cuts are not interchangeable and the file names invite the
+    mistake: `kmq-logo.svg` is drawn FOR a dark ground and `kmq-logo-light.svg`
+    FOR a light one. On the wrong ground the letters that overhang the shield
+    lose their keyline and disappear.
+
+    The page is paper now, so the header wears the light cut; the footer is the
+    one deep band left, so it keeps the dark one. The favicon stays the light
+    cut because a browser tab is white in half the browsers on the market."""
     html = client.get("/ar/").get_data(as_text=True)
+
     brand = re.search(r'<a class="kmq-brand.*?</a>', html, re.DOTALL)
-    assert brand and "img/brand/kmq-logo.svg" in brand.group(0)
-    assert "kmq-logo-light.svg" not in brand.group(0)
+    assert brand, "no brand link in the header"
+    assert "kmq-logo-light.svg" in brand.group(0)
+
+    footer = re.search(r'<footer class="kmq-footer.*?</footer>', html, re.DOTALL)
+    assert footer, "no footer"
+    assert "img/brand/kmq-logo.svg" in footer.group(0)
+    assert "kmq-logo-light.svg" not in footer.group(0)
+
     assert 'rel="icon"' in html and "kmq-logo-light.svg" in html
 
 

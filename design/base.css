@@ -85,13 +85,15 @@ ul, ol {
 }
 
 ::selection {
-  background: var(--kmq-blue);
-  color: var(--kmq-bg);
+  background: var(--brand-100);
+  color: var(--ink);
 }
 
 /* Keyboard focus. The design source has no focus style at all — on a site
    whose entire purpose is starting a conversation, every CTA must be
    reachable without a mouse. */
+/* --kmq-blue-bright resolves to --brand-700 on paper and to a pale cyan
+   inside a deep section, so the one rule stays visible on both grounds. */
 :focus-visible {
   outline: 2px solid var(--kmq-blue-bright);
   outline-offset: 3px;
@@ -104,16 +106,17 @@ ul, ol {
   inset-inline-start: var(--kmq-gutter);
   inset-block-start: -100vh;
   z-index: 100;
-  background: var(--kmq-blue-bright);
-  color: var(--kmq-bg);
+  background: var(--brand-700);
+  color: var(--text-on-brand);
   font-family: var(--kmq-head);
   font-weight: 800;
   padding: 14px 22px;
+  border-radius: var(--kmq-radius);
 }
 
 .kmq-skip:focus {
   inset-block-start: 12px;
-  color: var(--kmq-bg);
+  color: var(--text-on-brand);
 }
 
 /* Screen-reader-only, but still focusable. */
@@ -144,36 +147,54 @@ ul, ol {
 
 .kmq-section--accent { background: var(--kmq-bg-accent); }
 
-/* The one light break in the page. Everything inside it flips to the paper
-   palette by redefining the same variables the dark sections use, so no
-   component needs a --paper variant of its own — a card is a card, it just
-   resolves to different values in here. */
-.kmq-section--paper {
-  background: var(--paper-50);
+/* The inverse of the page: the two sections that stay dark. The hero, so the
+   black car has something to be seen against, and the footer, so the page has
+   a foot. Everything inside re-points the same variables the paper sections
+   use, so no component needs a dark variant of its own — a card is a card, it
+   just resolves to different values in here.
 
-  --kmq-ink:    var(--text-on-paper);
-  --kmq-ink-80: rgba(11, 16, 32, .80);
-  --kmq-ink-70: rgba(11, 16, 32, .72);
-  --kmq-ink-60: rgba(11, 16, 32, .62);
-  --kmq-ink-55: rgba(11, 16, 32, .58);
-  --kmq-ink-45: rgba(11, 16, 32, .45);
-  --kmq-ink-35: rgba(11, 16, 32, .35);
+   This is the mirror of what this block used to be. When the page was dark it
+   held the one light section; now the page is light and it holds the two dark
+   ones. */
+.kmq-section--deep,
+.kmq-deep,
+.kmq-band,
+.kmq-mobilenav {
+  background: var(--deep);
 
-  /* --brand-600 is 5.73 : 1 on paper and 3.09 on ink; this is the one place
-     the brief's primary blue can carry text. */
-  --kmq-blue:        var(--brand-600);
-  --kmq-blue-bright: var(--brand-500);
-  --kmq-blue-hi:     var(--brand-500);
+  --kmq-ink:    var(--text-on-brand);
+  --kmq-ink-80: rgba(255, 255, 255, .84);
+  --kmq-ink-70: rgba(255, 255, 255, .76);
+  --kmq-ink-60: rgba(255, 255, 255, .68);
+  --kmq-ink-55: rgba(255, 255, 255, .64);
+  --kmq-ink-45: rgba(255, 255, 255, .48);
+  --kmq-ink-35: rgba(255, 255, 255, .34);
 
-  --glass:      rgba(255, 255, 255, .92);
-  --glass-line: rgba(11, 16, 32, .10);
-  --kmq-line:      rgba(11, 16, 32, .10);
-  --kmq-line-soft: rgba(11, 16, 32, .06);
+  /* --brand-400 is 5.81 : 1 here against 2.54 on paper. The logo's cyan is
+     only ever text inside a deep section, and this is where. */
+  --kmq-blue:        var(--brand-400);
+  --kmq-blue-bright: var(--brand-200);
+  --kmq-blue-hi:     var(--brand-200);
+
+  --glass:      rgba(255, 255, 255, .06);
+  --glass-line: rgba(255, 255, 255, .16);
+  --kmq-line:      rgba(255, 255, 255, .14);
+  --kmq-line-soft: rgba(255, 255, 255, .08);
+
+  --kmq-bg-raised:   var(--deep-700);
+  --kmq-bg-raised-2: var(--deep-700);
+  --kmq-bg-hover:    var(--deep-700);
+
+  --kmq-grad-card: linear-gradient(165deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+  --kmq-grad-rule: var(--edge-shield-deep);
+  --kmq-grad-head: linear-gradient(120deg, #DFF3FF, #7FD0F5 55%, #2EA8E5);  /* --brand-50, -200, -400 */
 
   --kmq-shadow-card:
-    inset 0 1px 0 rgba(255, 255, 255, .90),
-    0 1px 2px rgba(11, 16, 32, .05),
-    0 18px 36px -20px rgba(11, 16, 32, .22);
+    inset 0 1px 0 rgba(255, 255, 255, .07),
+    0 2px 4px rgba(0, 0, 0, .28),
+    0 20px 44px -22px rgba(0, 0, 0, .55);
+
+  --danger-500: var(--danger-300);
 
   color: var(--kmq-ink);
 }

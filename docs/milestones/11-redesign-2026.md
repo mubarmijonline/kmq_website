@@ -7,8 +7,17 @@ comes out byte-identical apart from newly written alt text.
 
 **Includes**
 
-- **Colour.** `design/tokens.css` becomes two layers: the brief's palette
-  transcribed once as literals, and the older `--kmq-*` names re-pointed at it.
+- **Colour.** `design/tokens.css` becomes two layers: the palette transcribed
+  once as literals, and the older `--kmq-*` names re-pointed at it.
+
+  The palette is the brand's, not the brief's. The written brief specified
+  near-black surfaces with an indigo-to-violet accent; built and measured, it
+  read as a dark SaaS product rather than as KMQ, and the client said so. The
+  logo is white and #2EA8E5 cyan over an #0C6BBF gradient and every supplied
+  photograph is daylight, so the page is paper and the accents are the logo's
+  own two blues. Three panels stay dark — the hero, because the car is a black
+  cut-out; the warranty band; and the footer — and they take `.kmq-deep`,
+  which re-points the same variables the paper sections use.
   Nothing in `components.css` carries a colour of its own any more, including
   the `rgba()` triples that a hex grep does not find. Documented exceptions:
   WhatsApp's brand green, which is theirs, and the `#000` stops inside mask

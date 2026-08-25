@@ -348,6 +348,11 @@ CONTRAST = r"""
     if (!text) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+    // display:none on an ancestor does not show up in the element's own
+    // computed style. Without this the mobile nav — hidden at desktop width —
+    // was measured against its own dark plate and reported 72 failures for
+    // markup nobody could see.
+    if (el.offsetParent === null && cs.position !== 'fixed') continue;
     if (parseFloat(cs.opacity) < 0.5) continue;
     // Gradient-clipped headings paint transparent by design; the gradient's
     // own stops are checked in tokens.css, not here.
