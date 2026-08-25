@@ -383,7 +383,11 @@ def contrast(base: str, out: Path) -> dict:
     """Every visible text node, measured against what is painted behind it."""
     from playwright.sync_api import sync_playwright
 
-    pages = ["", "packages/", "services/", "branches/", "contact/", "warranty/"]
+    # No trailing slashes: app/routes.py declares "/<locale:lang>/packages"
+    # and friends, and Flask 404s the slashed form rather than redirecting.
+    # With them, this audited the error page five times over.
+    pages = ["", "packages", "services", "branches", "contact-us", "warranty",
+             "about-us", "blog", "services/ppf-gloss"]
     result = {}
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--no-sandbox", "--disable-dev-shm-usage"])

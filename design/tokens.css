@@ -114,6 +114,11 @@
                    rgba(143, 176, 255, .30) 55%,
                    transparent 82%);
 
+  /* The select chevron, as a shape only — the colour comes from --kmq-blue
+     where it is used, so it follows the section rather than being frozen
+     into a data URI that no token can reach. */
+  --kmq-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5'/%3E%3C/svg%3E");
+
   /* The "coated surface" sheen, used where the old design used a pin-stripe
      weave: a wide, shallow diagonal, closer to a reflection than a texture. */
   --sheen: repeating-linear-gradient(115deg,

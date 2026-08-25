@@ -1821,9 +1821,19 @@
 
 .kmq-catlist a:hover { color: var(--kmq-blue); }
 
+/* The featured article's category. It was an inline style carrying the
+   previous palette's cyan as a literal, which is why it outlived the recolour
+   of every stylesheet around it. */
+.kmq-feature__cat {
+  font-family: var(--kmq-font-latin);
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--kmq-blue);
+}
+
 .kmq-catlist__count {
   font-family: var(--kmq-font-latin);
-  color: rgba(61, 107, 255, .8);
+  color: var(--kmq-blue);
   direction: ltr;
 }
 
@@ -1905,15 +1915,35 @@
 .kmq-select {
   appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%232EA8E5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5'/%3E%3C/svg%3E");
-  background-size: 12px 8px;
-  background-repeat: no-repeat;
-  background-position: right 18px center;
+  /* The chevron is a mask, not a background image. A data URI cannot read a
+     custom property, so the old one carried a literal — and it was still the
+     previous palette's cyan long after everything around it had moved. As a
+     mask the shape is the data URI and the colour is a token, which also
+     means it follows the section it lands in. */
+  background-image: none;
   padding-inline-end: 46px;
 }
 
+/* :has() rather than a modifier class on the wrapper: the chevron is a fact
+   about the control, not about the field, and this needs no template edit. */
+.kmq-field:has(.kmq-select) { position: relative; }
+
+.kmq-field:has(.kmq-select)::after {
+  content: "";
+  position: absolute;
+  /* The label sits above the control, so the chevron is measured from the
+     bottom edge of the field rather than from its middle. */
+  inset-block-end: 19px;
+  inset-inline-end: 18px;
+  width: 12px;
+  height: 8px;
+  pointer-events: none;
+  background: var(--kmq-blue);
+  -webkit-mask: var(--kmq-chevron) center / 12px 8px no-repeat;
+  mask: var(--kmq-chevron) center / 12px 8px no-repeat;
+}
+
 [dir="rtl"] .kmq-select {
-  background-position: left 18px center;
   padding-inline-end: 18px;
   padding-inline-start: 46px;
 }
