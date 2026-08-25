@@ -67,7 +67,7 @@
                   {{ lead_labels[name] }}
                   {% if field.required %}<span class="kmq-field__req" aria-hidden="true">*</span>
                     <span class="kmq-sr">({{ t.required_mark }})</span>
-                  {% else %}<span style="color:var(--kmq-ink-45);font-weight:400"> — {{ t.optional_mark }}</span>{% endif %}
+                  {% else %}<span class="kmq-field__opt"> — {{ t.optional_mark }}</span>{% endif %}
                 </label>
 
                 {% if field.type == 'select' %}

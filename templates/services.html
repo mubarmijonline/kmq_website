@@ -9,18 +9,24 @@
 {{ m.pagehead('SERVICES · 5', t.services_page_title, t.services_page_sub) }}
 
 <section class="kmq-shell kmq-section">
-  <div class="kmq-grid">
+  {# The same card the home page uses, so a visitor arriving here from there
+     recognises what they clicked. It carries the warranty row on top, which
+     is the one fact this page adds over the home grid. #}
+  <div class="kmq-grid kmq-grid--svc">
     {% for s in t.services %}
-      <article class="kmq-card">
-        <div class="kmq-card__code">S/0{{ loop.index }}</div>
-        <span class="kmq-iconframe">{{ m.icon(s.icon) }}</span>
-        <h3 class="kmq-card__title">{{ s.name }}</h3>
-        <p class="kmq-card__body">{{ s.tagline }}</p>
-        <dl class="kmq-pkg__warranty" style="margin-block-end:24px">
-          <dt>{{ t.warranty_label }}</dt>
-          <dd>{{ s.warranty }}</dd>
-        </dl>
-        <a class="kmq-link" href="{{ url_for('site.service', slug=s.slug) }}">{{ t.learn_more }}</a>
+      <article class="kmq-card kmq-card--shot">
+        {{ m.shot(s.alt, 'kmq-shot--svc', stem=s.image,
+                  sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw') }}
+        <div class="kmq-card__body-wrap">
+          <div class="kmq-card__code">S/0{{ loop.index }}</div>
+          <h3 class="kmq-card__title">{{ s.name }}</h3>
+          <p class="kmq-card__body">{{ s.tagline }}</p>
+          <dl class="kmq-pkg__warranty" style="margin-block-end:24px">
+            <dt>{{ t.warranty_label }}</dt>
+            <dd>{{ s.warranty }}</dd>
+          </dl>
+          <a class="kmq-link" href="{{ url_for('site.service', slug=s.slug) }}">{{ t.learn_more }}</a>
+        </div>
       </article>
     {% endfor %}
   </div>

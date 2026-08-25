@@ -261,8 +261,18 @@
        the tokens stay the single source. */
     var ACCENTS = ['--brand-500', '--text-low', '--cyan-400', '--violet-500'];
 
-    var HOLD = 2800;   /* dwell on a state, ms */
-    var FADE = 700;    /* crossfade, ms — also the rail's colour transition */
+    /* 1500 + 450 is 1.95s a state and just under 8s for the full loop, down
+       from 3.5s and 14s. The first cut was paced for a visitor reading each
+       service name; in practice the rail is what gets read and the car is
+       what gets watched, so the cycle can move at the speed of the change
+       rather than the speed of the label.
+
+       The floor is set by the hydrate: each transition waits for its own
+       image, and the dwell is what that fetch and decode has to fit inside.
+       At 1.95s a 30KB AVIF has room. Much below this and a cold cache starts
+       showing the wait as a stall rather than a cycle. */
+    var HOLD = 1500;   /* dwell on a state, ms */
+    var FADE = 450;    /* crossfade, ms — also the rail's colour transition */
 
     var css = getComputedStyle(d.documentElement);
     var accents = ACCENTS.map(function (name) {

@@ -19,6 +19,20 @@ from pathlib import Path
 CSS_SOURCES = ("fonts.css", "tokens.css", "base.css", "components.css")
 JS_SOURCES = ("app.js",)
 
+#: A second, deliberately separate bundle: GSAP, ScrollTrigger and the motion
+#: module that drives them.
+#:
+#: It is not folded into the first one because the first one runs the hero.
+#: 116 KB of vendor code parsed ahead of app.js would push the cycle's start
+#: past the second it is budgeted, to decorate sections nobody has scrolled to
+#: yet. Two deferred scripts cost one extra request and buy the hero its
+#: start time back.
+#:
+#: Vendor files are served from static/js/vendor/ and read from there rather
+#: than design/, because they are not ours to edit.
+MOTION_VENDOR = ("gsap.min.js", "ScrollTrigger.min.js")
+MOTION_SOURCES = ("motion.js",)
+
 MANIFEST = "manifest.json"
 
 
@@ -76,7 +90,20 @@ def build(design_dir: Path, build_dir: Path) -> dict[str, str]:
         (design_dir / name).read_text(encoding="utf-8") for name in JS_SOURCES
     ))
 
-    manifest = {"css": f"kmq.{_digest(css)}.css", "js": f"kmq.{_digest(js)}.js"}
+    # Vendor code is already minified and is not ours to squeeze — running the
+    # regex minifier over it would be a lot of risk for no bytes.
+    vendor_dir = design_dir.parent / "static" / "js" / "vendor"
+    motion = "\n".join(
+        [(vendor_dir / name).read_text(encoding="utf-8") for name in MOTION_VENDOR]
+        + [_squeeze_js((design_dir / name).read_text(encoding="utf-8"))
+           for name in MOTION_SOURCES]
+    )
+
+    manifest = {
+        "css": f"kmq.{_digest(css)}.css",
+        "js": f"kmq.{_digest(js)}.js",
+        "motion": f"kmq-motion.{_digest(motion)}.js",
+    }
 
     # Clear superseded fingerprints so the directory does not grow forever.
     keep = set(manifest.values()) | {MANIFEST}
@@ -86,14 +113,17 @@ def build(design_dir: Path, build_dir: Path) -> dict[str, str]:
 
     _write(build_dir / manifest["css"], css)
     _write(build_dir / manifest["js"], js)
+    _write(build_dir / manifest["motion"], motion)
     (build_dir / MANIFEST).write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return manifest
 
 
 def newest_mtime(design_dir: Path) -> float:
+    vendor_dir = design_dir.parent / "static" / "js" / "vendor"
     return max(
-        (design_dir / name).stat().st_mtime
-        for name in CSS_SOURCES + JS_SOURCES
+        [(design_dir / name).stat().st_mtime
+         for name in CSS_SOURCES + JS_SOURCES + MOTION_SOURCES]
+        + [(vendor_dir / name).stat().st_mtime for name in MOTION_VENDOR]
     )
 
 

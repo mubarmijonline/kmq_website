@@ -717,6 +717,29 @@
 
 .kmq-card--shot .kmq-card__title { margin-block: 0 12px; }
 
+/* The service page's own lead photograph. Wider than the card crop and given
+   its own height, because it stands beside the headline rather than above a
+   paragraph. */
+.kmq-shot--svchero {
+  aspect-ratio: 4 / 3;
+  min-height: 0;
+  border-radius: var(--kmq-radius-card);
+  box-shadow: var(--kmq-shadow-card);
+}
+
+@media (min-width: 900px) {
+  .kmq-hero__body--split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+    gap: clamp(28px, 4vw, 64px);
+    align-items: center;
+  }
+}
+
+@media (max-width: 899px) {
+  .kmq-shot--svchero { margin-block-start: 32px; }
+}
+
 .kmq-shot--svc {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -814,13 +837,14 @@
   display: flex;
   flex-direction: column;
   padding: 52px clamp(24px, 6vw, 38px) 40px;
-  /* Three layers: a cool light spilling in from above, the card's own sheen,
-     and a translucent dark base. The base is what the shadows read against —
-     without it the card is the same value as the section behind it. */
+  /* Two layers: a cool light spilling in from above and the card's own white.
+     A translucent dark base used to sit underneath, which is what the shadows
+     read against on a near-black section; on paper --kmq-grad-card is opaque
+     white and covered it completely, so it was doing nothing but describing a
+     design that no longer exists. */
   background:
     radial-gradient(120% 78% at 50% -14%, rgba(46, 168, 229, .085), transparent 62%),
-    var(--kmq-grad-card),
-    rgba(18, 50, 82, .72);
+    var(--kmq-grad-card);
   border: 1px solid var(--kmq-line);
   box-shadow: var(--kmq-shadow-pkg);
   transition:
@@ -1907,10 +1931,12 @@
 .kmq-select,
 .kmq-textarea {
   width: 100%;
-  background: rgba(10, 37, 64, .62);
-  border: 1px solid var(--kmq-line);
-  /* Accent hairline on the inline-start edge, revealed on focus. */
-  box-shadow: inset 2px 0 0 -2px transparent;
+  /* White, not a tinted plate. This carried --deep at 62% — correct when the
+     page was near-black, a slate-grey box once it went to paper. A field on
+     paper reads as a field because it is lighter than its surround and has a
+     border, which is the opposite of how it worked on the dark cut. */
+  background: var(--paper-0);
+  border: 1px solid var(--paper-200);
   color: var(--kmq-ink);
   font-family: var(--kmq-body-font);
   font-size: 16px;
@@ -1918,20 +1944,29 @@
   height: 54px;
   outline: none;
   border-radius: var(--kmq-radius);
-  transition: border-color var(--kmq-quick), background var(--kmq-quick),
-              box-shadow var(--kmq-quick);
+  transition: border-color var(--kmq-quick), box-shadow var(--kmq-quick);
 }
 
 .kmq-input:hover,
 .kmq-select:hover,
 .kmq-textarea:hover { border-color: var(--kmq-blue-45); }
 
+/* Focus is a 3px brand halo plus a darker border — visible without moving
+   anything, so a field never shifts under the cursor as it is filled. */
 .kmq-input:focus,
 .kmq-select:focus,
 .kmq-textarea:focus {
   border-color: var(--kmq-blue);
-  background: rgba(10, 37, 64, .85);
   box-shadow: 0 0 0 3px var(--kmq-blue-18);
+}
+
+/* Filled and valid: a quiet tick of confirmation down the leading edge, so a
+   long form shows its own progress without a summary. :not(:placeholder-shown)
+   is what distinguishes "typed in" from "empty and untouched". */
+.kmq-input:not(:placeholder-shown):valid,
+.kmq-textarea:not(:placeholder-shown):valid,
+.kmq-select:valid {
+  border-inline-start: 3px solid var(--brand-400);
 }
 
 .kmq-input::placeholder,
@@ -1983,7 +2018,7 @@
   padding-inline-start: 46px;
 }
 
-.kmq-select option { background: var(--kmq-bg-raised); color: var(--kmq-ink); }
+.kmq-select option { background: var(--paper-0); color: var(--kmq-ink); }
 
 /* Placeholder option reads as a prompt, not as a chosen value. */
 .kmq-select:invalid, .kmq-select option[value=""] { color: var(--kmq-ink-45); }
@@ -2034,13 +2069,29 @@
 
 /* ── The form as a panel ── */
 
+/* The panel is white and raised, and the fields inside it are white too —
+   what separates them is the border and the shadow, not a change of value.
+   The previous cut tinted the panel and left the fields darker than it, which
+   on paper made every input look disabled. */
 .kmq-formcard {
   padding: 40px;
   border: 1px solid var(--kmq-line);
-  border-block-start: 2px solid var(--kmq-blue-50);
-  background:
-    linear-gradient(180deg, var(--kmq-blue-wash), transparent 220px),
-    var(--kmq-bg-raised);
+  border-radius: var(--kmq-radius-card);
+  background: var(--paper-0);
+  box-shadow: var(--kmq-shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Signature shield edge across the top of the panel — the same motif the
+   cards and the section rules carry. */
+.kmq-formcard::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 2px;
+  background: var(--edge-shield);
 }
 
 @media (max-width: 640px) { .kmq-formcard { padding: 28px 20px; } }
@@ -2072,8 +2123,32 @@
 .kmq-formfoot__note {
   font-size: 13px;
   line-height: 1.65;
-  color: var(--kmq-ink-45);
+  color: var(--kmq-ink-60);
   max-width: 40ch;
+}
+
+/* ── Field affordances ──
+   The label carries the state, not just the input: a required field that has
+   gone wrong should be findable by scanning the labels down the column rather
+   than by reading every hint. */
+
+.kmq-field__hint {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--kmq-ink-60);
+}
+
+.kmq-field--bad .kmq-field__label { color: var(--danger); }
+
+.kmq-field__error {
+  font-weight: 600;
+}
+
+/* The optional marker was a muted span in an inline style. As a token it can
+   sit at a legible weight without competing with the required asterisk. */
+.kmq-field__opt {
+  font-weight: 400;
+  color: var(--kmq-ink-60);
 }
 
 @media (max-width: 640px) {

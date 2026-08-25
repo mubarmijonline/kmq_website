@@ -11,7 +11,11 @@
   <div class="kmq-hero__layer kmq-hero__layer--glow" aria-hidden="true"></div>
   <div class="kmq-hero__layer kmq-hero__layer--veil" aria-hidden="true"></div>
 
-  <div class="kmq-shell kmq-hero__body">
+  {# The service's own photograph, the same one its card carries on the home
+     page and the services index — so the page a visitor lands on shows the
+     work they just clicked rather than opening on type alone. #}
+  <div class="kmq-shell kmq-hero__body kmq-hero__body--split">
+    <div>
     <div class="kmq-eyebrow">SERVICES / {{ service.slug | upper | replace('-', ' ') }}</div>
     <h1 style="font-weight:900;font-size:clamp(30px,5.4vw,72px);line-height:1.18;margin-block-end:26px;max-width:900px">{{ service.name }} — {{ service.tagline }}</h1>
     <p class="kmq-lede" style="margin-block-end:40px">{{ service.lede }}</p>
@@ -21,6 +25,10 @@
          {% if link %}target="_blank" rel="noopener"{% endif %}>{{ t.cta_book }}</a>
       <a class="kmq-btn kmq-btn--ghost kmq-btn--lg" href="{{ url_for('site.packages') }}">{{ t.all_packages_link }}</a>
     </div>
+    </div>
+
+    {{ m.shot(service.alt, 'kmq-shot--svchero', stem=service.image,
+              sizes='(max-width: 900px) 92vw, 46vw') }}
   </div>
 </section>
 

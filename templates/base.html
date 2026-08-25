@@ -59,5 +59,12 @@
 </a>
 
 <script src="{{ asset('js') }}" defer></script>
+
+{# Motion is a second bundle on purpose: GSAP and ScrollTrigger are 116 KB
+   before gzip, and parsing them ahead of app.js would delay the hero cycle
+   for the sake of sections nobody has scrolled to. Both are deferred, so the
+   order here is the order they execute, and design/motion.js does nothing at
+   all if the page has already been rendered without it. #}
+<script src="{{ asset('motion') }}" defer></script>
 </body>
 </html>
