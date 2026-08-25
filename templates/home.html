@@ -114,22 +114,37 @@
   </div>
 </section>
 
-{# ═══════════ Services ═══════════ #}
-<section class="kmq-shell kmq-section" data-kmq-section="services">
-  <div class="kmq-sectionhead">
-    <div class="kmq-eyebrow">01 — SERVICES</div>
-    <h2>{{ t.services_title }}</h2>
-  </div>
-  <div class="kmq-grid">
-    {% for s in t.services[:4] %}
-      <article class="kmq-card">
-        <div class="kmq-card__code">S/0{{ loop.index }}</div>
-        <span class="kmq-iconframe">{{ m.icon(s.icon) }}</span>
-        <h3 class="kmq-card__title">{{ s.name }}</h3>
-        <p class="kmq-card__body">{{ s.tagline }}</p>
-        <a class="kmq-link" href="{{ url_for('site.service', slug=s.slug) }}">{{ t.learn_more }}</a>
-      </article>
-    {% endfor %}
+{# ═══════════ Services ═══════════
+
+   The one light section on the page. It gets the break because it carries the
+   most content now that every card has a photograph, and because a single
+   paper band is what makes the dark sections either side of it read as a
+   decision rather than a default.
+
+   All five services, not four. The grid used to slice t.services[:4], which
+   left the heat-insulating tint off the homepage while the copy two sections
+   down said "five services". No copy changed; the fifth card was already
+   written and simply was not rendered. #}
+<section class="kmq-section kmq-section--paper" data-kmq-section="services">
+  <div class="kmq-shell">
+    <div class="kmq-sectionhead">
+      <div class="kmq-eyebrow">01 — SERVICES</div>
+      <h2>{{ t.services_title }}</h2>
+    </div>
+    <div class="kmq-grid kmq-grid--svc">
+      {% for s in t.services %}
+        <article class="kmq-card kmq-card--shot">
+          {{ m.shot(s.alt, 'kmq-shot--svc', stem=s.image,
+                    sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw') }}
+          <div class="kmq-card__body-wrap">
+            <div class="kmq-card__code">S/0{{ loop.index }}</div>
+            <h3 class="kmq-card__title">{{ s.name }}</h3>
+            <p class="kmq-card__body">{{ s.tagline }}</p>
+            <a class="kmq-link" href="{{ url_for('site.service', slug=s.slug) }}">{{ t.learn_more }}</a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
   </div>
 </section>
 
@@ -223,7 +238,13 @@
   <div class="kmq-grid kmq-grid--wide">
     {% for b in t.branches %}
       <a class="kmq-branch" href="{{ url_for('site.branches') }}" style="color:inherit">
-        {{ m.shot(t.branch_shot, 'kmq-shot--branch', 'img/branch-entrance.jpg') }}
+        {# Five branches have their own storefront photograph; Al-Manar has
+           none yet and falls back to the shot the whole grid used to share. #}
+        {% if b.image %}
+          {{ m.shot(t.branch_alt ~ ' ' ~ b.name ~ ' — ' ~ b.city, 'kmq-shot--branch', stem=b.image) }}
+        {% else %}
+          {{ m.shot(t.branch_shot, 'kmq-shot--branch', 'img/branch-entrance.jpg') }}
+        {% endif %}
         <div class="kmq-branch__body">
           <div class="kmq-branch__city">{{ b.city_en }}</div>
           <h3>{{ b.name }}</h3>

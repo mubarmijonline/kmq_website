@@ -83,10 +83,14 @@ HOME_PACKAGES = ("gloss", "matte", "window-tint")
 
 
 def _svc(slug: str, name: str, tagline: str, icon: str, lede: str,
-         points: list[str], warranty: str) -> dict[str, Any]:
+         points: list[str], warranty: str, alt: str = "") -> dict[str, Any]:
+    # The photograph is named after the slug, the way the blog's already are,
+    # so adding one is a file in static/img/services/ and nothing here.
+    # `alt` describes the work in the frame and so is written per locale.
     return {
         "slug": slug, "name": name, "tagline": tagline, "icon": icon,
         "lede": lede, "points": points, "warranty": warranty,
+        "image": f"img/services/{slug}", "alt": alt,
     }
 
 
@@ -97,6 +101,19 @@ def _pkg(slug: str, name: str, includes: str, price: Any, warranty: str) -> dict
     }
 
 
+#: The five storefront photographs the client supplied, in the order the
+#: branches are listed. There is no sixth, and the client's decision was that
+#: Al-Manar keeps the entrance shot the whole grid used to share rather than
+#: repeat one of the five — so the absence is recorded here, not papered over.
+_BRANCH_PHOTOS = {
+    "al-hamra": "img/branches/al-hamra",
+    "al-rimal": "img/branches/al-rimal",
+    "tuwaiq": "img/branches/tuwaiq",
+    "jeddah-madinah-road": "img/branches/jeddah-madinah-road",
+    "dammam-imam": "img/branches/dammam-imam",
+}
+
+
 def _branch(bid: str, name: str, city: str, location: str, short: str,
             city_en: str) -> dict[str, Any]:
     # phone, hours and address are TBD for every branch: the Word document's
@@ -105,6 +122,9 @@ def _branch(bid: str, name: str, city: str, location: str, short: str,
         "id": bid, "name": name, "city": city, "location": location,
         "short": short, "city_en": city_en,
         "phone": TBD, "hours": TBD, "map_url": TBD,
+        # A stem when the branch has its own photograph, None when it falls
+        # back to the shared entrance shot. Templates branch on this.
+        "image": _BRANCH_PHOTOS.get(bid),
     }
 
 
@@ -207,6 +227,7 @@ AR: dict[str, Any] = {
                 "تركيب يدوي دقيق، مع خيار القص بالليزر عند الطلب",
             ],
             "10 سنوات",
+            "فني يمرّر المكشطة على فيلم حماية شفاف فوق غطاء محرك سيارة سيدان رمادية",
         ),
         _svc(
             "ppf-matte", "حماية PPF مطفي", "تمايز جمالي بدقة تركيب عالية.",
@@ -219,6 +240,7 @@ AR: dict[str, Any] = {
                 "تركيب يدوي دقيق، مع خيار القص بالليزر عند الطلب",
             ],
             "7 سنوات",
+            "فنيان يفردان فيلم حماية أسود مطفي على مقدمة سيارة دفع رباعي",
         ),
         _svc(
             "nano-ceramic", "نانو سيراميك", "لمعان استثنائي بديل اقتصادي.",
@@ -231,6 +253,7 @@ AR: dict[str, Any] = {
                 "حل تجميلي — وليس بديلًا هيكليًا كاملًا عن PPF",
             ],
             "سنتان",
+            "يد بقفاز أسود تفرد طبقة نانو سيراميك بإسفنجة التطبيق على غطاء محرك داكن",
         ),
         _svc(
             "window-tint", "تظليل عازل حراري", "راحة داخل السيارة من أول يوم.",
@@ -243,6 +266,7 @@ AR: dict[str, Any] = {
                 "سعر دخول تنافسي",
             ],
             "10 سنوات",
+            "يد بقفاز أبيض تركّب فيلم العزل الحراري على زجاج جانبي لسيارة زرقاء داكنة",
         ),
         _svc(
             "colour-change", "تغيير اللون", "أعد تعريف شكل سيارتك بالكامل.",
@@ -255,6 +279,7 @@ AR: dict[str, Any] = {
                 "إمكانية دمجها مع حماية PPF ملوّنة",
             ],
             "7 سنوات",
+            "يد بقفاز أزرق تحمل مروحة عيّنات ألوان أمام سيارة داكنة",
         ),
     ],
 
@@ -338,6 +363,8 @@ AR: dict[str, Any] = {
     "pickup_title": "لا يوجد فرع قريب؟ نوصّل ونستلم سيارتك مجانًا ضمن نطاق محدد",
     "pickup_cta": "اطلب الاستلام على واتساب ←",
     "branch_shot": "مدخل فرع KMQ شيلد — واجهة المعرض وبورشه 911 عند البوابة",
+    # Prefixes the branch name and city to build each photograph's alt text.
+    "branch_alt": "واجهة",
 
     # ---- Warranty page ----
     "warranty_page_title": "ضمان KMQ — شفافية كاملة فيما يغطيه الضمان",
@@ -653,6 +680,7 @@ EN: dict[str, Any] = {
                 "Precise hand installation, with laser cutting on request",
             ],
             "10 years",
+            "A technician squeegeeing clear protection film onto the bonnet of a grey saloon",
         ),
         _svc(
             "ppf-matte", "Matte PPF", "A distinctive finish, installed to the same precision.",
@@ -665,6 +693,7 @@ EN: dict[str, Any] = {
                 "Precise hand installation, with laser cutting on request",
             ],
             "7 years",
+            "Two technicians laying matte black film across the front of an SUV",
         ),
         _svc(
             "nano-ceramic", "Nano ceramic", "Exceptional gloss, as the economical alternative.",
@@ -677,6 +706,7 @@ EN: dict[str, Any] = {
                 "A cosmetic solution — not a full structural replacement for PPF",
             ],
             "2 years",
+            "A gloved hand spreading nano ceramic with an applicator block over a dark bonnet",
         ),
         _svc(
             "window-tint", "Heat-insulating tint", "A cooler cabin from the first day.",
@@ -689,6 +719,7 @@ EN: dict[str, Any] = {
                 "A competitive entry price",
             ],
             "10 years",
+            "A gloved hand fitting heat-insulating film to the side window of a dark blue car",
         ),
         _svc(
             "colour-change", "Colour change", "Redefine how your car looks, completely.",
@@ -701,6 +732,7 @@ EN: dict[str, Any] = {
                 "Can be combined with coloured PPF protection",
             ],
             "7 years",
+            "A gloved hand holding a fan of colour swatches in front of a dark car",
         ),
     ],
 
@@ -779,6 +811,7 @@ EN: dict[str, Any] = {
     "pickup_title": "No branch nearby? We collect and deliver your car free within a set radius",
     "pickup_cta": "Request pickup on WhatsApp →",
     "branch_shot": "The entrance to a KMQ Shield branch — the showroom facade with a Porsche 911 at the door",
+    "branch_alt": "The storefront of",
 
     "warranty_page_title": "The KMQ warranty — full transparency on what is covered",
     "war_check_title": "Check your warranty",

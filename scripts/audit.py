@@ -92,6 +92,45 @@ def free_port() -> int:
         return s.getsockname()[1]
 
 
+#: Production is gunicorn behind nginx with gzip_static on, so HTML, CSS and
+#: JS reach the browser compressed. Measuring against bare gunicorn reports the
+#: stylesheet at 54 KB when a visitor downloads about 11 KB, which makes every
+#: transfer-size-driven number — LCP most of all — pessimistic by a factor
+#: nobody can reason about. This is the smallest thing that closes the gap.
+GZIP_APP = '''
+import gzip as _gzip
+from wsgi import app as _app
+
+_TYPES = ("text/html", "text/css", "application/javascript", "image/svg+xml")
+
+
+def app(environ, start_response):
+    accepts = "gzip" in environ.get("HTTP_ACCEPT_ENCODING", "")
+    captured = {}
+
+    def capture(status, headers, exc_info=None):
+        captured["status"] = status
+        captured["headers"] = headers
+        return lambda _: None
+
+    body = b"".join(_app(environ, capture))
+    headers = captured["headers"]
+    ctype = next((v for k, v in headers if k.lower() == "content-type"), "")
+
+    if accepts and any(t in ctype for t in _TYPES) and len(body) > 512:
+        body = _gzip.compress(body, 6)
+        headers = [(k, v) for k, v in headers
+                   if k.lower() not in ("content-length", "content-encoding")]
+        headers += [("Content-Encoding", "gzip"), ("Content-Length", str(len(body)))]
+    else:
+        headers = [(k, v) for k, v in headers if k.lower() != "content-length"]
+        headers.append(("Content-Length", str(len(body))))
+
+    start_response(captured["status"], headers)
+    return [body]
+'''
+
+
 class Server:
     """The site on a loopback port, torn down even when a check raises."""
 
@@ -101,11 +140,13 @@ class Server:
         self.proc: subprocess.Popen | None = None
 
     def __enter__(self) -> "Server":
+        (ROOT / "_audit_wsgi.py").write_text(GZIP_APP)
         env = dict(os.environ, KMQ_ENV="dev", SECRET_KEY="audit", PYTHONPATH=str(ROOT))
         env.pop("DATABASE_URL", None)  # 24 of 26 pages never touch it
         self.proc = subprocess.Popen(
             [sys.executable, "-m", "gunicorn", "--workers", "2", "--threads", "4",
-             "--bind", f"127.0.0.1:{self.port}", "--log-level", "warning", "wsgi:app"],
+             "--bind", f"127.0.0.1:{self.port}", "--log-level", "warning",
+             "_audit_wsgi:app"],
             cwd=ROOT, env=env,
         )
         for _ in range(100):
@@ -122,6 +163,7 @@ class Server:
         if self.proc:
             self.proc.terminate()
             self.proc.wait(timeout=10)
+        (ROOT / "_audit_wsgi.py").unlink(missing_ok=True)
 
 
 # --------------------------------------------------------------------------

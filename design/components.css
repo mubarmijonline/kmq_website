@@ -585,6 +585,19 @@
 
 .kmq-grid--narrow { grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); }
 
+/* Five service cards. auto-fit would put four on the top row and one alone
+   beneath; a fixed three-column track keeps it 3 + 2, which reads as a block
+   rather than an orphan. */
+.kmq-grid--svc { gap: clamp(20px, 2.2vw, 28px); }
+
+@media (min-width: 641px) {
+  .kmq-grid--svc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1025px) {
+  .kmq-grid--svc { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 /* Package cards carry a shadow, which needs more room between them than the
    flat cards this grid was sized for. */
 .kmq-grid--pkgs { gap: clamp(22px, 2.4vw, 32px); }
@@ -619,15 +632,80 @@
 
 .kmq-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   padding: 38px clamp(20px, 6vw, 32px) 32px;
-  background: var(--kmq-grad-card);
-  border: 1px solid rgba(246, 248, 255, .09);
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--kmq-radius-card);
+  box-shadow: var(--kmq-shadow-card);
+  /* transform and border only. A hover that also animates box-shadow repaints
+     the shadow every frame, and the lift reads the same without it. */
   transition: transform var(--kmq-lift), border-color var(--kmq-lift);
 }
 
+/* Signature edge, second of four uses: a hairline that catches the light
+   along the card's top corner the way it does along a coated panel. */
+.kmq-card::before {
+  content: "";
+  position: absolute;
+  inset-block-start: -1px;
+  inset-inline: 12%;
+  block-size: 1px;
+  background: var(--edge-shield);
+  opacity: .7;
+  pointer-events: none;
+}
+
 .kmq-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-3px);
   border-color: var(--kmq-blue-45);
+}
+
+/* ---- Service card with a photograph ----
+   The photo sits at the top of the card, inset so its corners stay concentric
+   inside the card's. Every card is the same height regardless of how long its
+   description runs — the grid stretches them and the body grows, rather than
+   a min-height guessing at the longest one. */
+
+.kmq-card--shot {
+  padding: 0;
+  overflow: hidden;
+}
+
+.kmq-card--shot .kmq-card__body-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 26px clamp(20px, 5vw, 30px) 30px;
+}
+
+/* Pushes the link to the bottom edge whatever the tagline did above it, so
+   the row of "learn more" links reads as one line across the grid. */
+.kmq-card--shot .kmq-card__body { flex: 1; margin-block-end: 22px; }
+
+.kmq-card--shot .kmq-card__code { margin-block-end: 14px; }
+
+.kmq-card--shot .kmq-card__title { margin-block: 0 12px; }
+
+.kmq-shot--svc {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  border-radius: var(--kmq-radius-card) var(--kmq-radius-card) 0 0;
+}
+
+/* Dark-to-transparent over the lower edge, so a service name that overlaps
+   the photograph stays readable against whatever the photograph is doing
+   there. Static gradient, not a filter. */
+.kmq-shot--svc::after {
+  content: "";
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  block-size: 45%;
+  background: linear-gradient(180deg, transparent, rgba(5, 7, 15, .55));
+  pointer-events: none;
 }
 
 .kmq-card__code {
@@ -1214,7 +1292,12 @@
    unlike the shots inside a grid it needs a height of its own — without one a
    square photo would open the article 800px tall. */
 .kmq-shot--hero { height: clamp(240px, 38vw, 420px); }
-.kmq-shot--branch { height: 180px; }
+.kmq-shot--branch {
+  aspect-ratio: 16 / 9;
+  height: auto;
+  min-height: 0;
+  border-radius: var(--kmq-radius-media) var(--kmq-radius-media) 0 0;
+}
 .kmq-shot--article { height: 190px; }
 .kmq-shot--map { height: 320px; border: 1px solid var(--kmq-line); }
 

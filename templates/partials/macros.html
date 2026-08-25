@@ -1,7 +1,34 @@
 {# Pieces that appear on more than one page. #}
 
-{% macro shot(label, extra='', src='') -%}
-  {%- if src %}
+{# One photograph well, in three states.
+
+   `stem` is the modern path: the caller names a file stem that
+   scripts/build_images.py has produced variants for, and this emits AVIF and
+   WebP with a JPEG fallback, at the widths that actually exist. `src` is the
+   older single-file path, still used by the blog and the about page, whose
+   images have no variants. Neither, and the well renders as a labelled
+   placeholder, which is what the pages with no photograph yet still want.
+
+   Everything here is below the fold, hence lazy and async on all of it. The
+   explicit width/height carry the 16:9 the build crops to, so the row keeps
+   its shape before any of it loads. #}
+{% macro shot(label, extra='', src='', stem='', sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw') -%}
+  {%- if stem %}
+  {%- set widths = [400, 600, 800, 1200] %}
+  <div class="kmq-shot kmq-shot--filled {{ extra }}">
+    <picture>
+      {%- for fmt in ['avif', 'webp'] %}
+      <source type="image/{{ fmt }}" sizes="{{ sizes }}"
+              srcset="{% for w in widths %}{{ url_for('static', filename=stem ~ '-' ~ w ~ '.' ~ fmt) }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}">
+      {%- endfor %}
+      <img src="{{ url_for('static', filename=stem ~ '-800.jpg') }}"
+           sizes="{{ sizes }}"
+           srcset="{% for w in widths %}{{ url_for('static', filename=stem ~ '-' ~ w ~ '.jpg') }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}"
+           width="1600" height="900" alt="{{ label }}"
+           loading="lazy" decoding="async">
+    </picture>
+  </div>
+  {%- elif src %}
   <div class="kmq-shot kmq-shot--filled {{ extra }}">
     <img src="{{ url_for('static', filename=src) }}" alt="{{ label }}" loading="lazy" decoding="async">
   </div>
@@ -102,7 +129,11 @@
 
 {% macro branch_card(b, t, wa, shot_label, shot_src='img/branch-entrance.jpg') -%}
   <article class="kmq-branch">
-    {{ shot(shot_label, 'kmq-shot--branch', shot_src) }}
+    {% if b.image %}
+      {{ shot(t.branch_alt ~ ' ' ~ b.name ~ ' — ' ~ b.city, 'kmq-shot--branch', stem=b.image) }}
+    {% else %}
+      {{ shot(shot_label, 'kmq-shot--branch', shot_src) }}
+    {% endif %}
     <div class="kmq-branch__body">
       <div class="kmq-branch__city">{{ b.city_en }}</div>
       <h3>{{ b.name }}</h3>
