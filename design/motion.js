@@ -35,8 +35,18 @@
   var d = document;
   var EASE = 'power2.out';
 
-  /* One place to say what a "card" is, so a new grid picks up the treatment
-     by using an existing class rather than by editing this file. */
+  /* Two sets, and the difference matters.
+
+     CARDS is everything that arrives on scroll. A reveal is safe anywhere
+     because every element ends exactly where the stylesheet put it.
+
+     FLOATERS is the subset that may also drift and tilt: free-standing cards
+     sitting in a grid with a real gap. The two left out are not an oversight.
+     .kmq-grid--hairline has a 1px gap and paints its rules *with* that gap,
+     and .kmq-strip__cell has no gap at all — its dividers are
+     border-inline-start on each cell. Drifting or tilting either one slides
+     the content away from the line that is supposed to separate it, which
+     does not read as motion, it reads as broken. */
   var CARDS = [
     '[data-kmq-section="services"] .kmq-card',
     '.kmq-grid--pkgs .kmq-pkg',
@@ -45,6 +55,15 @@
     '.kmq-grid--hairline .kmq-cell',
     '.kmq-strip__cell'
   ].join(',');
+
+  var FLOATERS = [
+    '.kmq-card--shot',
+    '.kmq-grid--pkgs .kmq-pkg',
+    '.kmq-branch',
+    '.kmq-post'
+  ].join(',');
+
+  function isFloater(el) { return el.matches(FLOATERS); }
 
   function each(selector, fn) {
     Array.prototype.forEach.call(d.querySelectorAll(selector), fn);
@@ -107,12 +126,34 @@
      are derived from the index rather than random so a reload looks the same
      as the last one. */
 
+  var FLOAT_Y = 16;   /* px of travel, peak to rest */
+
   function float(items) {
-    items.forEach(function (el, i) {
+    var cards = items.filter(isFloater);
+    if (!cards.length) return;
+
+    /* Phase comes from the column, not from the index, and that is what makes
+       a visible amplitude safe. Cards in the same column share a phase, so two
+       cards stacked in a grid rise and fall together and the gap between rows
+       never closes — at 16px with independent phases, neighbours would shut a
+       22px gap and briefly overlap. Across a row the phases differ, which is
+       where the movement is actually seen. */
+    var columns = {};
+    cards.forEach(function (el) {
+      var x = Math.round(el.offsetLeft / 8);
+      if (!(x in columns)) columns[x] = Object.keys(columns).length;
+    });
+
+    cards.forEach(function (el) {
+      var col = columns[Math.round(el.offsetLeft / 8)];
       gsap.to(el, {
-        y: i % 2 ? -7 : -5,
-        duration: 2.6 + (i % 3) * .45,
-        delay: i * .18,
+        y: -FLOAT_Y,
+        /* A touch of roll, on the z axis the pointer tilt does not use. Half a
+           degree is under what reads as rotation and over what reads as
+           nothing — it stops the drift looking like a lift. */
+        rotation: col % 2 ? -0.5 : 0.5,
+        duration: 3 + (col % 3) * .35,
+        delay: col * .55,
         ease: 'sine.inOut',
         repeat: -1,
         yoyo: true
@@ -172,7 +213,10 @@
 
     var MAX = 4;  /* degrees */
 
-    each(CARDS, function (card) {
+    /* Same subset as the float, for the same reason: tilting a cell whose
+       divider is a border on its neighbour slides it off that line. */
+
+    each(FLOATERS, function (card) {
       /* rotationY, not rotateY. GSAP's canonical CSS property names are
          rotation / rotationX / rotationY; the rotateY spelling reads fine and
          silently animates nothing, which is worse than an error because the
