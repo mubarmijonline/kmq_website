@@ -40,11 +40,12 @@ SRC_WEBSITE = ROOT / "WEBSITE"
 IM = "magick" if shutil.which("magick") else "convert"
 
 #: Widths actually used, per role. Anything wider is bandwidth nobody sees.
-#: The hero box tops out at min(940px, 92vw): 480 and 720 cover the phone band
-#: at 1x and 2x, 940 is the desktop 1x, and 1250 is as far as the sources go —
-#: they are 1254px square, so a true 2x of the desktop box does not exist and
-#: asking for one would only re-encode the same pixels under a bigger name.
-HERO_WIDTHS = (480, 720, 940, 1250)
+#: The hero box tops out at min(940px, 92vw), so 940 is the largest width any
+#: layout asks for. A 1250 cut existed briefly and was removed: on a phone at
+#: DPR 2.625 the browser multiplies a 379px box up to 995 and picks it, which
+#: is a megapixel and a half of decode for a decorative photograph of a black
+#: car on a dark ground. 940 is the cap, and the phone lands on 720.
+HERO_WIDTHS = (480, 720, 940)
 CARD_WIDTHS = (400, 600, 800, 1200)
 
 #: Quality per format. AVIF holds up far lower than JPEG does; these were

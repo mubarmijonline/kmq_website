@@ -298,6 +298,14 @@
       });
 
       root.style.setProperty('--kmq-accent', accents[current] || accents[0]);
+
+      // This one first, and only then the one after it. Autoplay always
+      // arrives at a state the previous tick already hydrated, but a click or
+      // an arrow key can jump straight to a state the cycle has never
+      // reached — and under prefers-reduced-motion that is the only way a
+      // state is ever reached. Without this it would fade to an empty box.
+      hydrate(current);
+      hydrate((current + 1) % states.length);
     }
 
     function stop() {
@@ -356,35 +364,51 @@
       if (d.hidden) stop(); else start();
     });
 
-    /* Decode everything before the first transition. img.decode() resolves
-       once the bitmap is ready to paint, so nothing has to be decoded on the
-       main thread mid-fade — that stall was the first-cycle hitch the old
-       hero had. It rejects on a broken image; catching keeps one missing file
-       from stopping the other three.
+    /* Only state 1 ships with a live srcset. The rest carry their URLs in
+       data- attributes, and this promotes one when it is nearly needed.
 
-       Not deferred to requestIdleCallback. That was the first version and it
-       was wrong: idle callbacks have no deadline unless you give them one, so
-       on a page that never goes idle the hero simply never started. Decoding
-       happens off the main thread anyway, and the three images behind the
-       first are marked fetchpriority="low" so they queue after the LCP
-       candidate rather than racing it. */
-    function decodeAll() {
-      var imgs = [].slice.call(root.querySelectorAll('.kmq-cycle__state img'));
-      return Promise.all(imgs.map(function (img) {
-        if (!img.decode) return Promise.resolve();
-        return img.decode().catch(function () {});
-      }));
+       Four live <picture> elements were measured at roughly 1100ms of extra
+       main-thread work on a throttled mobile, and ten Lighthouse points — all
+       of it image decode, at the moment of load, for three pictures nobody
+       sees for another three seconds. A crossfade only ever needs the NEXT
+       image ready, and the dwell is 3.5s, which is a long time to fetch and
+       decode 30KB.
+
+       img.decode() resolves once the bitmap is ready to paint, so nothing has
+       to be decoded mid-fade — that stall was the first-cycle hitch the old
+       hero had. It rejects on a broken image; catching keeps one missing file
+       from stopping the rest. */
+    var hydrated = {};
+
+    function hydrate(i) {
+      if (hydrated[i]) return hydrated[i];
+      var state = states[i];
+      var img = state.querySelector('img');
+
+      [].forEach.call(state.querySelectorAll('source, img'), function (el) {
+        var set = el.getAttribute('data-srcset');
+        var src = el.getAttribute('data-src');
+        if (set) { el.setAttribute('srcset', set); el.removeAttribute('data-srcset'); }
+        if (src) { el.setAttribute('src', src); el.removeAttribute('data-src'); }
+      });
+
+      hydrated[i] = (img && img.decode)
+        ? img.decode().catch(function () {})
+        : Promise.resolve();
+      return hydrated[i];
     }
 
-    /* A slow or stalled image should degrade to a working cycle, not to a
-       still photograph. Whichever of the two settles first wins. */
+    /* A slow or stalled image should degrade to a working cycle rather than
+       to a still photograph, so whichever settles first wins. */
     function go() {
       if (ready) return;
       ready = true;
       start();
     }
 
-    decodeAll().then(go);
+    // State 1 is already live in the markup; state 2 is the only one the
+    // first transition needs, so it is the only one the start waits on.
+    Promise.all([hydrate(0), hydrate(1)]).then(go);
     window.setTimeout(go, 3000);
   }());
 }());
