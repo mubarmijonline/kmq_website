@@ -249,7 +249,7 @@ AR: dict[str, Any] = {
                 "تركيب يدوي دقيق، مع خيار القص بالليزر عند الطلب",
             ],
             "7 سنوات",
-            "فنيان يفردان فيلم حماية أسود مطفي على مقدمة سيارة دفع رباعي",
+            "فني بزي KMQ يثبّت حافة فيلم الحماية المطفي على غطاء محرك بورش سوداء مطفية",
         ),
         _svc(
             "nano-ceramic", "نانو سيراميك", "لمعان استثنائي بديل اقتصادي.",
@@ -262,7 +262,7 @@ AR: dict[str, Any] = {
                 "حل تجميلي — وليس بديلًا هيكليًا كاملًا عن PPF",
             ],
             "سنتان",
-            "يد بقفاز أسود تفرد طبقة نانو سيراميك بإسفنجة التطبيق على غطاء محرك داكن",
+            "يد بقفاز تفرد النانو سيراميك بقطعة ميكروفايبر على غطاء محرك أسود لامع، وقطرات الماء تتجمّع على السطح",
         ),
         _svc(
             "window-tint", "تظليل عازل حراري", "راحة داخل السيارة من أول يوم.",
@@ -275,7 +275,7 @@ AR: dict[str, Any] = {
                 "سعر دخول تنافسي",
             ],
             "10 سنوات",
-            "يد بقفاز أبيض تركّب فيلم العزل الحراري على زجاج جانبي لسيارة زرقاء داكنة",
+            "سائق جالس مرتاحًا داخل سيارة زرقاء تحت شمس قوية، وأشعة الحرارة ترتد عن الزجاج بينما الهواء داخل المقصورة بارد",
         ),
         _svc(
             "colour-change", "تغيير اللون", "أعد تعريف شكل سيارتك بالكامل.",
@@ -705,7 +705,7 @@ EN: dict[str, Any] = {
                 "Precise hand installation, with laser cutting on request",
             ],
             "7 years",
-            "Two technicians laying matte black film across the front of an SUV",
+            "A technician in KMQ uniform working the edge of matte protection film on a matte black Porsche",
         ),
         _svc(
             "nano-ceramic", "Nano ceramic", "Exceptional gloss, as the economical alternative.",
@@ -718,7 +718,7 @@ EN: dict[str, Any] = {
                 "A cosmetic solution — not a full structural replacement for PPF",
             ],
             "2 years",
-            "A gloved hand spreading nano ceramic with an applicator block over a dark bonnet",
+            "A gloved hand spreading nano ceramic with a microfibre cloth over a gloss black bonnet, water beading on the surface",
         ),
         _svc(
             "window-tint", "Heat-insulating tint", "A cooler cabin from the first day.",
@@ -731,7 +731,7 @@ EN: dict[str, Any] = {
                 "A competitive entry price",
             ],
             "10 years",
-            "A gloved hand fitting heat-insulating film to the side window of a dark blue car",
+            "A driver sitting comfortably inside a blue car under harsh sun, heat reflecting off the glass while the cabin air stays cool",
         ),
         _svc(
             "colour-change", "Colour change", "Redefine how your car looks, completely.",

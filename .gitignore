@@ -20,3 +20,6 @@ docs/audit/
 
 # Written and removed by scripts/audit.py while it runs.
 _audit_wsgi.py
+
+# Client source photography, not served.
+client_images

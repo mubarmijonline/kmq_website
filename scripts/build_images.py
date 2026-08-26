@@ -34,6 +34,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC_CARS = ROOT / "car_images"
 SRC_BRANCHES = ROOT / "branches_images"
 SRC_WEBSITE = ROOT / "WEBSITE"
+#: Later deliveries from the client, replacing shots they rejected on review.
+SRC_CLIENT = ROOT / "client_images"
 
 #: ImageMagick 6 spells this `convert`; 7 renamed it `magick`. Both encode
 #: AVIF and WebP here, so no extra dependency is needed for either.
@@ -80,11 +82,24 @@ BRANCH_PHOTOS = [
 #: Matched by what the photograph shows. Four come from the client's Service
 #: folder; the tint has no photograph there, and the Home folder's tint shot
 #: is the same job photographed the same way.
+#: Paths are relative to WEBSITE/ unless the second element is a (dir, name)
+#: pair, which lets a later delivery sit in client_images/ instead.
+#:
+#: Three were replaced after the client reviewed the first cut:
+#:   ppf-matte    the old frame showed two technicians wrestling crumpled film
+#:                while the card claimed "installed to the same precision" —
+#:                the picture argued with the copy. The new one is a matte
+#:                Panamera and a technician in KMQ uniform working an edge.
+#:   window-tint  the client asked for heat made visible rather than film being
+#:                applied. The new frame is exactly that: sun outside, reflected
+#:                heat, cool air in the cabin, the driver comfortable.
+#:   nano-ceramic the new frame shows the bottle and the water beading, which
+#:                is what the service actually sells.
 SERVICE_PHOTOS = [
-    ("ppf-gloss",    "3 Service/svr gloss.jpg"),
-    ("ppf-matte",    "3 Service/svr matte.jpg"),
-    ("nano-ceramic", "3 Service/svr nano.jpg"),
-    ("window-tint",  "1 Home/H4 - tint.jpg"),
+    ("ppf-gloss",     "3 Service/svr gloss.jpg"),
+    ("ppf-matte",     (SRC_CLIENT, "2.png")),
+    ("nano-ceramic",  (SRC_CLIENT, "1.png")),
+    ("window-tint",   (SRC_CLIENT, "3.png")),
     ("colour-change", "3 Service/SRV - color.png"),
 ]
 
@@ -201,7 +216,10 @@ def cards(pairs: list[tuple[str, str]], src_root: Path, out_name: str) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for key, name in pairs:
-        src = src_root / name
+        # A plain string is relative to src_root; a (dir, name) pair names its
+        # own directory, which is how a later delivery slots in beside the
+        # original kit without moving either.
+        src = (name[0] / name[1]) if isinstance(name, tuple) else (src_root / name)
         if not src.exists():
             sys.exit(f"missing source: {src}")
         print(f"  {key}")
@@ -213,8 +231,26 @@ def cards(pairs: list[tuple[str, str]], src_root: Path, out_name: str) -> None:
                       "-extent", "1600x900"])
 
 
+def backdrop() -> None:
+    """The hero's shield ground — the client's own artwork, not a CSS mock-up.
+
+    Square at source and used behind a wide panel, so most of it is cropped by
+    the time it renders; the shield is centred, which is the part that has to
+    survive. Encoded wide enough for a desktop hero and no wider, because it
+    sits behind a photograph and nobody reads it.
+    """
+    out_dir = ROOT / "static" / "img" / "hero"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    src = SRC_CLIENT / "4.png"
+    if not src.exists():
+        sys.exit(f"missing {src}")
+    print("  backdrop")
+    encode(src, out_dir / "backdrop", (720, 1100, 1500), "jpg")
+
+
 JOBS = {
     "hero": hero,
+    "backdrop": backdrop,
     "branches": lambda: cards(BRANCH_PHOTOS, SRC_BRANCHES, "branches"),
     "services": lambda: cards(SERVICE_PHOTOS, SRC_WEBSITE, "services"),
 }

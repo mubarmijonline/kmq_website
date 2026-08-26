@@ -2613,31 +2613,69 @@
 
 /* ---- Stage ------------------------------------------------------------- */
 
-/* The shield, sitting behind the car.
+/* The shield ground is the client's own artwork — static/img/hero/backdrop-*,
+   a tone-on-tone shield on deep blue with its own emboss and light falloff.
+   It replaces a version of this drawn in CSS from the logo SVG at 16% opacity,
+   which was our approximation of a mark they had already made properly.
 
-   It uses the dark-ground cut, which is the white-and-cyan one — the hero is
-   the only --deep panel with room for it, and on navy that cut is the only
-   one whose letters survive. Big enough to read past the car's silhouette,
-   faint enough that the copy beside it is still the thing you look at.
+   It is a masked layer rather than a background on the section, and that is
+   not decoration. The source carries a bright blue glow in two corners and
+   near-black in the other two, so wherever the image stops there is a hard
+   seam against --deep and no single background-colour hides it. The mask
+   fades all four edges out, so the artwork dissolves into the panel instead
+   of ending on a line.
 
-   Behind the states rather than behind the whole hero: the ambient glow lives
-   at z-index -2 and would wash it out from underneath. */
-.kmq-cycle__stage::before {
+   Sized to the panel height, not cover: the source is square and the hero is
+   wide, and cover magnifies it until only a couple of letterforms are on
+   screen. Parked over the stage rather than centred, because the car is what
+   it belongs behind — centred, it sits under the headline and the copy has to
+   compete with an embossed letterform. */
+.kmq-cycle::before {
   content: "";
   position: absolute;
-  /* inset:0 with margin:auto, not inset-inline-start:50% with a translate.
-     inset-inline-start is logical and resolves to `right` under RTL, while
-     translateX(-50%) is physical and always shifts left — so the pair centred
-     the mark on the English page and pushed it off the left edge of the
-     Arabic one, where overflow:hidden ate half the shield. This centres in
-     both axes without caring which way the document runs. */
   inset: 0;
-  margin: auto;
-  inline-size: min(560px, 78%);
-  aspect-ratio: 1;
-  background: url("../img/brand/kmq-logo.svg") center / contain no-repeat;
-  opacity: .16;
+  z-index: -1;
   pointer-events: none;
+  background-image: image-set(
+    url("../img/hero/backdrop-1500.avif") type("image/avif"),
+    url("../img/hero/backdrop-1500.webp") type("image/webp"),
+    url("../img/hero/backdrop-1500.jpg") type("image/jpeg"));
+  background-size: auto 118%;
+  /* The stage is grid-column 2 — the right in LTR, the left in RTL — and
+     background-position has no logical keywords, so the flip is by hand. */
+  background-position: right center;
+  background-repeat: no-repeat;
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  -webkit-mask-position: right center;
+  mask-position: right center;
+  -webkit-mask-size: auto 118%;
+  mask-size: auto 118%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+[dir="rtl"] .kmq-cycle::before {
+  background-position: left center;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+}
+
+@media (max-width: 899px) {
+  .kmq-cycle::before,
+  [dir="rtl"] .kmq-cycle::before {
+    background-image: image-set(
+      url("../img/hero/backdrop-1100.avif") type("image/avif"),
+      url("../img/hero/backdrop-1100.webp") type("image/webp"),
+      url("../img/hero/backdrop-1100.jpg") type("image/jpeg"));
+    /* One column on a phone: the car is on top, so the mark goes to the top. */
+    background-position: center top;
+    background-size: 150% auto;
+    -webkit-mask-position: center top;
+    mask-position: center top;
+    -webkit-mask-size: 150% auto;
+    mask-size: 150% auto;
+  }
 }
 
 .kmq-cycle__stage {
@@ -2858,7 +2896,6 @@
 
   .kmq-cycle__grid { gap: 10px; }
 
-  .kmq-cycle__stage::before { inline-size: min(420px, 62%); opacity: .13; }
 }
 
 @media (max-width: 420px) {
