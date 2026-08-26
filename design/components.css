@@ -2589,6 +2589,33 @@
 
 /* ---- Stage ------------------------------------------------------------- */
 
+/* The shield, sitting behind the car.
+
+   It uses the dark-ground cut, which is the white-and-cyan one — the hero is
+   the only --deep panel with room for it, and on navy that cut is the only
+   one whose letters survive. Big enough to read past the car's silhouette,
+   faint enough that the copy beside it is still the thing you look at.
+
+   Behind the states rather than behind the whole hero: the ambient glow lives
+   at z-index -2 and would wash it out from underneath. */
+.kmq-cycle__stage::before {
+  content: "";
+  position: absolute;
+  /* inset:0 with margin:auto, not inset-inline-start:50% with a translate.
+     inset-inline-start is logical and resolves to `right` under RTL, while
+     translateX(-50%) is physical and always shifts left — so the pair centred
+     the mark on the English page and pushed it off the left edge of the
+     Arabic one, where overflow:hidden ate half the shield. This centres in
+     both axes without caring which way the document runs. */
+  inset: 0;
+  margin: auto;
+  inline-size: min(560px, 78%);
+  aspect-ratio: 1;
+  background: url("../img/brand/kmq-logo.svg") center / contain no-repeat;
+  opacity: .16;
+  pointer-events: none;
+}
+
 .kmq-cycle__stage {
   position: relative;
   inline-size: 100%;
@@ -2602,6 +2629,7 @@
 .kmq-cycle__state {
   position: absolute;
   inset: 0;
+  z-index: 1;
   opacity: 0;
   transition: opacity var(--kmq-fade, .7s) var(--kmq-ease);
 }
@@ -2787,7 +2815,26 @@
 
 @media (max-width: 899px) {
   .kmq-cycle__rail { grid-template-columns: repeat(2, 1fr); }
-  .kmq-cycle__stage { order: -1; }
+
+  /* The car led the column already, but at 92vw inside a gutter it came out
+     small and sat a clear gap above the kicker. It bleeds the full width now
+     and the gap closes to almost nothing, so the photograph and the sentence
+     it illustrates read as one block rather than two.
+
+     The negative margin is the padding the cut-outs carry: build_images.py
+     leaves 3% either side and 6% top and bottom so a drop shadow is not flush
+     with the frame, and on a phone that padding is the gap. */
+  .kmq-cycle__stage {
+    order: -1;
+    max-inline-size: none;
+    inline-size: calc(100% + var(--kmq-gutter) * 2);
+    margin-inline: calc(var(--kmq-gutter) * -1);
+    margin-block-end: -2%;
+  }
+
+  .kmq-cycle__grid { gap: 10px; }
+
+  .kmq-cycle__stage::before { inline-size: min(420px, 62%); opacity: .13; }
 }
 
 @media (max-width: 420px) {
