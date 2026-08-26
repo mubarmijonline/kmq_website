@@ -41,12 +41,10 @@
      because every element ends exactly where the stylesheet put it.
 
      FLOATERS is the subset that may also drift and tilt: free-standing cards
-     sitting in a grid with a real gap. The two left out are not an oversight.
-     .kmq-grid--hairline has a 1px gap and paints its rules *with* that gap,
-     and .kmq-strip__cell has no gap at all — its dividers are
-     border-inline-start on each cell. Drifting or tilting either one slides
-     the content away from the line that is supposed to separate it, which
-     does not read as motion, it reads as broken. */
+     sitting in a grid with a real gap. The one left out is not an oversight —
+     .kmq-grid--hairline has a 1px gap and paints its rules *with* that gap, so
+     drifting or tilting a cell slides it off the line that is supposed to
+     separate it, which does not read as motion, it reads as broken. */
   var CARDS = [
     '[data-kmq-section="services"] .kmq-card',
     '.kmq-grid--pkgs .kmq-pkg',
@@ -60,13 +58,41 @@
     '.kmq-card--shot',
     '.kmq-grid--pkgs .kmq-pkg',
     '.kmq-branch',
-    '.kmq-post'
+    '.kmq-post',
+    /* Joined the list once the proof strip stopped being four cells divided by
+       borders and became four cards with a gap. Nothing else changed here. */
+    '.kmq-strip__cell'
   ].join(',');
 
   function isFloater(el) { return el.matches(FLOATERS); }
 
   function each(selector, fn) {
     Array.prototype.forEach.call(d.querySelectorAll(selector), fn);
+  }
+
+  /* Every reveal goes through here, and the reason is a bug this had.
+
+     A scroll reveal starting at "top 85%" hides anything whose top has not
+     reached 85% of the viewport. On the English home page the proof strip sat
+     at 820px in a 900px viewport — on screen, plainly visible, and 10px short
+     of its own trigger line. It stayed at opacity 0 until the visitor
+     scrolled. The Arabic page was 126px shorter above it and fired, which is
+     why it only showed up in one locale.
+
+     So the rule is: if any part of the element is on screen when this runs, it
+     animates now and never gets a trigger. Only things genuinely below the
+     fold wait to be scrolled to. An element that is visible is never
+     invisible, whatever the numbers say. */
+  function reveal(targets, vars, triggerEl) {
+    var box = triggerEl.getBoundingClientRect();
+    var onScreen = box.top < window.innerHeight && box.bottom > 0;
+
+    if (onScreen) return gsap.from(targets, vars);
+
+    var scrolled = {};
+    for (var k in vars) scrolled[k] = vars[k];
+    scrolled.scrollTrigger = { trigger: triggerEl, start: 'top 85%', once: true };
+    return gsap.from(targets, scrolled);
   }
 
   /* ---- Cards arrive ------------------------------------------------------
@@ -91,7 +117,7 @@
 
     Object.keys(grids).forEach(function (key) {
       var grid = grids[key];
-      gsap.from(grid.items, {
+      reveal(grid.items, {
         y: 26,
         opacity: 0,
         duration: .55,
@@ -102,13 +128,8 @@
            the hover lift declared in CSS, and the hover silently stops
            working — a bug that only shows up after you have scrolled past. */
         clearProps: 'transform,opacity',
-        scrollTrigger: {
-          trigger: grid.parent,
-          start: 'top 85%',
-          once: true
-        },
         onComplete: function () { float(grid.items); }
-      });
+      }, grid.parent);
     });
   }());
 
@@ -161,18 +182,36 @@
     });
   }
 
+  /* ---- Proof strip icons -------------------------------------------------
+     The wells lift a beat after their card lands, so each proof point reads as
+     two pieces arriving rather than one slab. Scale and opacity only, on an
+     element the drift and the tilt do not touch. */
+
+  (function proofIcons() {
+    var wells = d.querySelectorAll('.kmq-strip__cell .kmq-iconframe');
+    if (!wells.length) return;
+    reveal(wells, {
+      scale: .6,
+      opacity: 0,
+      duration: .45,
+      ease: 'back.out(2)',
+      stagger: .08,
+      delay: .15,
+      clearProps: 'transform,opacity'
+    }, d.querySelector('.kmq-strip'));
+  }());
+
   /* ---- Section heads ----------------------------------------------------- */
 
   (function heads() {
     each('.kmq-sectionhead, .kmq-cycle__kicker', function (el) {
-      gsap.from(el, {
+      reveal(el, {
         y: 18,
         opacity: 0,
         duration: .5,
         ease: EASE,
-        clearProps: 'transform,opacity',
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
-      });
+        clearProps: 'transform,opacity'
+      }, el);
     });
   }());
 
@@ -323,14 +362,13 @@
   (function closing() {
     var band = d.querySelector('.kmq-close__body');
     if (!band) return;
-    gsap.from(band, {
+    reveal(band, {
       y: 24,
       opacity: 0,
       duration: .6,
       ease: EASE,
-      clearProps: 'transform,opacity',
-      scrollTrigger: { trigger: band, start: 'top 85%', once: true }
-    });
+      clearProps: 'transform,opacity'
+    }, band);
   }());
 
   /* Fonts land after the first triggers are computed, and a heading that

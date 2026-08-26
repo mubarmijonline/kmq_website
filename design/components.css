@@ -523,31 +523,66 @@
 
 /* ═══════════ Trust strip / stat strip ═══════════ */
 
+/* The proof strip.
+   It was a thin band of four cells separated by hairline borders, with no gap
+   between them — which made it the one row on the page that could not move,
+   because any drift slides a cell off the line meant to divide it. It is four
+   cards with a real gap now, so it carries the same weight as every other row
+   and joins the motion the rest of the page already has. */
 .kmq-strip {
-  border-block: 1px solid var(--kmq-blue-18);
-  background: var(--kmq-bg-raised);
+  background: var(--paper-100);
+  border-block: 1px solid var(--kmq-line-soft);
+  padding-block: clamp(32px, 4vw, 52px);
 }
 
 .kmq-strip__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: clamp(14px, 1.6vw, 22px);
 }
 
 .kmq-strip__cell {
-  padding: 40px 28px;
   display: flex;
-  align-items: center;
-  gap: 18px;
-  border-inline-start: 1px solid var(--kmq-line-soft);
+  align-items: flex-start;
+  gap: 16px;
+  padding: 26px 24px;
+  background: var(--paper-0);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--kmq-radius-card);
+  box-shadow: var(--kmq-shadow-card);
 }
 
-.kmq-strip__cell:first-child { border-inline-start: 0; }
+/* The signature shield edge, on the same terms as the service cards. */
+.kmq-strip__cell::before {
+  content: "";
+  position: absolute;
+  inset-block-start: -1px;
+  inset-inline: 14%;
+  block-size: 1px;
+  background: var(--edge-shield);
+  opacity: .7;
+}
+
+.kmq-strip__cell { position: relative; }
+
+/* The icon gets a filled well rather than an outline, so it reads at a glance
+   as a mark rather than as another hairline in a row of hairlines. */
+.kmq-strip__cell .kmq-iconframe {
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brand-100);
+  color: var(--brand-600);
+  flex-shrink: 0;
+}
 
 .kmq-strip__title {
   font-family: var(--kmq-head);
   font-weight: 800;
   font-size: 17px;
-  line-height: 1.4;
+  line-height: 1.45;
+  margin-block-start: 6px;
 }
 
 .kmq-strip__meta {

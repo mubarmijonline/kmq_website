@@ -111,9 +111,12 @@
     {% for item in t.trust %}
       <div class="kmq-strip__cell">
         <span class="kmq-iconframe kmq-iconframe--sm">{{ m.icon(item.icon, 22) }}</span>
+        {# Meta above title: the Latin label is the scannable half — "UP TO 10
+           YEARS", "3 CITIES · 6 BRANCHES" — and reading it first tells you what
+           the sentence under it is going to say. #}
         <div>
-          <div class="kmq-strip__title">{{ item.title }}</div>
           <div class="kmq-strip__meta">{{ item.meta }}</div>
+          <div class="kmq-strip__title">{{ item.title }}</div>
         </div>
       </div>
     {% endfor %}
