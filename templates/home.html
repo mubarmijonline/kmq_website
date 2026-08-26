@@ -241,7 +241,15 @@
   </div>
   <div class="kmq-grid kmq-grid--wide">
     {% for b in t.branches %}
-      <a class="kmq-branch" href="{{ url_for('site.branches') }}" style="color:inherit">
+      {# The card opens WhatsApp for that branch, not the branches index. The
+         message carries the branch name, so whoever answers knows which one
+         before they reply. Falls back to the contact page while no number is
+         configured, which is what wa() returning None means. #}
+      {% set blink = wa(t.wa_book ~ b.name) %}
+      <a class="kmq-branch" href="{{ blink or url_for('site.branches') }}"
+         {% if blink %}target="_blank" rel="noopener"{% endif %}
+         aria-label="{{ t.branch_wa }} — {{ b.name }}"
+         style="color:inherit">
         {# Five branches have their own storefront photograph; Al-Manar has
            none yet and falls back to the shot the whole grid used to share. #}
         {% if b.image %}

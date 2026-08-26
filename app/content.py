@@ -70,6 +70,12 @@ PACKAGE_SLUGS = ("gloss", "matte", "colour-change", "nano-ceramic", "window-tint
 BRANCH_IDS = ("al-hamra", "al-rimal", "tuwaiq", "jeddah-madinah-road", "dammam-imam", "dammam-al-manar")
 CATEGORY_SLUGS = ("guides", "comparisons", "pricing", "care", "tinting")
 
+#: The line KMQ answers on. One number for the call button, for every branch
+#: card and for the WhatsApp links, so a change lands everywhere at once.
+#: E.164 for tel: and for wa.me, spaced for reading.
+PHONE_PRIMARY = "+966 56 402 9777"
+PHONE_PRIMARY_E164 = "+966564029777"
+
 #: City label shown above each branch name. Latin in both locales, as in the
 #: design source.
 BRANCH_CITY_EN = ("RIYADH", "RIYADH", "RIYADH", "JEDDAH", "DAMMAM", "DAMMAM")
@@ -176,6 +182,9 @@ AR: dict[str, Any] = {
     "wa_order": "مرحبًا، أرغب بطلب ",
     "wa_book": "مرحبًا، أرغب بالحجز في ",
     "wa_contact": "مرحبًا KMQ، عندي استفسار عن حماية سيارتي وأرغب بالتواصل مع أحد المختصين",
+    "phone_primary": PHONE_PRIMARY,
+    "phone_primary_e164": PHONE_PRIMARY_E164,
+    "call_us": "اتصل بنا",
     "wa_pickup": "مرحبًا، أرغب بطلب خدمة الاستلام والتوصيل",
 
     # ---- Home: hero ----
@@ -635,6 +644,9 @@ EN: dict[str, Any] = {
     "wa_order": "Hello, I would like to order ",
     "wa_book": "Hello, I would like to book at ",
     "wa_contact": "Hello KMQ, I have a question about protecting my car and would like to speak to a specialist",
+    "phone_primary": PHONE_PRIMARY,
+    "phone_primary_e164": PHONE_PRIMARY_E164,
+    "call_us": "Call us",
     "wa_pickup": "Hello, I would like to request the pickup and delivery service",
 
     "hero_kicker": "PPF · CERAMIC · TINT · WRAP",

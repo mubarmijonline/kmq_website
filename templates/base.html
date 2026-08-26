@@ -58,6 +58,16 @@
   {{ brand_icon("whatsapp", 30) }}
 </a>
 
+{# Call, above the WhatsApp button. tel: is unconditional — unlike wa(), which
+   returns None until a number is configured, this number is the branch line
+   the client gave us and it is the same one every WhatsApp link uses. #}
+{% if t.phone_primary %}
+<a class="kmq-fab kmq-fab--call" href="tel:{{ t.phone_primary_e164 }}"
+   title="{{ t.call_us }}" aria-label="{{ t.call_us }} {{ t.phone_primary }}">
+  {{ brand_icon("phone", 26) }}
+</a>
+{% endif %}
+
 <script src="{{ asset('js') }}" defer></script>
 
 {# Motion is a second bundle on purpose: GSAP and ScrollTrigger are 116 KB

@@ -375,6 +375,30 @@
   transform: translateY(-3px);
 }
 
+/* Call, stacked directly above WhatsApp.
+   WhatsApp keeps the bottom slot because it is the primary channel and the
+   bottom corner is the easiest reach on a phone held one-handed. This sits
+   one button-height plus a gap above it — 28 + 60 + 14 — so the two read as
+   one control cluster rather than two things that happen to float.
+   Brand blue, not green: the colour is what tells them apart at a glance. */
+.kmq-fab--call {
+  inset-block-end: 102px;
+  background: var(--brand-600);
+  color: var(--text-on-brand);
+}
+
+.kmq-fab--call:hover {
+  background: var(--brand-700);
+  color: var(--text-on-brand);
+}
+
+/* Under 380px the two buttons plus the rail start crowding the corner, so
+   they tighten up rather than overlap. */
+@media (max-width: 380px) {
+  .kmq-fab { width: 54px; height: 54px; inset-block-end: 20px; inset-inline-end: 20px; }
+  .kmq-fab--call { inset-block-end: 86px; }
+}
+
 /* ═══════════ Hero ═══════════ */
 
 .kmq-hero {
