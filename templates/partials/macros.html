@@ -12,25 +12,28 @@
    Everything here is below the fold, hence lazy and async on all of it. The
    explicit width/height carry the 16:9 the build crops to, so the row keeps
    its shape before any of it loads. #}
-{% macro shot(label, extra='', src='', stem='', sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw') -%}
+{# `v` is the image-version stamp. Photographs keep their filenames when the
+   client replaces them, so without it a CDN goes on serving the old picture
+   until its max-age runs out — which it did, for three service shots. #}
+{% macro shot(label, extra='', src='', stem='', sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw', v='') -%}
   {%- if stem %}
   {%- set widths = [400, 600, 800, 1200] %}
   <div class="kmq-shot kmq-shot--filled {{ extra }}">
     <picture>
       {%- for fmt in ['avif', 'webp'] %}
       <source type="image/{{ fmt }}" sizes="{{ sizes }}"
-              srcset="{% for w in widths %}{{ url_for('static', filename=stem ~ '-' ~ w ~ '.' ~ fmt) }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}">
+              srcset="{% for w in widths %}{{ url_for('static', filename=stem ~ '-' ~ w ~ '.' ~ fmt) }}?v={{ v }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}">
       {%- endfor %}
-      <img src="{{ url_for('static', filename=stem ~ '-800.jpg') }}"
+      <img src="{{ url_for('static', filename=stem ~ '-800.jpg') }}?v={{ v }}"
            sizes="{{ sizes }}"
-           srcset="{% for w in widths %}{{ url_for('static', filename=stem ~ '-' ~ w ~ '.jpg') }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}"
+           srcset="{% for w in widths %}{{ url_for('static', filename=stem ~ '-' ~ w ~ '.jpg') }}?v={{ v }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}"
            width="1600" height="900" alt="{{ label }}"
            loading="lazy" decoding="async">
     </picture>
   </div>
   {%- elif src %}
   <div class="kmq-shot kmq-shot--filled {{ extra }}">
-    <img src="{{ url_for('static', filename=src) }}" alt="{{ label }}" loading="lazy" decoding="async">
+    <img src="{{ url_for('static', filename=src) }}?v={{ v }}" alt="{{ label }}" loading="lazy" decoding="async">
   </div>
   {%- else %}
   <div class="kmq-shot {{ extra }}" role="img" aria-label="{{ label }}">
@@ -130,9 +133,9 @@
 {% macro branch_card(b, t, wa, shot_label, shot_src='img/branch-entrance.jpg') -%}
   <article class="kmq-branch">
     {% if b.image %}
-      {{ shot(t.branch_alt ~ ' ' ~ b.name ~ ' — ' ~ b.city, 'kmq-shot--branch', stem=b.image) }}
+      {{ shot(t.branch_alt ~ ' ' ~ b.name ~ ' — ' ~ b.city, 'kmq-shot--branch', stem=b.image, v=img_v) }}
     {% else %}
-      {{ shot(shot_label, 'kmq-shot--branch', shot_src) }}
+      {{ shot(shot_label, 'kmq-shot--branch', shot_src, v=img_v) }}
     {% endif %}
     <div class="kmq-branch__body">
       <div class="kmq-branch__city">{{ b.city_en }}</div>
@@ -169,7 +172,7 @@
     <div class="kmq-post__shot">
       {# The title carries the alt text: the photo illustrates the article,
          so its subject is the article. #}
-      {{ shot(p.title, 'kmq-shot--article', p.image) }}
+      {{ shot(p.title, 'kmq-shot--article', p.image, v=img_v) }}
       <span class="kmq-post__cat">{{ cat_label }}</span>
     </div>
     <div class="kmq-post__body">

@@ -173,6 +173,9 @@ def _wire_context(app: Flask) -> None:
             "show_prices": app.config["SHOW_PRICES"],
             "current_year": date.today().year,
             "icons": C.ICONS,
+            # Stamped on every image URL so a replaced photograph is a
+            # new URL rather than a cache hit on the old one.
+            "img_v": app.extensions.setdefault("kmq_img_v", _image_version()),
             # The lead form is described once, in content.py, and rendered by
             # one loop. Everything that loop needs is resolved here so the
             # template never calls into Python.
@@ -186,6 +189,27 @@ def _wire_context(app: Flask) -> None:
             },
             "errors_for_locale": C.LEAD_ERRORS[locale],
         }
+
+    def _image_version() -> str:
+        """A short stamp that changes whenever any file under static/img does.
+
+        Photographs keep their names when their content changes — a replaced
+        shot is still ppf-matte-800.avif — so nothing about the URL tells a
+        cache that it is looking at a different picture. Templates hang this on
+        image URLs so a replacement is a new URL and lands immediately, instead
+        of waiting out whatever max-age the last visit was given.
+
+        Cheap enough to do at boot and never again: the newest mtime in the
+        tree, hashed short. In dev the before_request hook below recomputes it
+        alongside the asset bundle.
+        """
+        newest = 0.0
+        img_dir = ROOT / "static" / "img"
+        if img_dir.exists():
+            for path in img_dir.rglob("*"):
+                if path.is_file():
+                    newest = max(newest, path.stat().st_mtime)
+        return hashlib.sha256(str(newest).encode()).hexdigest()[:8]
 
     def _asset_url(kind: str) -> str:
         manifest = app.extensions["kmq_assets"]["manifest"]

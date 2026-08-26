@@ -15,7 +15,7 @@
   <div class="kmq-grid kmq-grid--svc">
     {% for s in t.services %}
       <article class="kmq-card kmq-card--shot">
-        {{ m.shot(s.alt, 'kmq-shot--svc', stem=s.image,
+        {{ m.shot(s.alt, 'kmq-shot--svc', stem=s.image, v=img_v,
                   sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw') }}
         <div class="kmq-card__body-wrap">
           <div class="kmq-card__code">S/0{{ loop.index }}</div>

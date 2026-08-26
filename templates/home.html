@@ -65,12 +65,12 @@
           <picture>
             {% for fmt in ['avif', 'webp'] %}
               <source type="image/{{ fmt }}" sizes="(max-width: 899px) 92vw, 940px"
-                      {{ 'srcset' if outer.first else 'data-srcset' }}="{% for w in [480, 720, 940] %}{{ url_for('static', filename='img/hero/' ~ slug ~ '-' ~ w ~ '.' ~ fmt) }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}">
+                      {{ 'srcset' if outer.first else 'data-srcset' }}="{% for w in [480, 720, 940] %}{{ url_for('static', filename='img/hero/' ~ slug ~ '-' ~ w ~ '.' ~ fmt) }}?v={{ img_v }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}">
             {% endfor %}
             {# width/height carry the normalised frame, so the box is reserved
                before anything decodes and nothing shifts when it does. #}
-            <img {{ 'src' if loop.first else 'data-src' }}="{{ url_for('static', filename='img/hero/' ~ slug ~ '-940.png') }}"
-                 {{ 'srcset' if loop.first else 'data-srcset' }}="{% for w in [480, 720, 940] %}{{ url_for('static', filename='img/hero/' ~ slug ~ '-' ~ w ~ '.png') }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}"
+            <img {{ 'src' if loop.first else 'data-src' }}="{{ url_for('static', filename='img/hero/' ~ slug ~ '-940.png') }}?v={{ img_v }}"
+                 {{ 'srcset' if loop.first else 'data-srcset' }}="{% for w in [480, 720, 940] %}{{ url_for('static', filename='img/hero/' ~ slug ~ '-' ~ w ~ '.png') }}?v={{ img_v }} {{ w }}w{{ ', ' if not loop.last }}{% endfor %}"
                  sizes="(max-width: 899px) 92vw, 940px"
                  width="1358" height="701"
                  alt="{{ t.stack_shot if loop.first else '' }}"
@@ -138,7 +138,7 @@
     <div class="kmq-grid kmq-grid--svc">
       {% for s in t.services %}
         <article class="kmq-card kmq-card--shot">
-          {{ m.shot(s.alt, 'kmq-shot--svc', stem=s.image,
+          {{ m.shot(s.alt, 'kmq-shot--svc', stem=s.image, v=img_v,
                     sizes='(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw') }}
           <div class="kmq-card__body-wrap">
             <div class="kmq-card__code">S/0{{ loop.index }}</div>
@@ -253,9 +253,9 @@
         {# Five branches have their own storefront photograph; Al-Manar has
            none yet and falls back to the shot the whole grid used to share. #}
         {% if b.image %}
-          {{ m.shot(t.branch_alt ~ ' ' ~ b.name ~ ' — ' ~ b.city, 'kmq-shot--branch', stem=b.image) }}
+          {{ m.shot(t.branch_alt ~ ' ' ~ b.name ~ ' — ' ~ b.city, 'kmq-shot--branch', stem=b.image, v=img_v) }}
         {% else %}
-          {{ m.shot(t.branch_shot, 'kmq-shot--branch', 'img/branch-entrance.jpg') }}
+          {{ m.shot(t.branch_shot, 'kmq-shot--branch', 'img/branch-entrance.jpg', v=img_v) }}
         {% endif %}
         <div class="kmq-branch__body">
           <div class="kmq-branch__city">{{ b.city_en }}</div>
