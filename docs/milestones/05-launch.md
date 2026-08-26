@@ -8,7 +8,7 @@ Deployed with the `deploy-flask-site` skill.
 
 | Thing | Value |
 |---|---|
-| FQDN | `kmq.mubarmijonline.com` |
+| FQDN | `kmq-ksa.com` (was `kmq.mubarmijonline.com` until 2026-08-26) |
 | Public HTTPS port (origin) | `4023` |
 | gunicorn upstream | `127.0.0.1:4024` |
 | External IP | `34.45.108.75` |
@@ -20,7 +20,7 @@ Deployed with the `deploy-flask-site` skill.
 Verified on the origin:
 
 - Routes return 200 through nginx, not just the dev server; `/` 302s to `/ar/`.
-- Requests carrying `Host: kmq.mubarmijonline.com` on `:443` resolve to this
+- Requests carrying `Host: kmq-ksa.com` on `:443` resolve to this
   vhost, so the site is ready for proxied traffic the moment DNS exists.
 - The wildcard certificate is served for the name.
 - HTTP/2 negotiated on `:4023`; `gzip_static` serves the pre-compressed bundle
@@ -29,6 +29,8 @@ Verified on the origin:
   owned by the service account, git-ignored.
 
 ## Not done
+
+**Superseded 2026-08-26.** The site now answers on its own domain, `kmq-ksa.com`, with a Let's Encrypt certificate renewed over HTTP-01 against `/var/www/acme`. The `kmq.mubarmijonline.com` record was deleted rather than redirected, which was the client's decision; the sentence below described the state before that name ever existed and is kept because the reasoning still applies to the new one.
 
 **The DNS record does not exist.** `kmq.mubarmijonline.com` does not resolve.
 

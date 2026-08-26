@@ -1,4 +1,4 @@
-# kmq (kmq.mubarmijonline.com)
+# kmq (kmq-ksa.com)
 #
 # Install:
 #   sudo ln -sf /projects/kmq_website/deploy/kmq.service /etc/systemd/system/kmq.service
@@ -6,7 +6,7 @@
 #   sudo systemctl enable --now kmq
 
 [Unit]
-Description=Gunicorn instance serving kmq.mubarmijonline.com
+Description=Gunicorn instance serving kmq-ksa.com
 After=network-online.target
 Wants=network-online.target
 
