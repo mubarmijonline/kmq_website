@@ -100,6 +100,17 @@ def test_clearing_a_field_takes_the_tag_off_the_site(
 
 
 @needs_db
+def test_an_unset_measurement_id_means_no_analytics_at_all(
+        clean_settings, owner, monkeypatch):
+    """Clearing the field has to stop the tag, not fall back to a default."""
+    save(owner, ga_id=GA)
+    save(owner, ga_id="")
+
+    assert "googletagmanager" not in published(
+        clean_settings, monkeypatch).get("/ar/").data.decode()
+
+
+@needs_db
 def test_the_environment_pins_a_setting_against_the_admin(
         clean_settings, owner, monkeypatch):
     """A deploy must be able to take a tag off a site nobody wants measured."""

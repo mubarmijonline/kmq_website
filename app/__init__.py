@@ -67,7 +67,11 @@ def create_app(config: dict | None = None) -> Flask:
         # count themselves as visitors in the client's own numbers, which is
         # worse than no analytics at all. Set KMQ_GA_ID empty to switch it off
         # in production too.
-        GA_MEASUREMENT_ID=os.environ.get("KMQ_GA_ID", "G-Z12Q4Y5EQZ").strip(),
+        # Both tag ids are empty here on purpose. They are the client's, they
+        # are edited in the admin under Settings, and a default baked in as a
+        # fallback would mean "clear it" did not stop the tag firing — the
+        # stored value would go and this one would take over.
+        GA_MEASUREMENT_ID=os.environ.get("KMQ_GA_ID", "").strip(),
         # The Meta (Facebook/Instagram) pixel. No default: an id belongs to
         # one ad account, and guessing one would report a stranger's traffic
         # to a stranger. Set it in the admin under Settings.
