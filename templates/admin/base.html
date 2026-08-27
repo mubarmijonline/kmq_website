@@ -32,7 +32,14 @@
       {% for endpoint, label, role, args in admin_nav %}
         {% if role != 'owner' or is_owner %}
           <a href="{{ url_for(endpoint, **args) }}"
-             {% if here(endpoint, args) %}aria-current="page"{% endif %}>{{ label }}</a>
+             {% if here(endpoint, args) %}aria-current="page"{% endif %}>{{ label }}
+            {#- The one number staff need without opening anything: enquiries
+                nobody has marked handled yet. -#}
+            {% if endpoint == 'admin.leads_inbox' and waiting_leads %}
+              <span class="adm__count"
+                    aria-label="{{ waiting_leads }} waiting">{{ waiting_leads }}</span>
+            {% endif %}
+          </a>
         {% endif %}
       {% endfor %}
     </div>

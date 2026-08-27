@@ -14,12 +14,12 @@ from __future__ import annotations
 
 import logging
 
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 
 from . import audit, auth
 from . import content as C
-from . import editors, store
+from . import editors, leads, store
 from .text import normalise_saudi_phone
 
 log = logging.getLogger(__name__)
@@ -121,8 +121,13 @@ def _guard():
 
 @bp.context_processor
 def _inject():
+    user = auth.current_user()
     return {
-        "admin_user": auth.current_user(),
+        "admin_user": user,
+        # The sidebar badge. Counted per request rather than cached: an
+        # enquiry that arrived a second ago is exactly the one staff are
+        # waiting for, and the count is one indexed scan of unhandled rows.
+        "waiting_leads": leads.waiting_count(_db()) if user else 0,
         "csrf_token": auth.csrf_token,
         "is_owner": auth.outranks(auth.current_user(), "owner"),
         "admin_nav": NAV,
@@ -149,6 +154,7 @@ NAV = (
     ("admin.branches", "Branches", "editor", {}),
     ("admin.collection", "Journal", "editor", {"kind": "posts"}),
     ("admin.collection", "Warranty page", "editor", {"kind": "warranty_blocks"}),
+    ("admin.leads_inbox", "Leads", "editor", {}),
     ("admin.lists", "All lists", "editor", {}),
     ("admin.audit_trail", "Audit", "owner", {}),
 )
@@ -242,7 +248,13 @@ def password():
 
 @bp.route("/")
 def dashboard():
-    return render_template("admin/dashboard.html", recent=_recent_activity())
+    try:
+        waiting = leads.recent(_db(), limit=5, waiting_only=True)
+    except Exception:
+        log.exception("Could not read the enquiries.")
+        waiting = []
+    return render_template("admin/dashboard.html", recent=_recent_activity(),
+                           waiting=waiting)
 
 
 def _recent_activity(limit: int = 10):
@@ -499,6 +511,41 @@ def reorder(kind: str):
                              entity_id=slug, after=slugs)
 
     return redirect(url_for("admin.collection", kind=kind))
+
+
+# --------------------------------------------------------------------------
+# Leads
+# --------------------------------------------------------------------------
+
+@bp.route("/leads")
+def leads_inbox():
+    """The enquiry inbox. Waiting first by default, since that is the job."""
+    waiting_only = request.args.get("show", "waiting") != "all"
+    try:
+        rows = leads.recent(_db(), waiting_only=waiting_only)
+    except Exception:
+        log.exception("Could not read the enquiries.")
+        flash("The enquiries could not be read.", "bad")
+        rows = []
+    return render_template("admin/leads.html", rows=rows,
+                           waiting_only=waiting_only)
+
+
+@bp.route("/leads/<int:lead_id>/handled", methods=["POST"])
+def lead_handled(lead_id: int):
+    handled = request.form.get("handled") == "1"
+    try:
+        found = leads.set_handled(_db(), lead_id, handled=handled,
+                                  actor=auth.current_user())
+    except Exception:
+        log.exception("Could not update enquiry %s.", lead_id)
+        flash("That enquiry could not be updated.", "bad")
+        return redirect(url_for("admin.leads_inbox"))
+
+    if not found:
+        abort(404)
+    flash("Marked handled." if handled else "Put back in the queue.", "ok")
+    return redirect(_safe_next(request.form.get("next")))
 
 
 # --------------------------------------------------------------------------

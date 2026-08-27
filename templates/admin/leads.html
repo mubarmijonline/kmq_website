@@ -1,0 +1,89 @@
+{% extends "admin/base.html" %}
+{% block title %}Leads{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>Leads</h1>
+    <p>Every enquiry the contact form has sent, newest first. An enquiry stays
+       in the queue — and keeps counting against the badge in the sidebar —
+       until somebody marks it handled.</p>
+  </div>
+  <div>
+    {% if waiting_only %}
+      <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.leads_inbox', show='all') }}">Show handled too</a>
+    {% else %}
+      <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.leads_inbox') }}">Waiting only</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="adm-panel">
+  <div class="adm-panel__title">
+    {% if waiting_only %}Waiting{% else %}All enquiries{% endif %} — {{ rows|length }}
+  </div>
+
+  {% if rows %}
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>When</th><th>Who</th><th>Wants</th><th>Car</th>
+          <th>Branch</th><th>When they want it</th><th>State</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>
+            <time datetime="{{ row.created_at.isoformat() }}">
+              {{ row.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </time>
+          </td>
+          <td>
+            {{ row.full_name }}<br>
+            {# The number is stored E.164, so both links are the stored value. #}
+            <a href="tel:{{ row.phone }}"><code>{{ row.phone }}</code></a>
+            &middot;
+            <a href="{{ row.wa_url }}" target="_blank" rel="noopener">WhatsApp</a>
+          </td>
+          <td>{{ row.service_label }}</td>
+          <td>{{ row.car_model }}</td>
+          <td>{{ row.branch_name }}</td>
+          <td>{{ row.timing_label }}</td>
+          <td>
+            {% if row.waiting %}
+              <span class="adm-tag adm-tag--warn">waiting</span>
+            {% else %}
+              <span class="adm-tag adm-tag--ok">handled</span>
+              {% if row.handled_by_email %}<br><small>{{ row.handled_by_email }}</small>{% endif %}
+            {% endif %}
+          </td>
+          <td>
+            <form method="post"
+                  action="{{ url_for('admin.lead_handled', lead_id=row.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="handled" value="{{ '1' if row.waiting else '0' }}">
+              <input type="hidden" name="next" value="{{ request.full_path }}">
+              <button class="adm-btn adm-btn--ghost" type="submit">
+                {% if row.waiting %}Mark handled{% else %}Reopen{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% if row.notes %}
+        <tr>
+          <td></td>
+          <td colspan="7" {% if row.locale == 'ar' %}dir="rtl"{% endif %}>{{ row.notes }}</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="adm-empty">
+      {% if waiting_only %}Nothing waiting. Every enquiry has been handled.
+      {% else %}No enquiries yet.{% endif %}
+    </p>
+  {% endif %}
+</div>
+{% endblock %}

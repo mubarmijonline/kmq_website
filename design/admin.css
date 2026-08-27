@@ -59,6 +59,10 @@
 
 .adm__nav { display: flex; flex-direction: column; }
 .adm__nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 9px 20px;
   color: var(--kmq-ink-70);
   text-decoration: none;
@@ -66,6 +70,22 @@
   font-size: 14px;
 }
 .adm__nav a:hover { background: var(--kmq-bg-hover); color: var(--kmq-ink); }
+
+/* The waiting-enquiry count. It sits inside the link so the whole row is one
+   target, and it is drawn only when there is something to count — a zero in a
+   badge trains people to ignore the badge. */
+.adm__count {
+  min-width: 20px;
+  padding: 1px 7px;
+  border-radius: var(--kmq-radius-pill);
+  background: var(--kmq-blue);
+  color: var(--kmq-bg);
+  font-family: var(--kmq-font-meta);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .adm__nav a[aria-current="page"] {
   color: var(--kmq-blue-hi);
   border-inline-start-color: var(--kmq-blue);

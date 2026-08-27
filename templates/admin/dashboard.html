@@ -10,6 +10,36 @@
 </div>
 
 <div class="adm-panel">
+  <div class="adm-panel__title">
+    Enquiries waiting{% if waiting_leads %} — {{ waiting_leads }}{% endif %}
+  </div>
+  {% if waiting %}
+    <table class="adm-table">
+      <thead>
+        <tr><th>When</th><th>Who</th><th>Wants</th><th>Branch</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for row in waiting %}
+        <tr>
+          <td><time datetime="{{ row.created_at.isoformat() }}">{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</time></td>
+          <td>{{ row.full_name }}<br><a href="tel:{{ row.phone }}"><code>{{ row.phone }}</code></a></td>
+          <td>{{ row.service_label }}</td>
+          <td>{{ row.branch_name }}</td>
+          <td><a href="{{ row.wa_url }}" target="_blank" rel="noopener">WhatsApp</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin:14px 0 0"><a href="{{ url_for('admin.leads_inbox') }}">All enquiries →</a></p>
+  {% else %}
+    <p class="adm-empty">
+      Nothing waiting. New enquiries from the contact form appear here, and
+      count against the badge in the sidebar until they are marked handled.
+    </p>
+  {% endif %}
+</div>
+
+<div class="adm-panel">
   <div class="adm-panel__title">Recent activity</div>
   {% if recent %}
     <table class="adm-table">
@@ -35,9 +65,8 @@
 <div class="adm-panel">
   <div class="adm-panel__title">Not here yet</div>
   <p class="adm-empty">
-    The content editors, the leads inbox and warranty records arrive in the
-    next two milestones. Until then the site renders the copy shipped in the
-    repository, and anything stored in the content tables is layered over it.
+    Warranty records are still read-only: the lookup on the public site reads
+    the table, and nothing here writes to it yet.
   </p>
 </div>
 {% endblock %}
