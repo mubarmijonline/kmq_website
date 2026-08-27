@@ -134,12 +134,16 @@ confirmed" — in the same slot, so the card keeps its shape.
 
 ## Two contradictions inside the client's own document
 
-Neither was invented away — both render exactly as the document states them,
-and both need a one-line answer from the client.
+Neither was invented away — both rendered exactly as the document stated them.
+The first has since been answered; the second still needs a line from the
+client.
 
-1. **Window tint warranty.** The packages table says the tint package's
-   warranty "varies by film type" (`حسب نوع العازل`); the warranty section
-   says tint is warranted for **10 years**. Both appear, in their own sections.
+1. **Window tint warranty — settled.** The packages table said the tint
+   package's warranty "varies by film type" (`حسب نوع العازل`); the warranty
+   section said tint is warranted for **10 years**. The client resolved it in
+   favour of ten, and in the same note gave ten years to the front-end,
+   quarter-front and combo packages, whose warranty terms had been open. All
+   four now read 10 years and agree with the warranty page.
 
 2. **The colour-change package is missing from the Arabic pricing table.** The
    Arabic table (section 5) lists four packages; the English pricing table

@@ -69,11 +69,11 @@ CAR_STATES = [
 ]
 
 #: The five branch photographs, in the order t.branches lists them. There are
-#: five files for six branches; the sixth keeps the existing entrance shot,
+#: five files for six branches; Al-Manar keeps the existing entrance shot,
 #: which is the client's call and is recorded in app/content.py, not here.
 BRANCH_PHOTOS = [
-    ("al-hamra",             "WhatsApp Image 2026-08-24 at 20.58.31.jpeg"),
     ("al-rimal",             "WhatsApp Image 2026-08-24 at 20.58.31 (1).jpeg"),
+    ("al-hamra",             "WhatsApp Image 2026-08-24 at 20.58.31.jpeg"),
     ("tuwaiq",               "WhatsApp Image 2026-08-24 at 20.58.31 (2).jpeg"),
     ("jeddah-madinah-road",  "WhatsApp Image 2026-08-24 at 20.58.31 (3).jpeg"),
     ("dammam-imam",          "WhatsApp Image 2026-08-24 at 20.58.31 (4).jpeg"),

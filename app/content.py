@@ -68,7 +68,7 @@ ICONS = {
 SERVICE_SLUGS = ("ppf-gloss", "ppf-matte", "nano-ceramic", "window-tint", "colour-change")
 PACKAGE_SLUGS = ("gloss", "matte", "colour-change", "nano-ceramic", "window-tint",
                  "front-kit", "quarter-front", "combo")
-BRANCH_IDS = ("al-hamra", "al-rimal", "tuwaiq", "jeddah-madinah-road", "dammam-imam", "dammam-al-manar")
+BRANCH_IDS = ("al-rimal", "al-hamra", "tuwaiq", "jeddah-madinah-road", "dammam-al-manar", "dammam-imam")
 CATEGORY_SLUGS = ("guides", "comparisons", "pricing", "care", "tinting")
 
 #: The line KMQ answers on. One number for the call button, for every branch
@@ -78,8 +78,10 @@ PHONE_PRIMARY = "+966 56 402 9777"
 PHONE_PRIMARY_E164 = "+966564029777"
 
 #: City label shown above each branch name. Latin in both locales, as in the
-#: design source.
-BRANCH_CITY_EN = ("RIYADH", "RIYADH", "RIYADH", "JEDDAH", "DAMMAM", "DAMMAM")
+#: design source. Al Rimal carries the head-branch suffix: the client's note
+#: made it the main branch, and the label is where that reads without a new
+#: component.
+BRANCH_CITY_EN = ("RIYADH · MAIN BRANCH", "RIYADH", "RIYADH", "JEDDAH", "DAMMAM", "DAMMAM")
 
 #: Which package the "most chosen" flag sits on. Gloss, per the design.
 FEATURED_PACKAGE = "gloss"
@@ -115,8 +117,8 @@ def _pkg(slug: str, name: str, includes: str, price: Any, warranty: str) -> dict
 #: Al-Manar keeps the entrance shot the whole grid used to share rather than
 #: repeat one of the five — so the absence is recorded here, not papered over.
 _BRANCH_PHOTOS = {
-    "al-hamra": "img/branches/al-hamra",
     "al-rimal": "img/branches/al-rimal",
+    "al-hamra": "img/branches/al-hamra",
     "tuwaiq": "img/branches/tuwaiq",
     "jeddah-madinah-road": "img/branches/jeddah-madinah-road",
     "dammam-imam": "img/branches/dammam-imam",
@@ -317,20 +319,21 @@ AR: dict[str, Any] = {
         _pkg("nano-ceramic", "باقة النانو سيراميك",
              "طبقة نانو سيراميك كاملة للبدي",
              "1,100 – 1,650", "حسب نوع الطبقة"),
+        # Ten years on the tint and on the three partial packages: the client
+        # confirmed the term for all four together. It matches the tint
+        # warranty block on the warranty page, which already said ten.
         _pkg("window-tint", "باقة العازل الحراري",
              "تظليل عازل حراري كامل السيارة",
-             "700 – 900", "حسب نوع العازل"),
-        # Warranty terms for the three partial packages are not in the client's
-        # figures. TBD, not carried over from the full-body packages.
+             "700 – 900", "10 سنوات"),
         _pkg("front-kit", "باقة الوجهية",
              "PPF للواجهة الأمامية",
-             "2,200 – 2,700", TBD),
+             "2,200 – 2,700", "10 سنوات"),
         _pkg("quarter-front", "باقة الربع",
              "PPF لربع الواجهة الأمامية",
-             "1,100 – 1,450", TBD),
+             "1,100 – 1,450", "10 سنوات"),
         _pkg("combo", "باقة الكومبو",
              "الوجهية + التظليل + النانو سيراميك",
-             "3,600 – 4,100", TBD),
+             "3,600 – 4,100", "10 سنوات"),
     ],
     "addons_title": "إضافات اختيارية",
     "addons": [
@@ -374,12 +377,12 @@ AR: dict[str, Any] = {
     "branch_wa": "واتساب الفرع",
     "directions": "الاتجاهات",
     "branches": [
+        _branch("al-rimal", "فرع حي الرمال", "الرياض", "حي الرمال، الرياض", "الرمال", "RIYADH · MAIN BRANCH"),
         _branch("al-hamra", "فرع حي الحمرا", "الرياض", "حي الحمرا، الرياض", "الحمرا", "RIYADH"),
-        _branch("al-rimal", "فرع حي الرمال", "الرياض", "حي الرمال، الرياض", "الرمال", "RIYADH"),
         _branch("tuwaiq", "فرع حي طويق", "الرياض", "حي طويق، الرياض", "طويق", "RIYADH"),
         _branch("jeddah-madinah-road", "فرع طريق المدينة", "جدة", "طريق المدينة، جدة", "جدة", "JEDDAH"),
-        _branch("dammam-imam", "فرع حي الإمام محمد بن سعود", "الدمام", "حي الإمام محمد بن سعود، الدمام", "الدمام — الإمام", "DAMMAM"),
         _branch("dammam-al-manar", "فرع حي المنار", "الدمام", "حي المنار، الدمام", "الدمام — المنار", "DAMMAM"),
+        _branch("dammam-imam", "فرع حي الإمام محمد بن سعود", "الدمام", "حي الإمام محمد بن سعود، الدمام", "الدمام — الإمام", "DAMMAM"),
     ],
     "map_shot": "[ map: 6 KMQ branches — Riyadh ×3, Jeddah ×1, Dammam ×2 ]",
     "pickup_title": "لا يوجد فرع قريب؟ نوصّل ونستلم سيارتك مجانًا ضمن نطاق محدد",
@@ -475,7 +478,7 @@ AR: dict[str, Any] = {
 
     # ---- About ----
     "about_title": "KMQ — بيت حماية احترافي للسيارات الفاخرة والمتوسطة العليا",
-    "about_lead": "KMQ علامة سعودية متخصصة في حماية وتجميل السيارات، تقدم خدمات حماية الطلاء (PPF)، النانو سيراميك، التظليل العازل الحراري، وتغيير اللون. نعمل في السوق السعودي منذ أكثر من 3 سنوات ونصف، بثلاثة فروع في الرياض (حي الحمرا، حي الرمال، حي طويق)، فرع في جدة (طريق المدينة)، وفرعين في الدمام (حي الإمام محمد بن سعود، حي المنار)، ونخدم مالكي السيارات الفاخرة والمتوسطة العليا الذين يبحثون عن حماية حقيقية، تسعير واضح، وتجربة تستحق وقتهم.",
+    "about_lead": "KMQ علامة سعودية متخصصة في حماية وتجميل السيارات، تقدم خدمات حماية الطلاء (PPF)، النانو سيراميك، التظليل العازل الحراري، وتغيير اللون. نعمل في السوق السعودي منذ أكثر من 3 سنوات ونصف، بثلاثة فروع في الرياض (حي الرمال، حي الحمرا، حي طويق)، فرع في جدة (طريق المدينة)، وفرعين في الدمام (حي المنار، حي الإمام محمد بن سعود)، ونخدم مالكي السيارات الفاخرة والمتوسطة العليا الذين يبحثون عن حماية حقيقية، تسعير واضح، وتجربة تستحق وقتهم.",
     "about_lead2": "نؤمن أن حماية سيارتك قرار يستحق الشفافية الكاملة، وأن التجربة داخل الفرع يجب أن تكون بمستوى فخامة السيارات التي نعتني بها.",
     "about_values": "قيمنا",
     "about_value_list": [
@@ -784,16 +787,16 @@ EN: dict[str, Any] = {
              "1,100 – 1,650", "Varies by layer type"),
         _pkg("window-tint", "Heat Insulation Package",
              "Full-vehicle heat-insulating tint",
-             "700 – 900", "Varies by film type"),
+             "700 – 900", "10 years"),
         _pkg("front-kit", "Front End Package",
              "Front-end PPF",
-             "2,200 – 2,700", TBD),
+             "2,200 – 2,700", "10 years"),
         _pkg("quarter-front", "Quarter Front Package",
              "Quarter front-end PPF",
-             "1,100 – 1,450", TBD),
+             "1,100 – 1,450", "10 years"),
         _pkg("combo", "Combo Package",
              "Front-end PPF + heat-insulating tint + nano ceramic",
-             "3,600 – 4,100", TBD),
+             "3,600 – 4,100", "10 years"),
     ],
     "addons_title": "Optional add-ons",
     "addons": [
@@ -834,12 +837,12 @@ EN: dict[str, Any] = {
     "branch_wa": "Branch WhatsApp",
     "directions": "Directions",
     "branches": [
+        _branch("al-rimal", "Al Rimal Branch", "Riyadh", "Al Rimal district, Riyadh", "Al Rimal", "RIYADH · MAIN BRANCH"),
         _branch("al-hamra", "Al Hamra Branch", "Riyadh", "Al Hamra district, Riyadh", "Al Hamra", "RIYADH"),
-        _branch("al-rimal", "Al Rimal Branch", "Riyadh", "Al Rimal district, Riyadh", "Al Rimal", "RIYADH"),
         _branch("tuwaiq", "Tuwaiq Branch", "Riyadh", "Tuwaiq district, Riyadh", "Tuwaiq", "RIYADH"),
         _branch("jeddah-madinah-road", "Al Madinah Road Branch", "Jeddah", "Al Madinah Road, Jeddah", "Jeddah", "JEDDAH"),
-        _branch("dammam-imam", "Al-Imam Muhammad bin Saud Branch", "Dammam", "Al-Imam Muhammad bin Saud district, Dammam", "Dammam — Al-Imam", "DAMMAM"),
         _branch("dammam-al-manar", "Al-Manar Branch", "Dammam", "Al-Manar district, Dammam", "Dammam — Al-Manar", "DAMMAM"),
+        _branch("dammam-imam", "Al-Imam Muhammad bin Saud Branch", "Dammam", "Al-Imam Muhammad bin Saud district, Dammam", "Dammam — Al-Imam", "DAMMAM"),
     ],
     "map_shot": "[ map: 6 KMQ branches — Riyadh ×3, Jeddah ×1, Dammam ×2 ]",
     "pickup_title": "No branch nearby? We collect and deliver your car free within a set radius",
@@ -931,7 +934,7 @@ EN: dict[str, Any] = {
     "other_services_title": "Other services",
 
     "about_title": "KMQ — a professional protection house for luxury and upper-mid cars",
-    "about_lead": "KMQ is a Saudi brand specialising in car protection and finishing, offering paint protection film (PPF), nano ceramic, heat-insulating tint and colour change. We have worked in the Saudi market for more than three and a half years, with three branches in Riyadh (Al Hamra, Al Rimal and Tuwaiq), one in Jeddah (Al Madinah Road) and two in Dammam (Al-Imam Muhammad bin Saud and Al-Manar), serving owners of luxury and upper-mid cars who are looking for real protection, clear pricing, and an experience worth their time.",
+    "about_lead": "KMQ is a Saudi brand specialising in car protection and finishing, offering paint protection film (PPF), nano ceramic, heat-insulating tint and colour change. We have worked in the Saudi market for more than three and a half years, with three branches in Riyadh (Al Rimal, Al Hamra and Tuwaiq), one in Jeddah (Al Madinah Road) and two in Dammam (Al-Manar and Al-Imam Muhammad bin Saud), serving owners of luxury and upper-mid cars who are looking for real protection, clear pricing, and an experience worth their time.",
     "about_lead2": "We believe protecting your car is a decision that deserves complete transparency, and that the experience inside the branch should match the quality of the cars we look after.",
     "about_values": "Our values",
     "about_value_list": [

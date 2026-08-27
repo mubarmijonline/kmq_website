@@ -135,21 +135,22 @@ CREATE INDEX lead_created_idx         ON lead (created_at DESC);
 -- --------------------------------------------------------------------------
 -- Seed: the six branches
 -- --------------------------------------------------------------------------
--- Names and locations are from the content file's branch table. Phone,
--- hours and map URL are deliberately absent — see the note at the top.
+-- Names and locations are from the content file's branch table, in the same
+-- order: Al Rimal is the main branch and leads. Phone, hours and map URL are
+-- deliberately absent — see the note at the top.
 
 INSERT INTO branch (id, city, sort_order, name_ar, name_en, location_ar, location_en) VALUES
-    ('al-hamra',            'Riyadh', 1, 'فرع حي الحمرا',              'Al Hamra Branch',
-     'حي الحمرا، الرياض',                'Al Hamra district, Riyadh'),
-    ('al-rimal',            'Riyadh', 2, 'فرع حي الرمال',              'Al Rimal Branch',
+    ('al-rimal',            'Riyadh', 1, 'فرع حي الرمال',              'Al Rimal Branch',
      'حي الرمال، الرياض',                'Al Rimal district, Riyadh'),
+    ('al-hamra',            'Riyadh', 2, 'فرع حي الحمرا',              'Al Hamra Branch',
+     'حي الحمرا، الرياض',                'Al Hamra district, Riyadh'),
     ('tuwaiq',              'Riyadh', 3, 'فرع حي طويق',                'Tuwaiq Branch',
      'حي طويق، الرياض',                  'Tuwaiq district, Riyadh'),
     ('jeddah-madinah-road', 'Jeddah', 4, 'فرع طريق المدينة',           'Al Madinah Road Branch',
      'طريق المدينة، جدة',                'Al Madinah Road, Jeddah'),
-    ('dammam-imam',         'Dammam', 5, 'فرع حي الإمام محمد بن سعود', 'Al-Imam Muhammad bin Saud Branch',
-     'حي الإمام محمد بن سعود، الدمام',   'Al-Imam Muhammad bin Saud district, Dammam'),
-    ('dammam-al-manar',     'Dammam', 6, 'فرع حي المنار',              'Al-Manar Branch',
-     'حي المنار، الدمام',                'Al-Manar district, Dammam');
+    ('dammam-al-manar',     'Dammam', 5, 'فرع حي المنار',              'Al-Manar Branch',
+     'حي المنار، الدمام',                'Al-Manar district, Dammam'),
+    ('dammam-imam',         'Dammam', 6, 'فرع حي الإمام محمد بن سعود', 'Al-Imam Muhammad bin Saud Branch',
+     'حي الإمام محمد بن سعود، الدمام',   'Al-Imam Muhammad bin Saud district, Dammam');
 
 COMMIT;
