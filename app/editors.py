@@ -46,7 +46,7 @@ COPY_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Packages", ('packages_title', 'packages_page_title', 'most_chosen', 'sar', 'warranty_label', 'order_package', 'order_on_whatsapp', 'all_packages_link', 'addons_title', 'unsure_title', 'unsure_body', 'ask_whatsapp')),
     ("Why KMQ", ('why_title',)),
     ("Warranty pitch on the home page", ('wb_title', 'wb_sub', 'wb_years', 'wb_years_label', 'wb_seal', 'wb_cta', 'wb_cta2')),
-    ("Branches", ('branches_title', 'branch_page_title', 'all_branches_link', 'hours_label', 'branch_wa', 'directions', 'map_shot', 'pickup_title', 'pickup_cta', 'branch_shot', 'branch_alt')),
+    ("Branches", ('branches_title', 'branch_page_title', 'all_branches_link', 'hours_label', 'branch_wa', 'directions', 'map_shot', 'pickup_title', 'pickup_cta', 'branch_shot', 'branch_alt', 'main_branch')),
     ("Warranty page", ('warranty_page_title', 'war_check_title', 'war_check_sub', 'war_placeholder', 'war_check_btn', 'war_note', 'war_found', 'war_expired', 'war_void', 'war_none', 'war_none_body', 'war_empty_query', 'covered', 'not_covered_title', 'conditions_title', 'after_sales_title', 'after_sales_body', 'no_maintenance_note')),
     ("Film spec", ('spec_title', 'spec_sub', 'other_services_title')),
     ("About", ('about_title', 'about_lead', 'about_lead2', 'about_values', 'about_numbers', 'about_cta', 'about_shot')),

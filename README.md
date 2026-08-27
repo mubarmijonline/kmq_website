@@ -30,6 +30,7 @@ brand, its own project directory.
 | `app/audit.py` | Who changed what, when |
 | `db/migrations/002_admin.sql` | The admin and content-store tables |
 | `db/migrations/003_branch_editable.sql` | Branch display strings, in both languages |
+| `db/migrations/004_branch_order.sql` | The branch order the client corrected |
 | `db/schema.sql` | PostgreSQL schema. Applies clean to PG 16.14 |
 | `db/test_schema.sql` | 22 constraint checks. Runnable |
 | `design/` | Design system: tokens, base, components, `app.js`, `admin.css` |
@@ -172,7 +173,7 @@ KMQ_TEST_DATABASE_URL=postgresql:///kmq_dev .venv/bin/python -m pytest tests/ -q
 content seeded from `app/content.py`, and one account:
 
 ```bash
-psql -q -v ON_ERROR_STOP=1 -d kmq -f db/migrations/002_admin.sql -f db/migrations/003_branch_editable.sql
+psql -q -v ON_ERROR_STOP=1 -d kmq -f db/migrations/002_admin.sql -f db/migrations/003_branch_editable.sql -f db/migrations/004_branch_order.sql
 ```
 
 ```bash
@@ -187,6 +188,11 @@ psql -q -v ON_ERROR_STOP=1 -d kmq -f db/migrations/002_admin.sql -f db/migration
 cannot reach anything until it has been changed. `reset-password` issues a new
 one and signs that account out everywhere. Seeding is idempotent — re-running
 it leaves edits alone, and `--force` (which discards them) asks first.
+
+`/admin/leads` is the enquiry inbox. Every submission of the contact form
+lands there, and the count beside **Leads** in the sidebar is the enquiries
+nobody has marked handled yet — so the badge means "still owed a reply"
+rather than "not yet opened".
 
 Branches are the one exception to "content is a document": they stay in the
 `branch` table, where the E.164 and HTTPS checks live and where every lead and

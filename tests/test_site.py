@@ -77,6 +77,30 @@ def test_no_branch_carries_an_unconfirmed_fact():
             assert not b["map_url"], f"{b['id']} has an invented map URL"
 
 
+def test_the_branch_order_is_the_one_the_client_asked_for():
+    """Al Rimal is the main branch and leads; Dammam runs Manar then Imam.
+
+    Both halves came from the same client note, and both are easy to undo by
+    editing one list and not the other — so the order is asserted here rather
+    than trusted to review.
+    """
+    expected = ("al-rimal", "al-hamra", "tuwaiq", "jeddah-madinah-road",
+                "dammam-al-manar", "dammam-imam")
+    assert C.BRANCH_IDS == expected
+    for lang in LOCALES:
+        assert tuple(b["id"] for b in C.content(lang)["branches"]) == expected
+
+
+def test_only_the_main_branch_is_marked_as_one(client):
+    for lang in LOCALES:
+        marked = [b["id"] for b in C.content(lang)["branches"] if b["main"]]
+        assert marked == [C.MAIN_BRANCH]
+
+        html = client.get(f"/{lang}/branches").get_data(as_text=True)
+        assert html.count('class="kmq-branch__main"') == 1
+        assert C.content(lang)["main_branch"] in html
+
+
 def test_no_fabricated_phone_numbers_anywhere():
     """The design file shipped +966 55 000 000X placeholders. None survived."""
     blob = repr(C.AR) + repr(C.EN)

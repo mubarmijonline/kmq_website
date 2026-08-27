@@ -1434,13 +1434,30 @@
 
 .kmq-branch__body { padding: 30px 30px 34px; display: flex; flex-direction: column; flex: 1; }
 
+/* The row reads in the page's direction so the head-branch tag sits after the
+   city in Arabic as well; only the Latin city name itself is pinned LTR. */
 .kmq-branch__city {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--kmq-font-latin);
   font-size: 11px;
   letter-spacing: .22em;
   color: var(--kmq-blue);
   margin-block-end: 12px;
-  direction: ltr;
+}
+
+.kmq-branch__cityname { direction: ltr; }
+
+/* The head branch says so beside its city. */
+.kmq-branch__main {
+  padding: 2px 8px;
+  border-radius: var(--kmq-radius-pill);
+  background: var(--brand-100);
+  color: var(--brand-700);
+  font-family: var(--kmq-body-font);
+  font-size: 11px;
+  letter-spacing: 0;
 }
 
 .kmq-branch h3 { font-weight: 900; font-size: 23px; margin-block-end: 8px; }

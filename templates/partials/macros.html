@@ -138,7 +138,10 @@
       {{ shot(shot_label, 'kmq-shot--branch', shot_src, v=img_v) }}
     {% endif %}
     <div class="kmq-branch__body">
-      <div class="kmq-branch__city">{{ b.city_en }}</div>
+      <div class="kmq-branch__city">
+        <span class="kmq-branch__cityname">{{ b.city_en }}</span>
+        {%- if b.main %}<span class="kmq-branch__main">{{ t.main_branch }}</span>{% endif %}
+      </div>
       <h3>{{ b.name }}</h3>
       <p class="kmq-branch__loc">{{ b.location }}</p>
 

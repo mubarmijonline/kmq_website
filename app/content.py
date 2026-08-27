@@ -78,10 +78,14 @@ PHONE_PRIMARY = "+966 56 402 9777"
 PHONE_PRIMARY_E164 = "+966564029777"
 
 #: City label shown above each branch name. Latin in both locales, as in the
-#: design source. Al Rimal carries the head-branch suffix: the client's note
-#: made it the main branch, and the label is where that reads without a new
-#: component.
-BRANCH_CITY_EN = ("RIYADH · MAIN BRANCH", "RIYADH", "RIYADH", "JEDDAH", "DAMMAM", "DAMMAM")
+#: design source.
+BRANCH_CITY_EN = ("RIYADH", "RIYADH", "RIYADH", "JEDDAH", "DAMMAM", "DAMMAM")
+
+#: The branch the client calls the main one. It leads the list, and its card
+#: says so. A flag rather than a suffix on the city label, because the label
+#: is rebuilt from the branch table's city column once the admin is storing
+#: branches and a suffix there would be overwritten on the first save.
+MAIN_BRANCH = "al-rimal"
 
 #: Which package the "most chosen" flag sits on. Gloss, per the design.
 FEATURED_PACKAGE = "gloss"
@@ -131,7 +135,7 @@ def _branch(bid: str, name: str, city: str, location: str, short: str,
     # pending list asks the client for them and supplies none.
     return {
         "id": bid, "name": name, "city": city, "location": location,
-        "short": short, "city_en": city_en,
+        "short": short, "city_en": city_en, "main": bid == MAIN_BRANCH,
         "phone": TBD, "hours": TBD, "map_url": TBD,
         # A stem when the branch has its own photograph, None when it falls
         # back to the shared entrance shot. Templates branch on this.
@@ -373,11 +377,12 @@ AR: dict[str, Any] = {
     "branches_title": "زورونا في أقرب فرع",
     "branch_page_title": "زورونا في أقرب فرع لك",
     "all_branches_link": "كل الفروع ←",
+    "main_branch": "الفرع الرئيسي",
     "hours_label": "ساعات العمل",
     "branch_wa": "واتساب الفرع",
     "directions": "الاتجاهات",
     "branches": [
-        _branch("al-rimal", "فرع حي الرمال", "الرياض", "حي الرمال، الرياض", "الرمال", "RIYADH · MAIN BRANCH"),
+        _branch("al-rimal", "فرع حي الرمال", "الرياض", "حي الرمال، الرياض", "الرمال", "RIYADH"),
         _branch("al-hamra", "فرع حي الحمرا", "الرياض", "حي الحمرا، الرياض", "الحمرا", "RIYADH"),
         _branch("tuwaiq", "فرع حي طويق", "الرياض", "حي طويق، الرياض", "طويق", "RIYADH"),
         _branch("jeddah-madinah-road", "فرع طريق المدينة", "جدة", "طريق المدينة، جدة", "جدة", "JEDDAH"),
@@ -833,11 +838,12 @@ EN: dict[str, Any] = {
     "branches_title": "Visit your nearest branch",
     "branch_page_title": "Visit your nearest branch",
     "all_branches_link": "All branches →",
+    "main_branch": "Main branch",
     "hours_label": "Working hours",
     "branch_wa": "Branch WhatsApp",
     "directions": "Directions",
     "branches": [
-        _branch("al-rimal", "Al Rimal Branch", "Riyadh", "Al Rimal district, Riyadh", "Al Rimal", "RIYADH · MAIN BRANCH"),
+        _branch("al-rimal", "Al Rimal Branch", "Riyadh", "Al Rimal district, Riyadh", "Al Rimal", "RIYADH"),
         _branch("al-hamra", "Al Hamra Branch", "Riyadh", "Al Hamra district, Riyadh", "Al Hamra", "RIYADH"),
         _branch("tuwaiq", "Tuwaiq Branch", "Riyadh", "Tuwaiq district, Riyadh", "Tuwaiq", "RIYADH"),
         _branch("jeddah-madinah-road", "Al Madinah Road Branch", "Jeddah", "Al Madinah Road, Jeddah", "Jeddah", "JEDDAH"),
