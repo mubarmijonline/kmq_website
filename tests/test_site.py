@@ -95,6 +95,30 @@ def test_no_fabricated_review_scores():
     assert not re.search(r"\d\.\d\s*/\s*5", blob)
 
 
+def test_analytics_reports_only_from_the_published_site(client):
+    """A dev process and this suite must not count as visitors."""
+    html = client.get("/ar/").get_data(as_text=True)
+    assert "googletagmanager" not in html
+
+
+def _published(monkeypatch, ga_id: str):
+    """The app as it runs published: prod, with a signing key in the env."""
+    monkeypatch.setenv("SECRET_KEY", "test-key")
+    return create_app({"ENV_NAME": "prod", "WHATSAPP_NUMBER": "",
+                       "GA_MEASUREMENT_ID": ga_id}).test_client()
+
+
+def test_analytics_tag_carries_the_configured_property(monkeypatch):
+    html = _published(monkeypatch, "G-TEST123").get("/ar/").get_data(as_text=True)
+    assert "https://www.googletagmanager.com/gtag/js?id=G-TEST123" in html
+    assert "gtag('config', 'G-TEST123')" in html
+
+
+def test_analytics_can_be_switched_off_in_production(monkeypatch):
+    html = _published(monkeypatch, "").get("/ar/").get_data(as_text=True)
+    assert "googletagmanager" not in html
+
+
 def test_service_and_package_slugs_are_the_declared_ones():
     assert tuple(s["slug"] for s in C.AR["services"]) == C.SERVICE_SLUGS
     assert {p["slug"] for p in C.AR["packages"]} == set(C.PACKAGE_SLUGS)

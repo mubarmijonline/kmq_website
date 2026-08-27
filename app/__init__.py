@@ -62,6 +62,12 @@ def create_app(config: dict | None = None) -> Flask:
         # rather than opening a chat with a stranger.
         WHATSAPP_NUMBER=os.environ.get("KMQ_WHATSAPP", "").strip(),
         SHOW_PRICES=_env_flag("KMQ_SHOW_PRICES", True),
+        # The client's Google Analytics 4 property. Only the published site
+        # reports to it: a dev process and the test suite would otherwise
+        # count themselves as visitors in the client's own numbers, which is
+        # worse than no analytics at all. Set KMQ_GA_ID empty to switch it off
+        # in production too.
+        GA_MEASUREMENT_ID=os.environ.get("KMQ_GA_ID", "G-Z12Q4Y5EQZ").strip(),
         ENV_NAME=os.environ.get("KMQ_ENV", "dev"),
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
@@ -199,6 +205,8 @@ def _wire_context(app: Flask) -> None:
             "wa": _whatsapp_url,
             "wa_at": _whatsapp_url_at,
             "wa_configured": bool(app.config["WHATSAPP_NUMBER"]),
+            "ga_id": (app.config["GA_MEASUREMENT_ID"]
+                      if app.config["ENV_NAME"] == "prod" else ""),
             "show_prices": app.config["SHOW_PRICES"],
             "current_year": date.today().year,
             "icons": C.ICONS,
