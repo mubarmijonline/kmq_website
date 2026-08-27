@@ -253,8 +253,14 @@ def dashboard():
     except Exception:
         log.exception("Could not read the enquiries.")
         waiting = []
+    try:
+        live_branches = sum(1 for row in store.branches(_db()) if row["is_published"])
+    except Exception:
+        log.exception("Could not count the branches.")
+        live_branches = 0
     return render_template("admin/dashboard.html", recent=_recent_activity(),
-                           waiting=waiting)
+                           waiting=waiting, edited_copy=len(_diverged_keys()),
+                           live_branches=live_branches)
 
 
 def _recent_activity(limit: int = 10):

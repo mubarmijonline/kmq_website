@@ -7,30 +7,61 @@
     <h1>Dashboard</h1>
     <p>Signed in as {{ admin_user.email }}.</p>
   </div>
+  <div class="adm-actions">
+    <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.copy') }}">Edit copy</a>
+    <a class="adm-btn" href="{{ url_for('admin.leads_inbox') }}">Open leads</a>
+  </div>
+</div>
+
+{# The numbers worth seeing before reading anything. Each one is a link to
+   the page that acts on it, so the tile is a way in rather than a poster. #}
+<div class="adm-stats">
+  <a class="adm-stat" href="{{ url_for('admin.leads_inbox') }}">
+    <div class="adm-stat__label">Enquiries waiting</div>
+    <div class="adm-stat__value {% if waiting_leads %}adm-stat__value--live{% endif %}">{{ waiting_leads }}</div>
+    <p class="adm-stat__note">
+      {% if waiting_leads %}Still owed a reply{% else %}Everything has been handled{% endif %}
+    </p>
+  </a>
+  <a class="adm-stat" href="{{ url_for('admin.copy') }}">
+    <div class="adm-stat__label">Copy edited</div>
+    <div class="adm-stat__value">{{ edited_copy }}</div>
+    <p class="adm-stat__note">Strings that differ from the shipped text</p>
+  </a>
+  <a class="adm-stat" href="{{ url_for('admin.branches') }}">
+    <div class="adm-stat__label">Branches live</div>
+    <div class="adm-stat__value">{{ live_branches }}</div>
+    <p class="adm-stat__note">Shown on the public site</p>
+  </a>
 </div>
 
 <div class="adm-panel">
   <div class="adm-panel__title">
-    Enquiries waiting{% if waiting_leads %} — {{ waiting_leads }}{% endif %}
+    <span>Latest enquiries</span>
+    {% if waiting %}<a href="{{ url_for('admin.leads_inbox') }}">All enquiries</a>{% endif %}
   </div>
   {% if waiting %}
-    <table class="adm-table">
-      <thead>
-        <tr><th>When</th><th>Who</th><th>Wants</th><th>Branch</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for row in waiting %}
-        <tr>
-          <td><time datetime="{{ row.created_at.isoformat() }}">{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</time></td>
-          <td>{{ row.full_name }}<br><a href="tel:{{ row.phone }}"><code>{{ row.phone }}</code></a></td>
-          <td>{{ row.service_label }}</td>
-          <td>{{ row.branch_name }}</td>
-          <td><a href="{{ row.wa_url }}" target="_blank" rel="noopener">WhatsApp</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <p style="margin:14px 0 0"><a href="{{ url_for('admin.leads_inbox') }}">All enquiries →</a></p>
+    <div class="adm-scroll">
+      <table class="adm-table">
+        <thead>
+          <tr><th>When</th><th>Who</th><th>Wants</th><th>Branch</th><th class="adm-table__actions">Reply</th></tr>
+        </thead>
+        <tbody>
+          {% for row in waiting %}
+          <tr>
+            <td><time datetime="{{ row.created_at.isoformat() }}">{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</time></td>
+            <td>{{ row.full_name }}<br><a href="tel:{{ row.phone }}"><code>{{ row.phone }}</code></a></td>
+            <td>{{ row.service_label }}</td>
+            <td>{{ row.branch_name }}</td>
+            <td class="adm-table__actions">
+              <a class="adm-btn adm-btn--ghost adm-btn--small" href="{{ row.wa_url }}"
+                 target="_blank" rel="noopener">WhatsApp</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
     <p class="adm-empty">
       Nothing waiting. New enquiries from the contact form appear here, and
@@ -40,23 +71,28 @@
 </div>
 
 <div class="adm-panel">
-  <div class="adm-panel__title">Recent activity</div>
+  <div class="adm-panel__title">
+    <span>Recent activity</span>
+    {% if is_owner %}<a href="{{ url_for('admin.audit_trail') }}">Full audit</a>{% endif %}
+  </div>
   {% if recent %}
-    <table class="adm-table">
-      <thead>
-        <tr><th>When</th><th>Who</th><th>Action</th><th>What</th></tr>
-      </thead>
-      <tbody>
-        {% for row in recent %}
-        <tr>
-          <td><time datetime="{{ row.at.isoformat() }}">{{ row.at.strftime('%Y-%m-%d %H:%M') }}</time></td>
-          <td>{{ row.actor_email }}</td>
-          <td>{{ row.action }}</td>
-          <td>{{ row.entity }}{% if row.entity_id %} <code>{{ row.entity_id }}</code>{% endif %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="adm-scroll">
+      <table class="adm-table">
+        <thead>
+          <tr><th>When</th><th>Who</th><th>Action</th><th>What</th></tr>
+        </thead>
+        <tbody>
+          {% for row in recent %}
+          <tr>
+            <td><time datetime="{{ row.at.isoformat() }}">{{ row.at.strftime('%Y-%m-%d %H:%M') }}</time></td>
+            <td>{{ row.actor_email }}</td>
+            <td>{{ row.action }}</td>
+            <td>{{ row.entity }}{% if row.entity_id %} <code>{{ row.entity_id }}</code>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
     <p class="adm-empty">Nothing recorded yet.</p>
   {% endif %}

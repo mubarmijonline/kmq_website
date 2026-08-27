@@ -8,8 +8,13 @@
     <textarea id="{{ name }}" name="{{ name }}" dir="{{ 'rtl' if rtl else 'ltr' }}"
               rows="{{ 10 if field.name == 'body' else 4 }}">{{ value }}</textarea>
   {% elif field.kind == 'bool' %}
-    <input id="{{ name }}" name="{{ name }}" type="checkbox" {% if value %}checked{% endif %}
-           style="width:auto">
+    {# A lone checkbox in a column of full-width fields reads as a stray mark.
+       Its own label puts the question next to the box and makes the words a
+       click target too. #}
+    <label class="adm-check">
+      <input id="{{ name }}" name="{{ name }}" type="checkbox" {% if value %}checked{% endif %}>
+      <span>{{ field.label }}</span>
+    </label>
   {% else %}
     <input id="{{ name }}" name="{{ name }}" dir="{{ 'rtl' if rtl else 'ltr' }}"
            value="{{ value }}" {% if field.kind == 'int' %}inputmode="numeric"{% endif %}>

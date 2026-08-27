@@ -44,12 +44,21 @@
       {% endfor %}
     </div>
 
-    <div class="adm__who">
-      <strong>{{ admin_user.display_name }}</strong>
-      {{ admin_user.role_label }}
-      <form method="post" action="{{ url_for('admin.logout') }}" style="margin-top:10px">
+    <div class="adm__rail-foot">
+      {# Editors arrive from the site and go back to it to check their work,
+         so the way out is part of the furniture rather than a browser tab
+         they have to remember to keep open. #}
+      <a class="adm__nav-out" href="{{ url_for('site.home', lang='ar') }}"
+         target="_blank" rel="noopener">View the site ↗</a>
+
+      <div class="adm__who">
+        <strong>{{ admin_user.display_name }}</strong>
+        {{ admin_user.role_label }}
+      </div>
+
+      <form method="post" action="{{ url_for('admin.logout') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button class="adm-btn adm-btn--ghost" type="submit">Sign out</button>
+        <button class="adm-btn adm-btn--ghost adm-btn--small" type="submit">Sign out</button>
       </form>
     </div>
   </nav>

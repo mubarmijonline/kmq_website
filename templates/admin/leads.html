@@ -24,11 +24,13 @@
   </div>
 
   {% if rows %}
+    <div class="adm-scroll">
     <table class="adm-table">
       <thead>
         <tr>
           <th>When</th><th>Who</th><th>Wants</th><th>Car</th>
-          <th>Branch</th><th>When they want it</th><th>State</th><th></th>
+          <th>Branch</th><th>When they want it</th><th>State</th>
+          <th class="adm-table__actions">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -58,20 +60,23 @@
               {% if row.handled_by_email %}<br><small>{{ row.handled_by_email }}</small>{% endif %}
             {% endif %}
           </td>
-          <td>
+          <td class="adm-table__actions">
+            <a class="adm-btn adm-btn--ghost adm-btn--small" href="{{ row.wa_url }}"
+               target="_blank" rel="noopener">Reply</a>
             <form method="post"
                   action="{{ url_for('admin.lead_handled', lead_id=row.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="handled" value="{{ '1' if row.waiting else '0' }}">
               <input type="hidden" name="next" value="{{ request.full_path }}">
-              <button class="adm-btn adm-btn--ghost" type="submit">
+              <button class="adm-btn {{ 'adm-btn--small' if row.waiting else 'adm-btn--ghost adm-btn--small' }}"
+                      type="submit">
                 {% if row.waiting %}Mark handled{% else %}Reopen{% endif %}
               </button>
             </form>
           </td>
         </tr>
         {% if row.notes %}
-        <tr>
+        <tr class="adm-table__more">
           <td></td>
           <td colspan="7" {% if row.locale == 'ar' %}dir="rtl"{% endif %}>{{ row.notes }}</td>
         </tr>
@@ -79,6 +84,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   {% else %}
     <p class="adm-empty">
       {% if waiting_only %}Nothing waiting. Every enquiry has been handled.

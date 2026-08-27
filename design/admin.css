@@ -1,146 +1,387 @@
 /* ==========================================================================
    Admin
    --------------------------------------------------------------------------
-   A working surface, not a showroom. It borrows the palette from tokens.css
-   so staff never see a second brand, and borrows nothing else: no hero
-   layers, no weave, no clamp() type. Density and legibility at 14-16px are
-   what a person editing 142 strings needs.
+   A working surface, not a showroom: density and legibility at 14-16px are
+   what a person editing 290 strings needs. No hero layers, no weave, no
+   clamp() type.
 
-   English-only and LTR by design — this is one interface for the team, not a
+   It owns its colours outright.
+
+   The first cut borrowed them from tokens.css, and the site's recolour then
+   flipped --kmq-bg from near-black to paper and --kmq-ink from paper to near
+   black. Half of this sheet followed and half did not, because the panels and
+   the fields carried hard-coded dark hex: the result was dark grey text on a
+   near-black panel sitting on a white page. Unreadable, and nothing in the
+   admin's own file had changed. The site's palette is free to move again;
+   this one is declared here, in full, so that when it does the admin does not
+   silently go dark with it. Only type, radii and tracking come from tokens.
+
+   English-only and LTR by design — one interface for the team, not a
    bilingual public page. The *fields* inside it are bilingual, and the ones
    holding Arabic set dir="rtl" on themselves.
+
+   Contrast: every pairing below is at or above 4.5 : 1, and body text is
+   above 7 : 1. scripts/check_admin_contrast.py measures the rendered pages
+   rather than trusting this paragraph.
    ========================================================================== */
 
 .adm {
-  --adm-rail: 232px;
-  --adm-gap: 20px;
-  --adm-radius: 10px;
-  --adm-field: #0F1015;
-  --adm-panel: #121319;
-  --adm-line: rgba(245, 245, 240, .12);
-  --adm-ok: #4CC38A;
-  --adm-warn: #E0B341;
-  --adm-bad: #E5675C;
+  /* Surfaces, lightest first. The page is faintly grey so that white panels
+     lift off it without needing a heavy border. */
+  --adm-bg: #F4F6FA;
+  --adm-surface: #FFFFFF;
+  --adm-surface-sunk: #F7F9FC;
+  --adm-rail-bg: #0C1930;
+  --adm-rail-line: rgba(233, 240, 249, .14);
+
+  /* Ink. `soft` is for secondary copy, `faint` for meta a reader may skip —
+     never for anything they have to read to do their job. */
+  --adm-ink: #101F38;
+  --adm-ink-soft: #43587A;
+  --adm-ink-faint: #5A6B84;
+  --adm-rail-ink: #E9F0F9;
+  --adm-rail-ink-soft: #A9BCD4;
+
+  --adm-line: #DBE3EE;
+  --adm-line-soft: #EBF0F6;
+
+  /* Brand, at the two weights that clear 4.5 : 1 on white and on the rail. */
+  --adm-accent: #0A5698;
+  --adm-accent-strong: #084A85;
+  --adm-accent-wash: #E8F3FB;
+  --adm-accent-rail: #7CC9F5;
+
+  --adm-ok: #10643C;
+  --adm-ok-wash: #DFF3E7;
+  --adm-warn: #7A4E00;
+  --adm-warn-wash: #FBEFD3;
+  --adm-bad: #A11D16;
+  --adm-bad-wash: #FBE4E2;
+
+  --adm-rail: 236px;
+  --adm-gap: 18px;
+  --adm-radius: 12px;
+  --adm-radius-sm: 8px;
+  --adm-shadow: 0 1px 2px rgba(16, 31, 56, .05), 0 6px 18px rgba(16, 31, 56, .05);
 
   min-height: 100vh;
-  background: var(--kmq-bg);
-  color: var(--kmq-ink);
+  background: var(--adm-bg);
+  color: var(--adm-ink);
   font-family: var(--kmq-font-latin);
   font-size: 15px;
   line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
-.adm a { color: var(--kmq-blue-hi); }
+/* The admin bundle is tokens.css and this file — base.css belongs to the
+   public site and is not loaded here, so the two things it would otherwise
+   have done have to be done again. Without the first, a full-width field
+   overflows its own card by its padding; without the second, the browser's
+   default body margin draws a pale band around the sign-in page. */
+.adm, .adm *, .adm *::before, .adm *::after { box-sizing: border-box; }
+body.adm { margin: 0; }
+
+/* Plain links inside the content. Every anchor that carries a component class
+   restates its colour with an `a.` selector below: `.adm a` is one class and
+   one type, so a bare `.adm-btn` loses to it and a link-shaped button would
+   render accent-on-accent. That is not hypothetical — it is what the contrast
+   check caught the first time this sheet was rewritten. */
+.adm a { color: var(--adm-accent); text-underline-offset: 2px; }
+.adm a:hover { color: var(--adm-accent-strong); }
 .adm h1, .adm h2, .adm h3 { line-height: 1.25; margin: 0; font-weight: 600; }
-.adm h1 { font-size: 24px; }
+.adm h1 { font-size: 25px; letter-spacing: -.01em; }
 .adm h2 { font-size: 18px; }
 .adm h3 { font-size: 15px; }
+.adm code {
+  font-family: var(--kmq-font-meta);
+  font-size: .88em;
+  background: var(--adm-surface-sunk);
+  border: 1px solid var(--adm-line-soft);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+/* One focus treatment for the whole interface, so a keyboard user never has
+   to hunt for the caret. */
+.adm :focus-visible {
+  outline: 2px solid var(--adm-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 /* -- Frame ---------------------------------------------------------------- */
 
-.adm__frame { display: grid; grid-template-columns: var(--adm-rail) 1fr; min-height: 100vh; }
+.adm__frame {
+  display: grid;
+  grid-template-columns: var(--adm-rail) minmax(0, 1fr);
+  min-height: 100vh;
+}
 
 .adm__rail {
-  border-inline-end: 1px solid var(--adm-line);
-  background: var(--kmq-bg-sunk);
-  padding: 22px 0;
-  display: flex; flex-direction: column; gap: 26px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  /* Full height, not content height: the rail is a surface, and a navy block
+     that stops halfway down the window reads as a rendering fault. */
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--adm-rail-bg);
+  color: var(--adm-rail-ink);
+  padding: 20px 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
+a.adm__brand,
 .adm__brand {
   display: flex; align-items: center; gap: 10px;
-  padding-inline: 20px;
+  padding-inline: 18px;
   letter-spacing: var(--kmq-track-code);
   text-transform: uppercase;
-  font-size: 13px;
-  color: var(--kmq-ink-70);
+  font-size: 12px;
+  color: var(--adm-rail-ink);
+  text-decoration: none;
 }
-.adm__brand img { height: 26px; width: auto; }
+a.adm__brand:hover,
+.adm__brand:hover { color: var(--adm-accent-rail); }
+.adm__brand img { height: 24px; width: auto; }
 
-.adm__nav { display: flex; flex-direction: column; }
+.adm__nav { display: flex; flex-direction: column; gap: 1px; }
 .adm__nav a {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 9px 20px;
-  color: var(--kmq-ink-70);
+  padding: 9px 18px;
+  color: var(--adm-rail-ink-soft);
   text-decoration: none;
-  border-inline-start: 2px solid transparent;
+  border-inline-start: 3px solid transparent;
   font-size: 14px;
 }
-.adm__nav a:hover { background: var(--kmq-bg-hover); color: var(--kmq-ink); }
+.adm__nav a:hover { background: rgba(233, 240, 249, .07); color: var(--adm-rail-ink); }
+.adm__nav a[aria-current="page"] {
+  color: #FFFFFF;
+  border-inline-start-color: var(--adm-accent-rail);
+  background: rgba(124, 201, 245, .14);
+  font-weight: 500;
+}
 
 /* The waiting-enquiry count. It sits inside the link so the whole row is one
    target, and it is drawn only when there is something to count — a zero in a
    badge trains people to ignore the badge. */
 .adm__count {
-  min-width: 20px;
+  min-width: 21px;
   padding: 1px 7px;
   border-radius: var(--kmq-radius-pill);
-  background: var(--kmq-blue);
-  color: var(--kmq-bg);
+  background: var(--adm-accent-rail);
+  color: #06121F;
   font-family: var(--kmq-font-meta);
   font-size: 12px;
-  line-height: 1.5;
+  font-weight: 600;
+  line-height: 1.6;
   text-align: center;
 }
 
-.adm__nav a[aria-current="page"] {
-  color: var(--kmq-blue-hi);
-  border-inline-start-color: var(--kmq-blue);
-  background: var(--kmq-blue-wash);
+.adm__rail-foot {
+  margin-top: auto;
+  padding: 16px 18px 0;
+  border-top: 1px solid var(--adm-rail-line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.adm__who { margin-top: auto; padding: 0 20px; font-size: 13px; color: var(--kmq-ink-55); }
-.adm__who strong { display: block; color: var(--kmq-ink); font-weight: 500; }
+a.adm__nav-out,
+.adm__nav-out { font-size: 13px; color: var(--adm-rail-ink-soft); text-decoration: none; }
+a.adm__nav-out:hover,
+.adm__nav-out:hover { color: var(--adm-accent-rail); }
 
-.adm__main { padding: 26px clamp(20px, 3vw, 38px) 60px; min-width: 0; }
-.adm__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-.adm__head p { margin: 6px 0 0; color: var(--kmq-ink-60); font-size: 14px; max-width: 70ch; }
+.adm__who { font-size: 13px; color: var(--adm-rail-ink-soft); }
+.adm__who strong { display: block; color: var(--adm-rail-ink); font-weight: 500; }
+
+/* Ghost buttons on the rail invert: the surface behind them is the dark one. */
+.adm__rail a.adm-btn--ghost,
+.adm__rail .adm-btn--ghost {
+  border-color: var(--adm-rail-line);
+  color: var(--adm-rail-ink);
+  background: transparent;
+}
+.adm__rail a.adm-btn--ghost:hover,
+.adm__rail .adm-btn--ghost:hover {
+  border-color: var(--adm-accent-rail);
+  color: var(--adm-accent-rail);
+  background: rgba(233, 240, 249, .06);
+}
+
+.adm__main {
+  padding: 24px clamp(18px, 3vw, 34px) 64px;
+  min-width: 0;
+  max-width: 1240px;
+}
+
+.adm__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.adm__head p { margin: 7px 0 0; color: var(--adm-ink-soft); font-size: 14px; max-width: 72ch; }
+.adm__head .adm-actions { flex-shrink: 0; }
+
+/* -- Stat tiles ----------------------------------------------------------- */
+/* The two or three numbers worth seeing before reading anything. */
+
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: var(--adm-gap);
+  margin-bottom: var(--adm-gap);
+}
+
+a.adm-stat,
+.adm-stat {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  box-shadow: var(--adm-shadow);
+  padding: 16px 18px;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+a.adm-stat:hover { border-color: var(--adm-accent); color: inherit; }
+.adm-stat__label {
+  font-size: 12px;
+  letter-spacing: var(--kmq-track-code);
+  text-transform: uppercase;
+  color: var(--adm-ink-faint);
+}
+.adm-stat__value {
+  font-family: var(--kmq-font-meta);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-top: 6px;
+  color: var(--adm-ink);
+}
+.adm-stat__value--live { color: var(--adm-accent); }
+.adm-stat__note { font-size: 13px; color: var(--adm-ink-soft); margin: 2px 0 0; }
 
 /* -- Panels and tables ---------------------------------------------------- */
 
 .adm-panel {
-  background: var(--adm-panel);
+  background: var(--adm-surface);
   border: 1px solid var(--adm-line);
   border-radius: var(--adm-radius);
+  box-shadow: var(--adm-shadow);
   padding: 18px 20px;
 }
 .adm-panel + .adm-panel { margin-top: var(--adm-gap); }
-.adm-panel__title { font-size: 12px; letter-spacing: var(--kmq-track-code); text-transform: uppercase; color: var(--kmq-ink-55); margin-bottom: 12px; }
+.adm-panel__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: var(--kmq-track-code);
+  text-transform: uppercase;
+  color: var(--adm-ink-faint);
+  margin-bottom: 12px;
+}
+.adm-panel__note { font-size: 13px; color: var(--adm-ink-soft); margin: -4px 0 14px; }
+.adm-panel__foot { margin: 14px 0 0; font-size: 14px; }
+
+/* A table wider than its panel scrolls inside it rather than pushing the page
+   sideways and taking the rail with it. */
+.adm-scroll { overflow-x: auto; margin-inline: -20px; padding-inline: 20px; }
 
 .adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .adm-table th {
-  text-align: start; font-weight: 500; color: var(--kmq-ink-55);
-  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
-  padding: 0 12px 8px 0; border-bottom: 1px solid var(--adm-line);
+  text-align: start;
+  font-weight: 600;
+  color: var(--adm-ink-faint);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 0 14px 9px 0;
+  border-bottom: 1px solid var(--adm-line);
+  white-space: nowrap;
 }
-.adm-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--kmq-line-soft); vertical-align: top; }
+.adm-table td {
+  padding: 11px 14px 11px 0;
+  border-bottom: 1px solid var(--adm-line-soft);
+  vertical-align: top;
+}
 .adm-table tr:last-child td { border-bottom: 0; }
-.adm-table time, .adm-table code { font-family: var(--kmq-font-meta); font-size: 13px; color: var(--kmq-ink-60); }
+.adm-table tbody tr:hover td { background: var(--adm-surface-sunk); }
+.adm-table th:last-child, .adm-table td:last-child { padding-inline-end: 0; }
+.adm-table time, .adm-table code {
+  font-family: var(--kmq-font-meta);
+  font-size: 13px;
+  color: var(--adm-ink-soft);
+}
+.adm-table time { white-space: nowrap; }
+.adm-table code { background: none; border: 0; padding: 0; }
+.adm-table small { color: var(--adm-ink-faint); font-size: 12px; }
 
-.adm-empty { color: var(--kmq-ink-45); font-size: 14px; padding: 10px 0; }
+/* The actions column: controls on one line, pushed to the end of the row. */
+.adm-table__actions { text-align: end; white-space: nowrap; }
+.adm-table__actions form { display: inline-block; }
+.adm-table__actions > * + * { margin-inline-start: 6px; }
+
+/* A row continued underneath its own row — a lead's notes, for instance. */
+.adm-table__more td {
+  padding-top: 0;
+  color: var(--adm-ink-soft);
+  font-size: 14px;
+}
+
+.adm-empty {
+  color: var(--adm-ink-soft);
+  font-size: 14px;
+  padding: 12px 0;
+  margin: 0;
+}
 
 /* -- Forms ---------------------------------------------------------------- */
 
 .adm-form { display: flex; flex-direction: column; gap: 16px; }
-.adm-field { display: flex; flex-direction: column; gap: 6px; }
-.adm-field label { font-size: 13px; color: var(--kmq-ink-70); }
+.adm-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.adm-field label { font-size: 13px; font-weight: 500; color: var(--adm-ink-soft); }
 .adm-field input, .adm-field textarea, .adm-field select {
-  background: var(--adm-field);
+  background: var(--adm-surface);
   border: 1px solid var(--adm-line);
-  border-radius: 8px;
-  color: var(--kmq-ink);
+  border-radius: var(--adm-radius-sm);
+  color: var(--adm-ink);
   font: inherit;
-  padding: 9px 11px;
+  padding: 10px 12px;
   width: 100%;
+}
+.adm-field input::placeholder, .adm-field textarea::placeholder { color: var(--adm-ink-faint); }
+.adm-field input:hover, .adm-field textarea:hover, .adm-field select:hover {
+  border-color: #C3CFDF;
 }
 .adm-field textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
 .adm-field input:focus-visible, .adm-field textarea:focus-visible, .adm-field select:focus-visible {
-  outline: 2px solid var(--kmq-blue); outline-offset: 1px; border-color: transparent;
+  outline: 2px solid var(--adm-accent);
+  outline-offset: 0;
+  border-color: var(--adm-accent);
 }
-.adm-field__hint { font-size: 12px; color: var(--kmq-ink-45); }
+.adm-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+.adm-check input { width: auto; margin: 0; accent-color: var(--adm-accent); }
+
+.adm-field__hint { font-size: 12px; color: var(--adm-ink-faint); }
+.adm-field__hint code { font-size: 12px; }
 
 /* Arabic values inside an LTR interface. The attribute does the work; this
    only gives them the face they wear on the public site. */
@@ -149,65 +390,119 @@
   line-height: 1.9;
 }
 
+a.adm-btn,
 .adm-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  border: 1px solid transparent; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--adm-radius-sm);
   padding: 9px 16px;
-  font: inherit; font-weight: 500;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
   cursor: pointer;
-  background: var(--kmq-grad-cta); color: #17130A;
+  text-decoration: none;
+  background: var(--adm-accent);
+  color: #FFFFFF;
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease;
 }
-.adm-btn:hover { filter: brightness(1.06); }
-.adm-btn--ghost { background: transparent; border-color: var(--adm-line); color: var(--kmq-ink); }
-.adm-btn--ghost:hover { border-color: var(--kmq-blue-50); color: var(--kmq-blue-hi); filter: none; }
-.adm-btn--danger { background: transparent; border-color: rgba(229, 103, 92, .45); color: var(--adm-bad); }
-.adm-actions { display: flex; gap: 10px; align-items: center; }
+a.adm-btn:hover,
+.adm-btn:hover { background: var(--adm-accent-strong); color: #FFFFFF; }
+.adm-btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+a.adm-btn--ghost,
+.adm-btn--ghost {
+  background: var(--adm-surface);
+  border-color: var(--adm-line);
+  color: var(--adm-ink);
+}
+a.adm-btn--ghost:hover,
+.adm-btn--ghost:hover {
+  background: var(--adm-accent-wash);
+  border-color: var(--adm-accent);
+  color: var(--adm-accent-strong);
+}
+.adm-btn--ghost[disabled]:hover { background: var(--adm-surface); border-color: var(--adm-line); color: var(--adm-ink); }
+a.adm-btn--danger,
+.adm-btn--danger {
+  background: var(--adm-surface);
+  border-color: #E7B9B5;
+  color: var(--adm-bad);
+}
+a.adm-btn--danger:hover,
+.adm-btn--danger:hover { background: var(--adm-bad-wash); color: var(--adm-bad); }
+.adm-btn--small { padding: 5px 11px; font-size: 13px; }
+
+.adm-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-btn { transition: none; }
+}
 
 /* -- Messages ------------------------------------------------------------- */
 
 .adm-note {
   border: 1px solid var(--adm-line);
-  border-inline-start: 3px solid var(--kmq-blue);
-  border-radius: 8px;
-  padding: 10px 14px;
+  border-inline-start: 4px solid var(--adm-accent);
+  border-radius: var(--adm-radius-sm);
+  padding: 11px 15px;
   font-size: 14px;
-  background: var(--kmq-blue-wash);
-  margin-bottom: 18px;
+  background: var(--adm-accent-wash);
+  color: var(--adm-ink);
+  margin: 0 0 16px;
 }
-.adm-note--bad { border-inline-start-color: var(--adm-bad); background: rgba(229, 103, 92, .08); }
-.adm-note--ok { border-inline-start-color: var(--adm-ok); background: rgba(76, 195, 138, .08); }
+.adm-note--bad {
+  border-color: #F0CFCC;
+  border-inline-start-color: var(--adm-bad);
+  background: var(--adm-bad-wash);
+}
+.adm-note--ok {
+  border-color: #C7E6D5;
+  border-inline-start-color: var(--adm-ok);
+  background: var(--adm-ok-wash);
+}
 
 .adm-tag {
-  display: inline-block; font-family: var(--kmq-font-meta); font-size: 11px;
-  text-transform: uppercase; letter-spacing: .08em;
-  padding: 2px 7px; border-radius: 999px; border: 1px solid var(--adm-line);
-  color: var(--kmq-ink-60);
+  display: inline-block;
+  font-family: var(--kmq-font-meta);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  padding: 3px 9px;
+  border-radius: var(--kmq-radius-pill);
+  background: var(--adm-surface-sunk);
+  border: 1px solid var(--adm-line);
+  color: var(--adm-ink-soft);
+  white-space: nowrap;
 }
-.adm-tag--ok { color: var(--adm-ok); border-color: rgba(76, 195, 138, .4); }
-.adm-tag--warn { color: var(--adm-warn); border-color: rgba(224, 179, 65, .4); }
-.adm-tag--bad { color: var(--adm-bad); border-color: rgba(229, 103, 92, .4); }
+.adm-tag--ok { color: var(--adm-ok); background: var(--adm-ok-wash); border-color: #C7E6D5; }
+.adm-tag--warn { color: var(--adm-warn); background: var(--adm-warn-wash); border-color: #EEDBAB; }
+.adm-tag--bad { color: var(--adm-bad); background: var(--adm-bad-wash); border-color: #F0CFCC; }
 
 /* -- Sign-in -------------------------------------------------------------- */
 /* The one page with no frame: no rail, no nav, nothing to navigate to. */
 
-.adm-gate { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-.adm-gate__card { width: min(420px, 100%); }
-.adm-gate__mark { display: block; height: 46px; margin: 0 auto 26px; }
-.adm-gate h1 { font-size: 20px; text-align: center; margin-bottom: 6px; }
-.adm-gate__sub { text-align: center; color: var(--kmq-ink-55); font-size: 14px; margin-bottom: 22px; }
-.adm-gate .adm-btn { width: 100%; justify-content: center; }
-.adm-gate__foot { text-align: center; margin-top: 20px; font-size: 13px; color: var(--kmq-ink-45); }
-
-/* -- Narrow --------------------------------------------------------------- */
-
-@media (max-width: 860px) {
-  .adm__frame { grid-template-columns: 1fr; }
-  .adm__rail { flex-direction: row; align-items: center; gap: 14px; padding: 12px 0; overflow-x: auto; }
-  .adm__nav { flex-direction: row; }
-  .adm__nav a { white-space: nowrap; border-inline-start: 0; border-block-end: 2px solid transparent; }
-  .adm__nav a[aria-current="page"] { border-block-end-color: var(--kmq-blue); }
-  .adm__who { margin: 0; }
+.adm-gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--adm-rail-bg);
 }
+.adm-gate__card {
+  width: min(420px, 100%);
+  background: var(--adm-surface);
+  border-radius: var(--adm-radius);
+  box-shadow: 0 18px 48px rgba(4, 12, 26, .45);
+  padding: 34px 30px 30px;
+}
+.adm-gate__mark { display: block; height: 42px; margin: 0 auto 22px; }
+.adm-gate h1 { font-size: 21px; text-align: center; margin-bottom: 6px; }
+.adm-gate__sub { text-align: center; color: var(--adm-ink-soft); font-size: 14px; margin: 0 0 22px; }
+.adm-gate .adm-btn { width: 100%; }
+.adm-gate__foot { text-align: center; margin: 20px 0 0; font-size: 13px; color: var(--adm-ink-faint); }
+.adm-gate__foot code { white-space: nowrap; }
 
 /* -- Bilingual pairs ------------------------------------------------------ */
 /* Arabic and English side by side, stacking on a narrow screen. The pair is
@@ -218,4 +513,42 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 14px 18px;
+}
+
+/* -- Narrow --------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .adm__frame { grid-template-columns: 1fr; }
+  .adm__rail {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    overflow-x: auto;
+  }
+  .adm__brand span { display: none; }
+  .adm__nav { flex-direction: row; gap: 2px; }
+  .adm__nav a {
+    white-space: nowrap;
+    border-inline-start: 0;
+    border-block-end: 3px solid transparent;
+    padding: 8px 12px;
+  }
+  .adm__nav a[aria-current="page"] {
+    border-block-end-color: var(--adm-accent-rail);
+    background: rgba(124, 201, 245, .12);
+  }
+  .adm__rail-foot {
+    margin: 0 0 0 auto;
+    padding: 0 0 0 14px;
+    border-top: 0;
+    border-inline-start: 1px solid var(--adm-rail-line);
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .adm__who strong { display: inline; }
+  .adm__main { padding: 18px 16px 48px; }
 }

@@ -13,9 +13,11 @@
 </div>
 
 <div class="adm-panel">
+  <div class="adm-scroll">
   <table class="adm-table">
     <thead>
-      <tr><th>Branch</th><th>City</th><th>Phone</th><th>Hours</th><th>State</th><th></th></tr>
+      <tr><th>Branch</th><th>City</th><th>Phone</th><th>Hours</th><th>State</th>
+          <th class="adm-table__actions">Action</th></tr>
     </thead>
     <tbody>
       {% for row in rows %}
@@ -28,10 +30,14 @@
           {% if row.is_published %}<span class="adm-tag adm-tag--ok">live</span>
           {% else %}<span class="adm-tag adm-tag--warn">hidden</span>{% endif %}
         </td>
-        <td><a href="{{ url_for('admin.branch', bid=row.id) }}">Edit</a></td>
+        <td class="adm-table__actions">
+          <a class="adm-btn adm-btn--ghost adm-btn--small"
+             href="{{ url_for('admin.branch', bid=row.id) }}">Edit</a>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 {% endblock %}

@@ -14,10 +14,12 @@
 
 <div class="adm-panel">
   {% if records %}
+    <div class="adm-scroll">
     <table class="adm-table">
       <thead>
         <tr>
-          <th>Arabic</th><th>English</th><th>Id</th><th>State</th><th>Order</th><th></th>
+          <th>Arabic</th><th>English</th><th>Id</th><th>State</th><th>Order</th>
+          <th class="adm-table__actions">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -34,24 +36,26 @@
             {% endif %}
           </td>
           <td>
-            <form method="post" action="{{ url_for('admin.reorder', kind=spec.kind) }}"
-                  style="display:inline">
+            <form method="post" action="{{ url_for('admin.reorder', kind=spec.kind) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="slug" value="{{ row.slug }}">
-              <button class="adm-btn adm-btn--ghost" name="direction" value="up"
-                      title="Move up" {% if loop.first %}disabled{% endif %}>↑</button>
-              <button class="adm-btn adm-btn--ghost" name="direction" value="down"
-                      title="Move down" {% if loop.last %}disabled{% endif %}>↓</button>
+              <button class="adm-btn adm-btn--ghost adm-btn--small" name="direction" value="up"
+                      title="Move up" aria-label="Move up"
+                      {% if loop.first %}disabled{% endif %}>↑</button>
+              <button class="adm-btn adm-btn--ghost adm-btn--small" name="direction" value="down"
+                      title="Move down" aria-label="Move down"
+                      {% if loop.last %}disabled{% endif %}>↓</button>
             </form>
           </td>
-          <td>
-            <a href="{{ url_for('admin.record', kind=spec.kind, slug=row.slug) }}">Edit</a>
+          <td class="adm-table__actions">
+            <a class="adm-btn adm-btn--ghost adm-btn--small"
+               href="{{ url_for('admin.record', kind=spec.kind, slug=row.slug) }}">Edit</a>
             {% if spec.open_ended %}
-              <form method="post" style="display:inline"
+              <form method="post"
                     action="{{ url_for('admin.publish', kind=spec.kind, slug=row.slug) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="published" value="{{ '0' if row.is_published else '1' }}">
-                <button class="adm-btn adm-btn--ghost" type="submit">
+                <button class="adm-btn adm-btn--ghost adm-btn--small" type="submit">
                   {{ 'Unpublish' if row.is_published else 'Publish' }}
                 </button>
               </form>
@@ -61,6 +65,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   {% else %}
     <p class="adm-empty">
       Nothing stored. Run <code>flask seed-content</code> to fill the store

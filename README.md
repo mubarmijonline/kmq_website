@@ -194,6 +194,21 @@ lands there, and the count beside **Leads** in the sidebar is the enquiries
 nobody has marked handled yet — so the badge means "still owed a reply"
 rather than "not yet opened".
 
+The admin's colours are declared in `design/admin.css` and are not the site's
+tokens. They were once, and the site's recolour left the admin drawing dark
+grey text on a near-black panel over a white page — unreadable, with nothing
+in the admin's own file changed. Check the rendered pages rather than the
+diff:
+
+```bash
+KMQ_TEST_DATABASE_URL=postgresql:///kmq_dev .venv/bin/python scripts/check_admin_contrast.py --shots
+```
+
+It signs in, walks every admin page at two widths, measures every text node
+against what is painted behind it, tabs through a form to confirm every focus
+stop paints a ring, and exits non-zero on a failure. `--shots` leaves PNGs in
+`docs/audit/admin-contrast/`. Point it at a development database: it writes.
+
 Branches are the one exception to "content is a document": they stay in the
 `branch` table, where the E.164 and HTTPS checks live and where every lead and
 warranty points, and the overlay builds the branches list out of it.

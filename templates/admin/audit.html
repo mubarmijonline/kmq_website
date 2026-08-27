@@ -36,6 +36,7 @@
 
 <div class="adm-panel">
   {% if rows %}
+    <div class="adm-scroll">
     <table class="adm-table">
       <thead>
         <tr><th>When</th><th>Who</th><th>Action</th><th>What</th><th>Was</th><th>Now</th></tr>
@@ -53,6 +54,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   {% else %}
     <p class="adm-empty">Nothing recorded for this filter.</p>
   {% endif %}
