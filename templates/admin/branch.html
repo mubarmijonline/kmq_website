@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ row.name_en }}{% endblock %}
+
+{% macro pair(name_ar, name_en, label, values) %}
+  <div class="adm-panel">
+    <div class="adm-panel__title">{{ label }}</div>
+    <div class="adm-pair">
+      <div class="adm-field">
+        <label for="{{ name_ar }}">Arabic</label>
+        <input id="{{ name_ar }}" name="{{ name_ar }}" dir="rtl" value="{{ values[name_ar] or '' }}">
+      </div>
+      <div class="adm-field">
+        <label for="{{ name_en }}">English</label>
+        <input id="{{ name_en }}" name="{{ name_en }}" value="{{ values[name_en] or '' }}">
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>{{ row.name_en }}</h1>
+    <p><code>{{ row.id }}</code> — fixed: leads and warranties reference it.
+       <a href="{{ url_for('admin.branches') }}">All branches</a></p>
+  </div>
+</div>
+
+{% for error in errors %}
+  <p class="adm-note adm-note--bad">{{ error }}</p>
+{% endfor %}
+
+<form method="post" class="adm-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {{ pair('name_ar', 'name_en', 'Branch name', values) }}
+  {{ pair('city_ar', 'city', 'City', values) }}
+  {{ pair('location_ar', 'location_en', 'Location', values) }}
+  {{ pair('short_ar', 'short_en', 'Short label', values) }}
+  {{ pair('hours_ar', 'hours_en', 'Opening hours', values) }}
+
+  <div class="adm-panel">
+    <div class="adm-panel__title">Contact</div>
+    <div class="adm-pair">
+      <div class="adm-field">
+        <label for="phone_e164">Phone</label>
+        <input id="phone_e164" name="phone_e164" value="{{ values.phone_e164 or '' }}"
+               inputmode="tel" placeholder="0512345678">
+        <span class="adm-field__hint">
+          A Saudi mobile, in any of the forms people type. Stored as +9665…,
+          and the database refuses anything else. Empty means pending.
+        </span>
+      </div>
+      <div class="adm-field">
+        <label for="whatsapp_e164">WhatsApp</label>
+        <input id="whatsapp_e164" name="whatsapp_e164" value="{{ values.whatsapp_e164 or '' }}"
+               inputmode="tel" placeholder="0512345678">
+        <span class="adm-field__hint">
+          Used for this branch's WhatsApp button. Empty falls back to the
+          site-wide number.
+        </span>
+      </div>
+    </div>
+    <div class="adm-field" style="margin-top:14px">
+      <label for="map_url">Map link</label>
+      <input id="map_url" name="map_url" value="{{ values.map_url or '' }}"
+             placeholder="https://maps.app.goo.gl/…">
+      <span class="adm-field__hint">
+        Must start with https://. Empty leaves the "Directions" button showing
+        as pending, which is the honest state until an address is confirmed.
+      </span>
+    </div>
+  </div>
+
+  <div class="adm-panel">
+    <div class="adm-panel__title">Visibility</div>
+    <div class="adm-field">
+      <label>
+        <input type="checkbox" name="is_published" value="1" style="width:auto"
+               {% if values.is_published %}checked{% endif %}>
+        Show this branch on the site
+      </label>
+      <span class="adm-field__hint">
+        Hiding a branch removes it from the site without deleting a row that
+        leads and warranties point at.
+      </span>
+    </div>
+  </div>
+
+  <div class="adm-actions" style="margin-top:18px">
+    <button class="adm-btn" type="submit">Save</button>
+    <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.branches') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

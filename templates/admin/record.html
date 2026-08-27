@@ -1,0 +1,84 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ spec.label }}{% endblock %}
+
+{% macro control(field, locale, value) %}
+  {% set name = field.name if field.shared else field.name ~ '__' ~ locale %}
+  {% set rtl = (locale == 'ar' and not field.shared) %}
+  {% if field.kind == 'textarea' or field.kind == 'list' %}
+    <textarea id="{{ name }}" name="{{ name }}" dir="{{ 'rtl' if rtl else 'ltr' }}"
+              rows="{{ 10 if field.name == 'body' else 4 }}">{{ value }}</textarea>
+  {% elif field.kind == 'bool' %}
+    <input id="{{ name }}" name="{{ name }}" type="checkbox" {% if value %}checked{% endif %}
+           style="width:auto">
+  {% else %}
+    <input id="{{ name }}" name="{{ name }}" dir="{{ 'rtl' if rtl else 'ltr' }}"
+           value="{{ value }}" {% if field.kind == 'int' %}inputmode="numeric"{% endif %}>
+  {% endif %}
+{% endmacro %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>{{ 'New' if not slug else 'Edit' }} — {{ spec.label }}</h1>
+    <p><a href="{{ url_for('admin.collection', kind=spec.kind) }}">Back to {{ spec.label }}</a></p>
+  </div>
+</div>
+
+{% for error in errors %}
+  <p class="adm-note adm-note--bad">{{ error }}</p>
+{% endfor %}
+
+<form method="post" class="adm-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="adm-panel">
+    <div class="adm-panel__title">Identifier</div>
+    {% if slug %}
+      <p class="adm-empty">
+        <code>{{ slug }}</code> — fixed. It is the record's URL and what the
+        audit log points at.
+      </p>
+    {% elif spec.id_field %}
+      <div class="adm-field">
+        <label for="slug">Slug</label>
+        <input id="slug" name="slug" placeholder="my-new-article" required>
+        <span class="adm-field__hint">
+          Lower case and hyphens. It becomes part of the page's address and
+          cannot be changed afterwards.
+        </span>
+      </div>
+    {% else %}
+      <p class="adm-empty">Added to the end of the list.</p>
+    {% endif %}
+  </div>
+
+  {% for field in spec.fields %}
+    {% if field.name != spec.id_field or spec.scalar %}
+      <div class="adm-panel">
+        <div class="adm-panel__title">{{ field.label }}{% if field.shared %} · both languages{% endif %}</div>
+        {% if field.shared %}
+          <div class="adm-field">
+            {{ control(field, 'en', editors.form_value(field, values['en'], spec)) }}
+            {% if field.hint %}<span class="adm-field__hint">{{ field.hint }}</span>{% endif %}
+          </div>
+        {% else %}
+          <div class="adm-pair">
+            {% for locale in locales %}
+              <div class="adm-field">
+                <label for="{{ field.name }}__{{ locale }}">{{ 'Arabic' if locale == 'ar' else 'English' }}</label>
+                {{ control(field, locale, editors.form_value(field, values[locale], spec)) }}
+              </div>
+            {% endfor %}
+          </div>
+          {% if field.hint %}<span class="adm-field__hint">{{ field.hint }}</span>{% endif %}
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <div class="adm-actions" style="margin-top:18px">
+    <button class="adm-btn" type="submit">Save</button>
+    <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.collection', kind=spec.kind) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

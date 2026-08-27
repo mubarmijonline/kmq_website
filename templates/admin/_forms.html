@@ -1,0 +1,34 @@
+{# Small macros shared by the admin templates. Kept in a partial rather than
+   beside their one caller so that a child template can import them: a macro
+   defined inside a template that extends another is not reliably visible from
+   its blocks. #}
+
+{% macro password_form(error) %}
+  {% if error %}<p class="adm-note adm-note--bad">{{ error }}</p>{% endif %}
+  <form class="adm-form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="adm-field">
+      <label for="current_password">Current password</label>
+      <input id="current_password" name="current_password" type="password"
+             autocomplete="current-password" required autofocus>
+    </div>
+
+    <div class="adm-field">
+      <label for="new_password">New password</label>
+      <input id="new_password" name="new_password" type="password"
+             autocomplete="new-password" minlength="12" required>
+      <span class="adm-field__hint">At least twelve characters.</span>
+    </div>
+
+    <div class="adm-field">
+      <label for="confirm_password">New password again</label>
+      <input id="confirm_password" name="confirm_password" type="password"
+             autocomplete="new-password" minlength="12" required>
+    </div>
+
+    <div class="adm-actions">
+      <button class="adm-btn" type="submit">Change password</button>
+    </div>
+  </form>
+{% endmacro %}

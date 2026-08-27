@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block title %}Unavailable{% endblock %}
+
+{% block frame %}
+<div class="adm-gate">
+  <div class="adm-gate__card">
+    <img class="adm-gate__mark" src="{{ url_for('static', filename='img/brand/kmq-logo.svg') }}" alt="KMQ">
+    <h1>The admin needs the database</h1>
+    <p class="adm-gate__sub">
+      There is nothing to edit and nobody to sign in without it. The public
+      site is unaffected: it is serving the copy shipped with the deployment.
+    </p>
+  </div>
+</div>
+{% endblock %}

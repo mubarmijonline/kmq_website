@@ -1180,10 +1180,44 @@ DEFAULT_LOCALE = "ar"
 
 _BY_LOCALE = {"ar": AR, "en": EN}
 
+#: The database overlay, installed by the application factory once it has a
+#: pool to read from. ``None`` in the CLI, in tests, and whenever the site runs
+#: without a database — which is the case this module exists to survive.
+_OVERLAY: Any = None
+
+
+def use_overlay(overlay: Any) -> None:
+    """Layer stored edits over the shipped copy.
+
+    Called once at start-up. Every accessor below reads through
+    :func:`content`, so installing it here is the whole of the swap the plan
+    promised: no template and no view changes hands.
+    """
+    global _OVERLAY
+    _OVERLAY = overlay
+
+
+def shipped(locale: str) -> dict[str, Any]:
+    """The copy this repository ships, ignoring anything an editor changed.
+
+    The overlay itself reads through this — merging its rows over
+    :func:`content` would call back into the overlay and recurse — and so does
+    seeding, which must copy what was written here rather than what is already
+    stored.
+    """
+    return _BY_LOCALE.get(locale, AR)
+
 
 def content(locale: str) -> dict[str, Any]:
-    """Copy for ``locale``, falling back to Arabic."""
-    return _BY_LOCALE.get(locale, AR)
+    """Copy for ``locale``, falling back to Arabic.
+
+    With an overlay installed this is the edited copy; without one, or with a
+    database that cannot be reached, it is exactly what :func:`shipped`
+    returns.
+    """
+    if _OVERLAY is not None:
+        return _OVERLAY.content(locale)
+    return shipped(locale)
 
 
 def _indexed(locale: str, key: str, id_key: str) -> dict[str, Any]:

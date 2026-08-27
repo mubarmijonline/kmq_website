@@ -82,3 +82,28 @@ def normalise_saudi_phone(value: str) -> str | None:
 
 def collapse_spaces(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
+
+
+#: An article body is plain text, not HTML: it is written in a textarea by
+#: whoever is on the marketing team that month, and rendering their input as
+#: markup would make every article an injection surface. Two conventions are
+#: honoured, both of which survive being pasted out of a Word document —
+#: a blank line starts a paragraph, and a line opening with ## is a
+#: subheading.
+_HEADING = "##"
+
+
+def blocks(body: str) -> list[tuple[str, str]]:
+    """Split an article body into ``("h" | "p", text)`` pairs."""
+    if not body:
+        return []
+    out: list[tuple[str, str]] = []
+    for chunk in re.split(r"\n\s*\n", body.replace("\r\n", "\n").strip()):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if chunk.startswith(_HEADING):
+            out.append(("h", chunk.lstrip("#").strip()))
+        else:
+            out.append(("p", collapse_spaces(chunk.replace("\n", " "))))
+    return out

@@ -27,8 +27,10 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import threading
 import time
+from contextlib import contextmanager
 from typing import Any
 
 from . import content as C
@@ -57,6 +59,27 @@ NATURAL_KEYS = {
 #: Scalar lists — list[str] rather than list[dict]. Stored as {"value": ...}.
 SCALAR_KINDS = ("war_rows", "not_covered", "conditions", "tags")
 
+#: The one collection that is not a document. A branch carries an E.164 check
+#: on two columns, an HTTPS check on a third, and a foreign key from every lead
+#: and every warranty; those constraints are why the table exists. So the
+#: branch list is read out of `branch` rather than out of content_entry, and
+#: seeding fills the table's display columns instead of writing documents.
+BRANCH_KIND = "branches"
+
+#: How a branch row becomes the dict the templates already expect, per locale.
+#: ``city_en`` is not a column: it is ``city`` upper-cased, which is what the
+#: copy file spells out for all six branches.
+_BRANCH_COLUMNS = {
+    "ar": {"name": "name_ar", "city": "city_ar", "location": "location_ar",
+           "short": "short_ar", "hours": "hours_ar"},
+    "en": {"name": "name_en", "city": "city", "location": "location_en",
+           "short": "short_en", "hours": "hours_en"},
+}
+
+#: Shared by both locales: a phone number is a phone number.
+_BRANCH_SHARED = {"phone": "phone_e164", "whatsapp": "whatsapp_e164",
+                  "map_url": "map_url"}
+
 #: Settings that live in site_setting, with the environment variable that
 #: overrides each. A deploy must be able to pin a value no admin can change.
 SETTINGS = {
@@ -66,8 +89,13 @@ SETTINGS = {
 
 
 def collection_kinds() -> tuple[str, ...]:
-    """Every list key in the locale dicts, derived rather than enumerated."""
-    return tuple(k for k, v in C.AR.items() if isinstance(v, list))
+    """Every list key in the locale dicts that is stored as a document.
+
+    Derived rather than enumerated, less :data:`BRANCH_KIND`, which lives in
+    its own table.
+    """
+    return tuple(k for k, v in C.AR.items()
+                 if isinstance(v, list) and k != BRANCH_KIND)
 
 
 def copy_keys() -> tuple[str, ...]:
@@ -103,33 +131,33 @@ class Overlay:
         self._copy: dict[str, dict[str, str]] = {}
         # locale -> {kind: [row, ...]}
         self._lists: dict[str, dict[str, list[Any]]] = {}
+        # locale -> the shipped dict with both of the above merged over it
+        self._merged: dict[str, dict[str, Any]] = {}
         self._settings: dict[str, str] = {}
 
     # -- Public -----------------------------------------------------------
 
     def content(self, locale: str) -> dict[str, Any]:
-        """The locale dict with every edit applied."""
-        base = C.content(locale)
+        """The locale dict with every edit applied.
+
+        Merged once per rebuild rather than once per call: this runs several
+        times a request, and a request that changes nothing should cost a
+        dictionary lookup.
+        """
         self._refresh_if_stale()
-
-        copy = self._copy.get(locale)
-        lists = self._lists.get(locale)
-        if not copy and not lists:
-            return base
-
-        merged = dict(base)
-        if copy:
-            merged.update(copy)
-        if lists:
-            merged.update(lists)
-        return merged
+        return self._merged.get(locale) or C.shipped(locale)
 
     def setting(self, name: str, default: Any = None) -> Any:
         self._refresh_if_stale()
         return self._settings.get(name, default)
 
     def invalidate(self) -> None:
-        """Force the next read to rebuild. Called after a write in-process."""
+        """Force the next read to rebuild. Called after a write in-process.
+
+        The snapshot itself is left in place, so a rebuild that fails against
+        an unreachable database keeps serving the last good copy instead of
+        falling back to the shipped one mid-edit.
+        """
         with self._lock:
             self._checked_at = 0.0
             self._version = None
@@ -199,6 +227,17 @@ class Overlay:
             for row in conn.execute("SELECT key, value FROM site_setting").fetchall():
                 settings[row["key"]] = row["value"]
 
+            branch_rows = conn.execute(
+                """
+                SELECT id, city, city_ar, sort_order, name_ar, name_en,
+                       location_ar, location_en, short_ar, short_en,
+                       phone_e164, whatsapp_e164, hours_ar, hours_en, map_url
+                  FROM branch
+                 WHERE is_published
+                 ORDER BY sort_order, id
+                """
+            ).fetchall()
+
         lists: dict[str, dict[str, list[Any]]] = {}
         for locale, kinds in raw.items():
             out: dict[str, list[Any]] = {}
@@ -210,8 +249,21 @@ class Overlay:
                     out[kind] = [_revive(r[1]) for r in rows]
             lists[locale] = out
 
+        for locale in C.LOCALES:
+            branches = [_branch_dict(row, locale) for row in branch_rows]
+            if branches:
+                lists.setdefault(locale, {})[BRANCH_KIND] = branches
+
+        merged: dict[str, dict[str, Any]] = {}
+        for locale in C.LOCALES:
+            snapshot = dict(C.shipped(locale))
+            snapshot.update(copy.get(locale, {}))
+            snapshot.update(lists.get(locale, {}))
+            merged[locale] = snapshot
+
         self._copy = copy
         self._lists = lists
+        self._merged = merged
         self._settings = settings
 
 
@@ -227,6 +279,39 @@ def _revive(data: dict[str, Any]) -> dict[str, Any]:
         if key in row and row[key] is None:
             row[key] = C.TBD
     return row
+
+
+def _branch_dict(row: dict[str, Any], locale: str) -> dict[str, Any]:
+    """One branch row as the dict the templates already read.
+
+    The shipped branch of the same id is the base, so a column nobody has
+    filled shows the copy the site was deployed with rather than a blank —
+    the same fallback a copy string gets. A column that is null where the
+    shipped copy has nothing either resolves to ``TBD``, which is what prints
+    "to be confirmed".
+    """
+    base = dict(_shipped_branch(locale, row["id"]))
+    base["id"] = row["id"]
+    base["city_en"] = (row["city"] or "").upper() or base.get("city_en", "")
+
+    for key, column in _BRANCH_COLUMNS[locale].items():
+        if row.get(column):
+            base[key] = row[column]
+    for key, column in _BRANCH_SHARED.items():
+        base[key] = row[column] if row.get(column) else C.TBD
+
+    base.setdefault("whatsapp", C.TBD)
+    return base
+
+
+def _shipped_branch(locale: str, bid: str) -> dict[str, Any]:
+    for row in C.shipped(locale)[BRANCH_KIND]:
+        if row["id"] == bid:
+            return row
+    # A branch the copy file never had. Everything the templates read is
+    # present, and anything the columns do not supply prints as pending.
+    return {"id": bid, "name": "", "city": "", "location": "", "short": "",
+            "city_en": "", "phone": C.TBD, "hours": C.TBD, "map_url": C.TBD}
 
 
 def _flatten(row: Any) -> Any:
@@ -249,7 +334,7 @@ def seed(database, *, force: bool = False) -> dict[str, int]:
     Idempotent. Existing rows are left alone unless ``force``, so re-running
     this after an editor has made changes does not undo them.
     """
-    counts = {"copy": 0, "entries": 0, "settings": 0}
+    counts = {"copy": 0, "entries": 0, "settings": 0, "branches": 0}
     conflict = "DO UPDATE SET value = EXCLUDED.value" if force else "DO NOTHING"
     entry_conflict = (
         "DO UPDATE SET data = EXCLUDED.data, sort_order = EXCLUDED.sort_order"
@@ -258,7 +343,7 @@ def seed(database, *, force: bool = False) -> dict[str, int]:
 
     with database.cursor() as conn:
         for locale in C.LOCALES:
-            base = C.content(locale)
+            base = C.shipped(locale)
 
             for key in copy_keys():
                 result = conn.execute(
@@ -295,9 +380,72 @@ def seed(database, *, force: bool = False) -> dict[str, int]:
                     )
                     counts["entries"] += result.rowcount or 0
 
+        counts["branches"] = _seed_branches(conn, force=force)
+
+        # Branches were documents until migration 003 moved them into their own
+        # table. Anything left in content_entry under that kind is ignored by
+        # the overlay; clearing it keeps the store from carrying two answers.
+        conn.execute("DELETE FROM content_entry WHERE kind = %s", (BRANCH_KIND,))
+
         conn.commit()
 
     return counts
+
+
+def _seed_branches(conn, *, force: bool) -> int:
+    """Fill the branch table's display columns from the shipped copy.
+
+    Only writes columns that are still null, and only touches a row that has
+    one — so a second run reports nothing written, and an edited branch keeps
+    its edit. ``force`` overwrites them, like the rest of the seed. Rows are
+    never created here: a branch is a place with a foreign key pointing at it
+    from every lead, and inventing one from a copy file is not the seeder's
+    call.
+    """
+    written = 0
+    shipped = {
+        locale: {row["id"]: row for row in C.shipped(locale)[BRANCH_KIND]}
+        for locale in C.LOCALES
+    }
+
+    for row in conn.execute("SELECT id FROM branch").fetchall():
+        ar = shipped["ar"].get(row["id"])
+        en = shipped["en"].get(row["id"])
+        if ar is None or en is None:
+            continue
+
+        # The copy file leaves hours pending for every branch, so _text gives
+        # None and the column is left out entirely rather than seeded with a
+        # blank that would read as "known to be empty".
+        values = {
+            "city_ar": _text(ar["city"]),
+            "short_ar": _text(ar["short"]),
+            "short_en": _text(en["short"]),
+            "hours_ar": _text(ar["hours"]),
+            "hours_en": _text(en["hours"]),
+        }
+        columns = [name for name, value in values.items() if value is not None]
+        if not columns:
+            continue
+
+        params = {name: values[name] for name in columns} | {"id": row["id"]}
+        assignment = ", ".join(f"{name} = %({name})s" for name in columns)
+        unfilled = " OR ".join(f"{name} IS NULL" for name in columns)
+        clause = "" if force else f" AND ({unfilled})"
+
+        result = conn.execute(
+            f"UPDATE branch SET {assignment} WHERE id = %(id)s{clause}", params
+        )
+        written += result.rowcount or 0
+    return written
+
+
+def _text(value: Any) -> str | None:
+    """A storable string, or ``None`` for the pending sentinel and blanks."""
+    if value is C.TBD or value is None:
+        return None
+    value = str(value).strip()
+    return value or None
 
 
 def bump_version(conn) -> None:
@@ -305,3 +453,337 @@ def bump_version(conn) -> None:
     conn.execute(
         "UPDATE content_version SET version = version + 1, bumped_at = now()"
     )
+
+
+# --------------------------------------------------------------------------
+# Writing
+# --------------------------------------------------------------------------
+# Every mutating admin action runs inside :func:`writing`. It bumps
+# content_version in the same transaction as the edit, so the two can never
+# disagree: an edit that commits is always an edit the other worker will see,
+# and an edit that rolls back never moves the counter.
+
+@contextmanager
+def writing(database):
+    """A transaction that publishes whatever it changed.
+
+    Usage::
+
+        with store.writing(db) as conn:
+            before = store.set_copy(conn, locale="ar", key="hero_sub", ...)
+            audit.record(conn, actor, "update", "copy", ...)
+
+    The audit row is written on the same connection deliberately — an edit the
+    audit log has no record of is worse than no edit at all.
+    """
+    with database.cursor() as conn:
+        try:
+            yield conn
+        except Exception:
+            conn.rollback()
+            raise
+        bump_version(conn)
+        conn.commit()
+
+
+def set_copy(conn, *, locale: str, key: str, value: str,
+             actor_id: int | None) -> str | None:
+    """Store one flat string. Returns the value it replaced, or ``None``."""
+    row = conn.execute(
+        "SELECT value FROM copy_string WHERE locale = %s AND key = %s",
+        (locale, key),
+    ).fetchone()
+    conn.execute(
+        """
+        INSERT INTO copy_string (locale, key, value, updated_at, updated_by)
+        VALUES (%(locale)s, %(key)s, %(value)s, now(), %(actor)s)
+        ON CONFLICT (locale, key) DO UPDATE
+           SET value = EXCLUDED.value,
+               updated_at = now(),
+               updated_by = EXCLUDED.updated_by
+        """,
+        {"locale": locale, "key": key, "value": value, "actor": actor_id},
+    )
+    return row["value"] if row else None
+
+
+def revert_copy(conn, *, locale: str, key: str) -> str | None:
+    """Delete a stored string so the shipped copy stands again.
+
+    This is the only rollback the design has, and it is why seeding writes
+    every key rather than only the edited ones: with a full seed, reverting is
+    a re-seed of one row; without it, it is a deletion.
+    """
+    row = conn.execute(
+        "DELETE FROM copy_string WHERE locale = %s AND key = %s RETURNING value",
+        (locale, key),
+    ).fetchone()
+    return row["value"] if row else None
+
+
+def set_entry(conn, *, kind: str, slug: str, locale: str, data: dict[str, Any],
+              sort_order: int | None = None, is_published: bool | None = None,
+              actor_id: int | None) -> dict[str, Any] | None:
+    """Store one collection record. Returns the row it replaced.
+
+    ``sort_order`` and ``is_published`` are left as they were when omitted, so
+    saving an editor's form does not silently reorder or unpublish a record the
+    form never showed.
+    """
+    before = conn.execute(
+        """
+        SELECT sort_order, is_published, data
+          FROM content_entry
+         WHERE kind = %s AND slug = %s AND locale = %s
+        """,
+        (kind, slug, locale),
+    ).fetchone()
+
+    if sort_order is None:
+        sort_order = before["sort_order"] if before else _next_sort(conn, kind, locale)
+    if is_published is None:
+        is_published = before["is_published"] if before else True
+
+    conn.execute(
+        """
+        INSERT INTO content_entry (kind, slug, locale, sort_order,
+                                   is_published, data, updated_at, updated_by)
+        VALUES (%(kind)s, %(slug)s, %(locale)s, %(sort)s, %(published)s,
+                %(data)s::jsonb, now(), %(actor)s)
+        ON CONFLICT (kind, slug, locale) DO UPDATE
+           SET sort_order = EXCLUDED.sort_order,
+               is_published = EXCLUDED.is_published,
+               data = EXCLUDED.data,
+               updated_at = now(),
+               updated_by = EXCLUDED.updated_by
+        """,
+        {
+            "kind": kind, "slug": slug, "locale": locale, "sort": sort_order,
+            "published": is_published,
+            "data": json.dumps(_flatten(data), ensure_ascii=False),
+            "actor": actor_id,
+        },
+    )
+    return dict(before) if before else None
+
+
+def set_published(conn, *, kind: str, slug: str, published: bool,
+                  actor_id: int | None) -> None:
+    """Publish or unpublish a record in *both* locales.
+
+    Publication is a property of the record, not of one of its translations:
+    an Arabic service that is live while its English twin is hidden would give
+    the language switcher a page to switch to that does not exist.
+    """
+    conn.execute(
+        """
+        UPDATE content_entry
+           SET is_published = %(published)s, updated_at = now(),
+               updated_by = %(actor)s
+         WHERE kind = %(kind)s AND slug = %(slug)s
+        """,
+        {"kind": kind, "slug": slug, "published": published, "actor": actor_id},
+    )
+
+
+def reorder(conn, *, kind: str, slugs: list[str], actor_id: int | None) -> None:
+    """Give ``slugs`` positions 0..n-1, in both locales."""
+    for position, slug in enumerate(slugs):
+        conn.execute(
+            """
+            UPDATE content_entry
+               SET sort_order = %(sort)s, updated_at = now(),
+                   updated_by = %(actor)s
+             WHERE kind = %(kind)s AND slug = %(slug)s
+            """,
+            {"kind": kind, "slug": slug, "sort": position, "actor": actor_id},
+        )
+
+
+def set_setting(conn, *, key: str, value: str, actor_id: int | None) -> str | None:
+    """Store one site setting. Returns the value it replaced."""
+    row = conn.execute(
+        "SELECT value FROM site_setting WHERE key = %s", (key,)
+    ).fetchone()
+    if value == "":
+        conn.execute("DELETE FROM site_setting WHERE key = %s", (key,))
+    else:
+        conn.execute(
+            """
+            INSERT INTO site_setting (key, value, updated_at, updated_by)
+            VALUES (%(key)s, %(value)s, now(), %(actor)s)
+            ON CONFLICT (key) DO UPDATE
+               SET value = EXCLUDED.value, updated_at = now(),
+                   updated_by = EXCLUDED.updated_by
+            """,
+            {"key": key, "value": value, "actor": actor_id},
+        )
+    return row["value"] if row else None
+
+
+def _next_sort(conn, kind: str, locale: str) -> int:
+    row = conn.execute(
+        """
+        SELECT coalesce(max(sort_order) + 1, 0) AS next
+          FROM content_entry WHERE kind = %s AND locale = %s
+        """,
+        (kind, locale),
+    ).fetchone()
+    return int(row["next"]) if row else 0
+
+
+# --------------------------------------------------------------------------
+# Reading for the editors
+# --------------------------------------------------------------------------
+# The overlay above serves the public site and therefore hides unpublished
+# records. The admin has to see them, so it reads through these instead.
+
+def entries(database, kind: str) -> list[dict[str, Any]]:
+    """Every record of ``kind``, both locales, ordered, unpublished included.
+
+    Shaped as one row per slug carrying both translations, because that is how
+    the editors present them — Arabic and English side by side, one save.
+    """
+    with database.cursor() as conn:
+        rows = conn.execute(
+            """
+            SELECT slug, locale, sort_order, is_published, data, updated_at
+              FROM content_entry
+             WHERE kind = %s
+             ORDER BY sort_order, slug
+            """,
+            (kind,),
+        ).fetchall()
+
+    merged: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        record = merged.setdefault(row["slug"], {
+            "slug": row["slug"],
+            "sort_order": row["sort_order"],
+            "is_published": row["is_published"],
+            "updated_at": row["updated_at"],
+            "data": {},
+        })
+        record["data"][row["locale"]] = _revive(row["data"])
+        # An unpublished translation unpublishes the record; see set_published.
+        record["is_published"] = record["is_published"] and row["is_published"]
+    return sorted(merged.values(), key=lambda r: (r["sort_order"], r["slug"]))
+
+
+def entry(database, kind: str, slug: str) -> dict[str, Any] | None:
+    """One record of ``kind`` by slug, both locales, or ``None``."""
+    for row in entries(database, kind):
+        if row["slug"] == slug:
+            return row
+    return None
+
+
+def copy_rows(database, keys: tuple[str, ...] | list[str]) -> dict[str, dict[str, str]]:
+    """``{key: {locale: value}}`` for ``keys``, stored values over shipped.
+
+    Falls back key by key rather than wholesale: a string nobody has edited
+    shows the editor exactly what the visitor is seeing.
+    """
+    values: dict[str, dict[str, str]] = {
+        key: {loc: C.shipped(loc).get(key, "") for loc in C.LOCALES}
+        for key in keys
+    }
+    if not keys:
+        return values
+    with database.cursor() as conn:
+        rows = conn.execute(
+            "SELECT locale, key, value FROM copy_string WHERE key = ANY(%s)",
+            (list(keys),),
+        ).fetchall()
+    for row in rows:
+        if row["key"] in values and row["locale"] in C.LOCALES:
+            values[row["key"]][row["locale"]] = row["value"]
+    return values
+
+
+def settings(database) -> dict[str, str]:
+    """Stored settings, ignoring the environment. For the settings editor."""
+    with database.cursor() as conn:
+        rows = conn.execute("SELECT key, value FROM site_setting").fetchall()
+    return {row["key"]: row["value"] for row in rows}
+
+
+def pinned_by_environment(name: str) -> bool:
+    """Whether a deploy has pinned ``name``, making the admin's copy inert.
+
+    The editor shows this rather than silently accepting an edit that the
+    environment will keep overriding.
+    """
+    variable = SETTINGS.get(name)
+    return bool(variable) and os.environ.get(variable) is not None
+
+
+# --------------------------------------------------------------------------
+# Branches
+# --------------------------------------------------------------------------
+# The typed half of the store. Everything above stores documents; a branch
+# stores columns, because the E.164 checks, the HTTPS check and the foreign
+# keys from lead and warranty are worth more than uniformity.
+
+#: Columns the branch editor writes. `id` and `created_at` are not among them:
+#: an id is referenced by leads and warranties and never changes.
+BRANCH_FIELDS = ("city", "city_ar", "name_ar", "name_en", "location_ar",
+                 "location_en", "short_ar", "short_en", "phone_e164",
+                 "whatsapp_e164", "hours_ar", "hours_en", "map_url",
+                 "sort_order", "is_published")
+
+
+def branches(database) -> list[dict[str, Any]]:
+    """Every branch, unpublished included, in display order."""
+    with database.cursor() as conn:
+        return conn.execute(
+            f"""
+            SELECT id, created_at, updated_at, {", ".join(BRANCH_FIELDS)}
+              FROM branch
+             ORDER BY sort_order, id
+            """
+        ).fetchall()
+
+
+def branch(database, bid: str) -> dict[str, Any] | None:
+    with database.cursor() as conn:
+        return conn.execute(
+            f"""
+            SELECT id, created_at, updated_at, {", ".join(BRANCH_FIELDS)}
+              FROM branch WHERE id = %s
+            """,
+            (bid,),
+        ).fetchone()
+
+
+def set_branch(conn, *, bid: str, values: dict[str, Any],
+               actor_id: int | None) -> dict[str, Any] | None:
+    """Update one branch. Returns the row as it was, or ``None`` if unknown.
+
+    Only the keys present in ``values`` are written, so a form that shows six
+    fields cannot blank the other nine. The database still has the final word
+    on the phone numbers and the map link — the checks live there because the
+    back office writes this table too.
+    """
+    before = conn.execute(
+        f"SELECT id, {', '.join(BRANCH_FIELDS)} FROM branch WHERE id = %s",
+        (bid,),
+    ).fetchone()
+    if before is None:
+        return None
+
+    columns = [name for name in values if name in BRANCH_FIELDS]
+    if not columns:
+        return dict(before)
+
+    params = {name: values[name] for name in columns} | {"id": bid, "actor": actor_id}
+    assignment = ", ".join(f"{name} = %({name})s" for name in columns)
+    conn.execute(
+        f"""
+        UPDATE branch
+           SET {assignment}, updated_at = now(), updated_by = %(actor)s
+         WHERE id = %(id)s
+        """,
+        params,
+    )
+    return dict(before)

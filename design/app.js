@@ -13,6 +13,12 @@
 
   function on(el, ev, fn, opts) { if (el) el.addEventListener(ev, fn, opts); }
 
+  function refreshMotion(delay) {
+    window.setTimeout(function () {
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh(true);
+    }, delay || 0);
+  }
+
   /* ---- Header: opaque past 40px --------------------------------------- */
 
   (function header() {
@@ -37,6 +43,7 @@
     function set(open) {
       btn.setAttribute('aria-expanded', String(open));
       nav.setAttribute('data-open', String(open));
+      refreshMotion();
     }
 
     on(btn, 'click', function () {
@@ -156,6 +163,7 @@
       else url.searchParams.delete('q');
       url.searchParams.delete('page');
       window.history.replaceState(null, '', url);
+      refreshMotion();
     }
 
     on(input, 'input', function () {
@@ -191,7 +199,10 @@
       /* Animate rows rather than max-height: it resolves to the answer's
          real height, so long answers are never clipped. */
       panel.style.transition = 'grid-template-rows .3s cubic-bezier(.4,0,.2,1)';
-      var sync = function () { panel.style.gridTemplateRows = item.open ? '1fr' : '0fr'; };
+      var sync = function () {
+        panel.style.gridTemplateRows = item.open ? '1fr' : '0fr';
+        refreshMotion(320);
+      };
       sync();
       on(item, 'toggle', sync);
     });

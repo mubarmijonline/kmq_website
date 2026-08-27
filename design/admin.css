@@ -1,0 +1,201 @@
+/* ==========================================================================
+   Admin
+   --------------------------------------------------------------------------
+   A working surface, not a showroom. It borrows the palette from tokens.css
+   so staff never see a second brand, and borrows nothing else: no hero
+   layers, no weave, no clamp() type. Density and legibility at 14-16px are
+   what a person editing 142 strings needs.
+
+   English-only and LTR by design — this is one interface for the team, not a
+   bilingual public page. The *fields* inside it are bilingual, and the ones
+   holding Arabic set dir="rtl" on themselves.
+   ========================================================================== */
+
+.adm {
+  --adm-rail: 232px;
+  --adm-gap: 20px;
+  --adm-radius: 10px;
+  --adm-field: #0F1015;
+  --adm-panel: #121319;
+  --adm-line: rgba(245, 245, 240, .12);
+  --adm-ok: #4CC38A;
+  --adm-warn: #E0B341;
+  --adm-bad: #E5675C;
+
+  min-height: 100vh;
+  background: var(--kmq-bg);
+  color: var(--kmq-ink);
+  font-family: var(--kmq-font-latin);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.adm a { color: var(--kmq-blue-hi); }
+.adm h1, .adm h2, .adm h3 { line-height: 1.25; margin: 0; font-weight: 600; }
+.adm h1 { font-size: 24px; }
+.adm h2 { font-size: 18px; }
+.adm h3 { font-size: 15px; }
+
+/* -- Frame ---------------------------------------------------------------- */
+
+.adm__frame { display: grid; grid-template-columns: var(--adm-rail) 1fr; min-height: 100vh; }
+
+.adm__rail {
+  border-inline-end: 1px solid var(--adm-line);
+  background: var(--kmq-bg-sunk);
+  padding: 22px 0;
+  display: flex; flex-direction: column; gap: 26px;
+}
+
+.adm__brand {
+  display: flex; align-items: center; gap: 10px;
+  padding-inline: 20px;
+  letter-spacing: var(--kmq-track-code);
+  text-transform: uppercase;
+  font-size: 13px;
+  color: var(--kmq-ink-70);
+}
+.adm__brand img { height: 26px; width: auto; }
+
+.adm__nav { display: flex; flex-direction: column; }
+.adm__nav a {
+  padding: 9px 20px;
+  color: var(--kmq-ink-70);
+  text-decoration: none;
+  border-inline-start: 2px solid transparent;
+  font-size: 14px;
+}
+.adm__nav a:hover { background: var(--kmq-bg-hover); color: var(--kmq-ink); }
+.adm__nav a[aria-current="page"] {
+  color: var(--kmq-blue-hi);
+  border-inline-start-color: var(--kmq-blue);
+  background: var(--kmq-blue-wash);
+}
+
+.adm__who { margin-top: auto; padding: 0 20px; font-size: 13px; color: var(--kmq-ink-55); }
+.adm__who strong { display: block; color: var(--kmq-ink); font-weight: 500; }
+
+.adm__main { padding: 26px clamp(20px, 3vw, 38px) 60px; min-width: 0; }
+.adm__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.adm__head p { margin: 6px 0 0; color: var(--kmq-ink-60); font-size: 14px; max-width: 70ch; }
+
+/* -- Panels and tables ---------------------------------------------------- */
+
+.adm-panel {
+  background: var(--adm-panel);
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  padding: 18px 20px;
+}
+.adm-panel + .adm-panel { margin-top: var(--adm-gap); }
+.adm-panel__title { font-size: 12px; letter-spacing: var(--kmq-track-code); text-transform: uppercase; color: var(--kmq-ink-55); margin-bottom: 12px; }
+
+.adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.adm-table th {
+  text-align: start; font-weight: 500; color: var(--kmq-ink-55);
+  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  padding: 0 12px 8px 0; border-bottom: 1px solid var(--adm-line);
+}
+.adm-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--kmq-line-soft); vertical-align: top; }
+.adm-table tr:last-child td { border-bottom: 0; }
+.adm-table time, .adm-table code { font-family: var(--kmq-font-meta); font-size: 13px; color: var(--kmq-ink-60); }
+
+.adm-empty { color: var(--kmq-ink-45); font-size: 14px; padding: 10px 0; }
+
+/* -- Forms ---------------------------------------------------------------- */
+
+.adm-form { display: flex; flex-direction: column; gap: 16px; }
+.adm-field { display: flex; flex-direction: column; gap: 6px; }
+.adm-field label { font-size: 13px; color: var(--kmq-ink-70); }
+.adm-field input, .adm-field textarea, .adm-field select {
+  background: var(--adm-field);
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  color: var(--kmq-ink);
+  font: inherit;
+  padding: 9px 11px;
+  width: 100%;
+}
+.adm-field textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+.adm-field input:focus-visible, .adm-field textarea:focus-visible, .adm-field select:focus-visible {
+  outline: 2px solid var(--kmq-blue); outline-offset: 1px; border-color: transparent;
+}
+.adm-field__hint { font-size: 12px; color: var(--kmq-ink-45); }
+
+/* Arabic values inside an LTR interface. The attribute does the work; this
+   only gives them the face they wear on the public site. */
+.adm-field [dir="rtl"], .adm-field input[dir="rtl"], .adm-field textarea[dir="rtl"] {
+  font-family: var(--kmq-font-ar-body);
+  line-height: 1.9;
+}
+
+.adm-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid transparent; border-radius: 8px;
+  padding: 9px 16px;
+  font: inherit; font-weight: 500;
+  cursor: pointer;
+  background: var(--kmq-grad-cta); color: #17130A;
+}
+.adm-btn:hover { filter: brightness(1.06); }
+.adm-btn--ghost { background: transparent; border-color: var(--adm-line); color: var(--kmq-ink); }
+.adm-btn--ghost:hover { border-color: var(--kmq-blue-50); color: var(--kmq-blue-hi); filter: none; }
+.adm-btn--danger { background: transparent; border-color: rgba(229, 103, 92, .45); color: var(--adm-bad); }
+.adm-actions { display: flex; gap: 10px; align-items: center; }
+
+/* -- Messages ------------------------------------------------------------- */
+
+.adm-note {
+  border: 1px solid var(--adm-line);
+  border-inline-start: 3px solid var(--kmq-blue);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: var(--kmq-blue-wash);
+  margin-bottom: 18px;
+}
+.adm-note--bad { border-inline-start-color: var(--adm-bad); background: rgba(229, 103, 92, .08); }
+.adm-note--ok { border-inline-start-color: var(--adm-ok); background: rgba(76, 195, 138, .08); }
+
+.adm-tag {
+  display: inline-block; font-family: var(--kmq-font-meta); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: 2px 7px; border-radius: 999px; border: 1px solid var(--adm-line);
+  color: var(--kmq-ink-60);
+}
+.adm-tag--ok { color: var(--adm-ok); border-color: rgba(76, 195, 138, .4); }
+.adm-tag--warn { color: var(--adm-warn); border-color: rgba(224, 179, 65, .4); }
+.adm-tag--bad { color: var(--adm-bad); border-color: rgba(229, 103, 92, .4); }
+
+/* -- Sign-in -------------------------------------------------------------- */
+/* The one page with no frame: no rail, no nav, nothing to navigate to. */
+
+.adm-gate { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.adm-gate__card { width: min(420px, 100%); }
+.adm-gate__mark { display: block; height: 46px; margin: 0 auto 26px; }
+.adm-gate h1 { font-size: 20px; text-align: center; margin-bottom: 6px; }
+.adm-gate__sub { text-align: center; color: var(--kmq-ink-55); font-size: 14px; margin-bottom: 22px; }
+.adm-gate .adm-btn { width: 100%; justify-content: center; }
+.adm-gate__foot { text-align: center; margin-top: 20px; font-size: 13px; color: var(--kmq-ink-45); }
+
+/* -- Narrow --------------------------------------------------------------- */
+
+@media (max-width: 860px) {
+  .adm__frame { grid-template-columns: 1fr; }
+  .adm__rail { flex-direction: row; align-items: center; gap: 14px; padding: 12px 0; overflow-x: auto; }
+  .adm__nav { flex-direction: row; }
+  .adm__nav a { white-space: nowrap; border-inline-start: 0; border-block-end: 2px solid transparent; }
+  .adm__nav a[aria-current="page"] { border-block-end-color: var(--kmq-blue); }
+  .adm__who { margin: 0; }
+}
+
+/* -- Bilingual pairs ------------------------------------------------------ */
+/* Arabic and English side by side, stacking on a narrow screen. The pair is
+   the whole point of the editors: a string is never edited in one language
+   without the other in view. */
+
+.adm-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 14px 18px;
+}

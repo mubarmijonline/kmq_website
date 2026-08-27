@@ -22,12 +22,21 @@ brand, its own project directory.
 | `app/routes.py` | The 42 URLs |
 | `app/forms.py` | Lead-form validation |
 | `app/text.py` | Saudi phone and plate/invoice normalisation |
-| `app/db.py` | The only two queries: write a lead, read a warranty |
+| `app/db.py` | The public site's two queries: write a lead, read a warranty |
+| `app/store.py` | The editable-content store and the overlay over `content.py` |
+| `app/editors.py` | What the admin lets people edit: copy groups, record specs |
+| `app/auth.py` | Admin accounts, sessions, roles, CSRF, the sign-in throttle |
+| `app/admin.py` | The `/admin` blueprint |
+| `app/audit.py` | Who changed what, when |
+| `db/migrations/002_admin.sql` | The admin and content-store tables |
+| `db/migrations/003_branch_editable.sql` | Branch display strings, in both languages |
 | `db/schema.sql` | PostgreSQL schema. Applies clean to PG 16.14 |
 | `db/test_schema.sql` | 22 constraint checks. Runnable |
-| `design/` | Design system: tokens, base, components, `app.js` |
+| `design/` | Design system: tokens, base, components, `app.js`, `admin.css` |
+| `templates/partials/icons.html` | The client's icon kit, generated from `WEBSITE/` by `scripts/build_icons.py` |
+| `static/img/pay/tamara-mark.png` | The Tamara wordmark, cut off its brand pill by `scripts/build_paymarks.py` |
 | `templates/` | Jinja templates, one per page |
-| `tests/` | 142 checks, no database required |
+| `tests/` | 162 checks without a database, 188 with one |
 | `static/build/` | Generated CSS/JS. Not in git |
 
 ## Run it

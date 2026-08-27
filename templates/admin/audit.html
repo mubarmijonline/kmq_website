@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+{% block title %}Audit{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>Audit</h1>
+    <p>Every change made through the admin, newest first. Read-only: an audit
+       trail an admin can edit is not one.</p>
+  </div>
+</div>
+
+<div class="adm-panel">
+  <form class="adm-actions" method="get">
+    <div class="adm-field">
+      <label for="entity">Entity</label>
+      <select id="entity" name="entity">
+        <option value="">All</option>
+        {% for name in entities %}
+          <option value="{{ name }}" {% if name == entity %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="adm-field">
+      <label for="action">Action</label>
+      <select id="action" name="action">
+        <option value="">All</option>
+        {% for name in actions %}
+          <option value="{{ name }}" {% if name == action %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="adm-btn adm-btn--ghost" type="submit" style="align-self:end">Filter</button>
+  </form>
+</div>
+
+<div class="adm-panel">
+  {% if rows %}
+    <table class="adm-table">
+      <thead>
+        <tr><th>When</th><th>Who</th><th>Action</th><th>What</th><th>Was</th><th>Now</th></tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td><time datetime="{{ row.at.isoformat() }}">{{ row.at.strftime('%Y-%m-%d %H:%M') }}</time></td>
+          <td>{{ row.actor_email }}</td>
+          <td>{{ row.action }}</td>
+          <td>{{ row.entity }}{% if row.entity_id %} <code>{{ row.entity_id }}</code>{% endif %}</td>
+          <td>{{ row.before_value | tojson if row.before_value is not none else '—' }}</td>
+          <td>{{ row.after_value | tojson if row.after_value is not none else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="adm-empty">Nothing recorded for this filter.</p>
+  {% endif %}
+</div>
+{% endblock %}
