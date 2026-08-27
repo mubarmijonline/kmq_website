@@ -113,7 +113,7 @@
 
       <dl class="kmq-pkg__warranty">
         <dt>{{ t.warranty_label }}</dt>
-        <dd>{{ p.warranty }}</dd>
+        <dd>{{ p.warranty or t.tbd }}</dd>
       </dl>
 
       {% set link = wa(t.wa_order ~ p.name) %}

@@ -66,7 +66,8 @@ ICONS = {
 # --------------------------------------------------------------------------
 
 SERVICE_SLUGS = ("ppf-gloss", "ppf-matte", "nano-ceramic", "window-tint", "colour-change")
-PACKAGE_SLUGS = ("gloss", "matte", "colour-change", "nano-ceramic", "window-tint")
+PACKAGE_SLUGS = ("gloss", "matte", "colour-change", "nano-ceramic", "window-tint",
+                 "front-kit", "quarter-front", "combo")
 BRANCH_IDS = ("al-hamra", "al-rimal", "tuwaiq", "jeddah-madinah-road", "dammam-imam", "dammam-al-manar")
 CATEGORY_SLUGS = ("guides", "comparisons", "pricing", "care", "tinting")
 
@@ -83,9 +84,11 @@ BRANCH_CITY_EN = ("RIYADH", "RIYADH", "RIYADH", "JEDDAH", "DAMMAM", "DAMMAM")
 #: Which package the "most chosen" flag sits on. Gloss, per the design.
 FEATURED_PACKAGE = "gloss"
 
-#: The three packages the home page shows, in order. The design file's
-#: homeOrder was [gloss, matte, window tint].
-HOME_PACKAGES = ("gloss", "matte", "window-tint")
+#: The packages the home page shows, in order. The design file's homeOrder was
+#: [gloss, matte, window tint]; the three partial packages follow it, so the
+#: full-body ones still lead and the row fills to two of three.
+HOME_PACKAGES = ("gloss", "matte", "window-tint",
+                 "front-kit", "quarter-front", "combo")
 
 
 def _svc(slug: str, name: str, tagline: str, icon: str, lede: str,
@@ -317,6 +320,17 @@ AR: dict[str, Any] = {
         _pkg("window-tint", "باقة العازل الحراري",
              "تظليل عازل حراري كامل السيارة",
              "700 – 900", "حسب نوع العازل"),
+        # Warranty terms for the three partial packages are not in the client's
+        # figures. TBD, not carried over from the full-body packages.
+        _pkg("front-kit", "باقة الوجهية",
+             "PPF للواجهة الأمامية",
+             "2,200 – 2,700", TBD),
+        _pkg("quarter-front", "باقة الربع",
+             "PPF لربع الواجهة الأمامية",
+             "1,100 – 1,450", TBD),
+        _pkg("combo", "باقة الكومبو",
+             "الوجهية + التظليل + النانو سيراميك",
+             "3,600 – 4,100", TBD),
     ],
     "addons_title": "إضافات اختيارية",
     "addons": [
@@ -771,6 +785,15 @@ EN: dict[str, Any] = {
         _pkg("window-tint", "Heat Insulation Package",
              "Full-vehicle heat-insulating tint",
              "700 – 900", "Varies by film type"),
+        _pkg("front-kit", "Front End Package",
+             "Front-end PPF",
+             "2,200 – 2,700", TBD),
+        _pkg("quarter-front", "Quarter Front Package",
+             "Quarter front-end PPF",
+             "1,100 – 1,450", TBD),
+        _pkg("combo", "Combo Package",
+             "Front-end PPF + heat-insulating tint + nano ceramic",
+             "3,600 – 4,100", TBD),
     ],
     "addons_title": "Optional add-ons",
     "addons": [
