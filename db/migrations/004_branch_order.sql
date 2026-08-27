@@ -9,11 +9,18 @@
 -- overlay is live the branch cards are ordered by branch.sort_order, not by
 -- the copy file. A deployed database therefore has to be told.
 --
+-- In two passes, because `branch_sort_order_key` is a plain unique index and
+-- is therefore checked row by row: rewriting 1..6 in place fails the moment a
+-- row takes a position another row still holds. Parking every branch above
+-- the range first leaves all six targets free.
+--
 -- Safe to re-run, and safe on a fresh database seeded from schema.sql, where
--- it changes nothing. It does overwrite an order set from the admin, which is
+-- it ends where it started. It does overwrite an order set by hand, which is
 -- the point: this is the client's order, and it is the one being restored.
 
 BEGIN;
+
+UPDATE branch SET sort_order = sort_order + 100 WHERE sort_order < 100;
 
 UPDATE branch SET sort_order = v.position
   FROM (VALUES
@@ -24,7 +31,13 @@ UPDATE branch SET sort_order = v.position
         ('dammam-al-manar',     5),
         ('dammam-imam',         6)
        ) AS v (id, position)
- WHERE branch.id = v.id
-   AND branch.sort_order IS DISTINCT FROM v.position;
+ WHERE branch.id = v.id;
+
+-- A branch added since this was written keeps its order relative to the rest,
+-- after the six the client ranked, rather than staying parked at 100-odd.
+UPDATE branch SET sort_order = ranked.position
+  FROM (SELECT id, 6 + row_number() OVER (ORDER BY sort_order) AS position
+          FROM branch WHERE sort_order >= 100) AS ranked
+ WHERE branch.id = ranked.id;
 
 COMMIT;
