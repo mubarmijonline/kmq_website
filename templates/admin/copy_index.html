@@ -5,23 +5,43 @@
 <div class="adm__head">
   <div>
     <h1>Copy</h1>
-    <p>The site's flat strings, Arabic and English side by side, grouped by the
-       page that uses them. A string edited back to what the site shipped with
-       stops being an edit.</p>
+    <p>Every fixed piece of writing on the site — headings, button labels,
+       form wording, the footer — in Arabic and English side by side. Pick the
+       part of the site you want to change, edit the words, save. The page
+       shows it within five seconds; there is nothing to publish or deploy.</p>
+    <p>Anything that belongs to <em>one thing</em> is edited where that thing
+       is: a package's name and price under
+       <a href="{{ url_for('admin.collection', kind='packages') }}">Packages</a>,
+       a branch's address under
+       <a href="{{ url_for('admin.branches') }}">Branches</a>, an article under
+       <a href="{{ url_for('admin.collection', kind='posts') }}">Journal</a>.
+       This page is the writing <em>around</em> them.</p>
   </div>
 </div>
 
 <div class="adm-panel">
   <div class="adm-scroll">
   <table class="adm-table">
-    <thead><tr><th>Group</th><th>Strings</th><th>Edited</th>
-               <th class="adm-table__actions">Action</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Part of the site</th><th>What it covers</th>
+        <th>Strings</th><th>Changed</th>
+        <th class="adm-table__actions">Action</th>
+      </tr>
+    </thead>
     <tbody>
       {% for group in groups %}
       <tr>
-        <td><a href="{{ url_for('admin.copy_group', slug=group.slug) }}">{{ group.label }}</a></td>
+        <td><strong>{{ group.label }}</strong></td>
+        <td style="max-width:52ch">{{ group.note }}</td>
         <td>{{ group.count }}</td>
-        <td>{% if group.edited %}<span class="adm-tag adm-tag--ok">{{ group.edited }}</span>{% else %}—{% endif %}</td>
+        <td>
+          {% if group.edited %}
+            <span class="adm-tag adm-tag--ok">{{ group.edited }} edited</span>
+          {% else %}
+            <span class="adm-tag">as shipped</span>
+          {% endif %}
+        </td>
         <td class="adm-table__actions">
           <a class="adm-btn adm-btn--ghost adm-btn--small"
              href="{{ url_for('admin.copy_group', slug=group.slug) }}">Edit</a>
@@ -31,5 +51,14 @@
     </tbody>
   </table>
   </div>
+</div>
+
+<div class="adm-panel">
+  <div class="adm-panel__title">If you change your mind</div>
+  <p class="adm-empty">
+    Each string shows the wording the site was built with underneath it once
+    you have changed it. Paste that back and it stops counting as an edit —
+    that is the undo.
+  </p>
 </div>
 {% endblock %}

@@ -156,6 +156,7 @@ NAV = (
     ("admin.collection", "Warranty page", "editor", {"kind": "warranty_blocks"}),
     ("admin.leads_inbox", "Leads", "editor", {}),
     ("admin.lists", "All lists", "editor", {}),
+    ("admin.settings", "Settings", "owner", {}),
     ("admin.audit_trail", "Audit", "owner", {}),
 )
 
@@ -285,6 +286,7 @@ def copy():
         {
             "label": label,
             "slug": editors.group_slug(label),
+            "note": editors.group_note(label),
             "count": len(keys),
             "edited": sum(1 for key in keys if key in edited),
         }
@@ -312,6 +314,7 @@ def copy_group(slug: str):
 
     return render_template(
         "admin/copy_group.html", label=label, keys=keys,
+        note=editors.group_note(label),
         values=store.copy_rows(_db(), keys),
         shipped={key: {loc: C.shipped(loc).get(key, "") for loc in C.LOCALES}
                  for key in keys},
@@ -517,6 +520,88 @@ def reorder(kind: str):
                              entity_id=slug, after=slugs)
 
     return redirect(url_for("admin.collection", kind=kind))
+
+
+# --------------------------------------------------------------------------
+# Settings
+# --------------------------------------------------------------------------
+
+#: What the settings page offers, in the order it lists them. `secret` is
+#: false for all of them on purpose: none is a credential. A measurement id
+#: and a pixel id are public — they are in the page source of every site that
+#: uses them — so hiding them behind a masked field would only make them
+#: harder to check against the ad account they belong to.
+SETTING_FIELDS = (
+    {
+        "name": "ga_id",
+        "label": "Google Analytics measurement id",
+        "placeholder": "G-XXXXXXXXXX",
+        "hint": "From Google Analytics: Admin, Data streams, your web stream. "
+                "Starts with G-. Clear it to stop reporting to Google.",
+    },
+    {
+        "name": "meta_pixel_id",
+        "label": "Meta pixel id",
+        "placeholder": "15 or 16 digits",
+        "hint": "From Meta Events Manager: Data sources, your pixel, the "
+                "number under its name. Digits only. Clear it to stop the "
+                "Facebook and Instagram pixel firing.",
+    },
+    {
+        "name": "whatsapp_number",
+        "label": "WhatsApp number",
+        "placeholder": "+9665XXXXXXXX",
+        "hint": "The number every WhatsApp button opens. Pinned by the "
+                "deployment at present, so the value here is not used.",
+    },
+)
+
+
+@bp.route("/settings", methods=["GET", "POST"])
+def settings():
+    """The handful of values that are configuration rather than copy.
+
+    Every one of them can be pinned by the deployment's environment, and a
+    pinned value makes the stored one inert — so the form says which are
+    pinned rather than accepting an edit that will never take effect.
+    """
+    user = auth.current_user()
+
+    if request.method == "POST":
+        changed = 0
+        with store.writing(_db()) as conn:
+            for field in SETTING_FIELDS:
+                name = field["name"]
+                if store.pinned_by_environment(name):
+                    continue
+                value = (request.form.get(name) or "").strip()
+                before = store.set_setting(conn, key=name, value=value,
+                                           actor_id=user["id"])
+                if before != (value or None):
+                    changed += 1
+                    audit.record(conn, actor=user, action="update",
+                                 entity="setting", entity_id=name,
+                                 before=before, after=value or None)
+        flash(f"Saved {changed} setting{'' if changed == 1 else 's'}."
+              if changed else "Nothing changed.", "ok")
+        return redirect(url_for("admin.settings"))
+
+    try:
+        stored = store.settings(_db())
+    except Exception:
+        log.exception("Could not read the settings.")
+        flash("The settings could not be read.", "bad")
+        stored = {}
+
+    fields = [
+        {**field,
+         "value": stored.get(field["name"], ""),
+         "pinned": store.pinned_by_environment(field["name"]),
+         "variable": store.SETTINGS.get(field["name"], "")}
+        for field in SETTING_FIELDS
+    ]
+    return render_template("admin/settings.html", fields=fields,
+                           live=current_app.config["ENV_NAME"] == "prod")
 
 
 # --------------------------------------------------------------------------

@@ -37,20 +37,9 @@
    the favicon is the light one even though the site wears the dark one. #}
 <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/brand/kmq-logo-light.svg') }}">
 
-{# Google Analytics 4, the client's own property. Rendered only where
-   ga_id is set, which is the published site and nowhere else — see
-   create_app, GA_MEASUREMENT_ID. Both scripts are async, so neither is on
-   the path to the first paint. #}
-{% if ga_id %}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', '{{ ga_id }}');
-</script>
-{% endif %}
+{# Analytics and advertising tags, set in the admin under Settings and
+   rendered on the published site only. See partials/tracking.html. #}
+{% include "partials/tracking.html" %}
 {% block head %}{% endblock %}
 </head>
 <body>

@@ -194,6 +194,16 @@ lands there, and the count beside **Leads** in the sidebar is the enquiries
 nobody has marked handled yet — so the badge means "still owed a reply"
 rather than "not yet opened".
 
+`/admin/settings` holds the tracking ids — the Google Analytics measurement
+id and the Meta pixel id. Ids only: the snippets are in
+`templates/partials/tracking.html`, so an editor account can never put script
+on the public site. Both are resolved in `create_app` by `_tracking()`, which
+returns nothing at all unless `KMQ_ENV=prod` — a developer's process and the
+test suite must never appear in the client's analytics or fire a conversion
+against their ad account. An environment variable pins either one and the
+admin's field goes read-only, which is how a deploy takes a tag off a site it
+does not want measured.
+
 The admin's colours are declared in `design/admin.css` and are not the site's
 tokens. They were once, and the site's recolour left the admin drawing dark
 grey text on a near-black panel over a white page — unreadable, with nothing

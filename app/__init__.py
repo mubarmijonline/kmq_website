@@ -68,6 +68,10 @@ def create_app(config: dict | None = None) -> Flask:
         # worse than no analytics at all. Set KMQ_GA_ID empty to switch it off
         # in production too.
         GA_MEASUREMENT_ID=os.environ.get("KMQ_GA_ID", "G-Z12Q4Y5EQZ").strip(),
+        # The Meta (Facebook/Instagram) pixel. No default: an id belongs to
+        # one ad account, and guessing one would report a stranger's traffic
+        # to a stranger. Set it in the admin under Settings.
+        META_PIXEL_ID=os.environ.get("KMQ_META_PIXEL", "").strip(),
         ENV_NAME=os.environ.get("KMQ_ENV", "dev"),
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
@@ -193,6 +197,43 @@ def _wire_locale(app: Flask) -> None:
 # Template context
 # --------------------------------------------------------------------------
 
+def _tracking(app: Flask) -> dict[str, str]:
+    """The tag ids the head renders, resolved from the admin and the deploy.
+
+    Precedence is the one :data:`store.SETTINGS` promises everywhere else: an
+    environment variable pins the value and the admin's copy is inert, so a
+    deploy can always take a tag off a site it does not want measured. With
+    nothing pinned and nothing stored, the id shipped in config applies.
+
+    Nothing renders unless this is production. Marketing reads these numbers
+    as customers; a developer reloading a page is not one.
+    """
+    if app.config["ENV_NAME"] != "prod":
+        return {"ga_id": "", "meta_pixel_id": ""}
+
+    from . import store
+
+    overlay = app.extensions.get("kmq_overlay")
+    stored = {}
+    if overlay is not None:
+        try:
+            stored = {name: overlay.setting(name, "")
+                      for name in ("ga_id", "meta_pixel_id")}
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Could not read the tracking settings.")
+
+    def resolve(name: str, fallback: str) -> str:
+        if store.pinned_by_environment(name):
+            return os.environ.get(store.SETTINGS[name], "").strip()
+        return (stored.get(name) or fallback or "").strip()
+
+    return {
+        "ga_id": resolve("ga_id", app.config["GA_MEASUREMENT_ID"]),
+        "meta_pixel_id": resolve("meta_pixel_id", app.config["META_PIXEL_ID"]),
+    }
+
+
 def _wire_context(app: Flask) -> None:
     @app.context_processor
     def _inject():
@@ -205,8 +246,10 @@ def _wire_context(app: Flask) -> None:
             "wa": _whatsapp_url,
             "wa_at": _whatsapp_url_at,
             "wa_configured": bool(app.config["WHATSAPP_NUMBER"]),
-            "ga_id": (app.config["GA_MEASUREMENT_ID"]
-                      if app.config["ENV_NAME"] == "prod" else ""),
+            # Analytics and advertising tags. Both resolve the same way and
+            # both are empty off production — a developer's process and the
+            # test suite must not report as visitors, or fire a conversion.
+            **_tracking(app),
             "show_prices": app.config["SHOW_PRICES"],
             "current_year": date.today().year,
             "icons": C.ICONS,

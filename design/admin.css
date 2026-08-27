@@ -370,6 +370,17 @@ a.adm-stat:hover { border-color: var(--adm-accent); color: inherit; }
   outline-offset: 0;
   border-color: var(--adm-accent);
 }
+/* Present for a screen reader, absent on screen. For a label whose words are
+   already printed somewhere the eye can see. */
+.adm-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .adm-check {
   display: flex;
   align-items: center;

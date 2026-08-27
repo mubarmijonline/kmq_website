@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block main %}
+<div class="adm__head">
+  <div>
+    <h1>Settings</h1>
+    <p>Tracking ids and the numbers the site is configured with. These are not
+       copy: changing one here changes how the site behaves, not what it says.
+       Paste the id only — the tags themselves live in the site's code, which
+       is why nobody has to paste a script into this page.</p>
+  </div>
+</div>
+
+{% if not live %}
+  <p class="adm-note">
+    This is not the published site, so no tag fires here whatever is saved.
+    The ids below still store, and take effect on the live site.
+  </p>
+{% endif %}
+
+<form class="adm-form" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {% for field in fields %}
+    <div class="adm-panel">
+      <div class="adm-panel__title">
+        <span>{{ field.label }}</span>
+        {% if field.pinned %}<span class="adm-tag adm-tag--warn">pinned by the deploy</span>
+        {% elif field.value %}<span class="adm-tag adm-tag--ok">set</span>
+        {% else %}<span class="adm-tag">not set</span>{% endif %}
+      </div>
+
+      <div class="adm-field">
+        {# The panel's own title carries the label already; this one is here
+           for a screen reader and for clicking, not to say it twice. #}
+        <label class="adm-sr" for="{{ field.name }}">{{ field.label }}</label>
+        <input id="{{ field.name }}" name="{{ field.name }}" dir="ltr"
+               value="{{ field.value }}" placeholder="{{ field.placeholder }}"
+               {% if field.pinned %}disabled{% endif %}>
+        <span class="adm-field__hint">{{ field.hint }}</span>
+        {% if field.pinned %}
+          <span class="adm-field__hint">
+            The deployment sets <code>{{ field.variable }}</code>, and that
+            wins. Editing this field would change nothing, so it is closed.
+            Remove the variable from the environment to edit it here.
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+
+  <div class="adm-actions" style="margin-top:18px">
+    <button class="adm-btn" type="submit">Save settings</button>
+    <a class="adm-btn adm-btn--ghost" href="{{ url_for('admin.dashboard') }}">Cancel</a>
+  </div>
+</form>
+
+<div class="adm-panel" style="margin-top:18px">
+  <div class="adm-panel__title">Where to check a tag is working</div>
+  <p class="adm-empty">
+    A saved id takes effect on the next page load. Google Analytics shows a
+    visit under Reports, Realtime, within a minute of one; Meta's is under
+    Events Manager, Test events. Both read the published site only — a tag
+    never fires from a preview or from the test suite, so nothing you do here
+    can inflate the numbers marketing reports on.
+  </p>
+</div>
+{% endblock %}

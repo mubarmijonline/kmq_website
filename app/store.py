@@ -85,6 +85,11 @@ _BRANCH_SHARED = {"phone": "phone_e164", "whatsapp": "whatsapp_e164",
 SETTINGS = {
     "whatsapp_number": "KMQ_WHATSAPP",
     "show_prices": "KMQ_SHOW_PRICES",
+    # Marketing's two tags. Ids only — the snippets themselves are in
+    # templates/partials/tracking.html, so the admin can point the site at a
+    # different property without anyone pasting a script into a text field.
+    "ga_id": "KMQ_GA_ID",
+    "meta_pixel_id": "KMQ_META_PIXEL",
 }
 
 

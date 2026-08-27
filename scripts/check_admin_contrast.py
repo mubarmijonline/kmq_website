@@ -52,6 +52,7 @@ PAGES = (
     ("/admin/lists", "lists"),
     ("/admin/lists/packages", "collection"),
     ("/admin/lists/packages/gloss", "record"),
+    ("/admin/settings", "settings"),
     ("/admin/branches", "branches"),
     ("/admin/branches/al-rimal", "branch"),
     ("/admin/audit", "audit"),

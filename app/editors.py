@@ -57,6 +57,51 @@ COPY_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
+#: What each group is, in the words of somebody who has not read the code.
+#: The group labels above name a section of the copy file; these say where on
+#: the site the strings turn up, which is the question an editor is actually
+#: asking when they open this page.
+COPY_GROUP_NOTES = {
+    "General": "The brand line, the site's languages, and the words printed "
+               "where a fact is still to be confirmed.",
+    "Global calls to action": "The button labels that repeat on every page — "
+                              "book, WhatsApp, contact, read more.",
+    "Phone line": "The number the site calls, and the label on the call "
+                  "button. One line answers for every branch.",
+    "WhatsApp message templates": "The message already typed for a visitor "
+                                  "when they open WhatsApp from the site.",
+    "Home: hero": "The first screen: the headline, the line under it, and "
+                  "the two buttons.",
+    "Home: hero protection stack": "The captions on the car as the coating "
+                                   "layers build up.",
+    "Services": "The headings on the services index. The five services "
+                "themselves are edited under Services.",
+    "Packages": "The headings, the currency, and the buttons around the "
+                "package cards. Prices are edited under Packages.",
+    "Why KMQ": "The heading above the reasons-to-choose-us cards.",
+    "Warranty pitch on the home page": "The warranty block on the home page: "
+                                       "its heading, the years, and the seal.",
+    "Branches": "The headings on the branches page and the labels on each "
+                "card. The branches themselves are edited under Branches.",
+    "Warranty page": "The warranty page: its heading, the lookup form, and "
+                     "the wording of every result a search can return.",
+    "Film spec": "The headings above the film's specification table.",
+    "About": "The about page: its heading, the two opening paragraphs, and "
+             "the headings over the values and the figures.",
+    "FAQ": "The heading above the questions. The questions are edited under "
+           "All lists.",
+    "Blog": "The journal: its headings, the search box, the category "
+            "filters, and the newsletter block.",
+    "Contact": "The contact page: its headings, the form's own wording, and "
+               "what it says after a message is sent.",
+    "Footer": "The footer, the menu button, and the two error pages.",
+}
+
+
+def group_note(label: str) -> str:
+    return COPY_GROUP_NOTES.get(label, "")
+
+
 def group_slug(label: str) -> str:
     """A URL-safe id for a group label."""
     out = "".join(ch.lower() if ch.isalnum() else "-" for ch in label)

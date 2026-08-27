@@ -5,7 +5,8 @@
 <div class="adm__head">
   <div>
     <h1>{{ label }}</h1>
-    <p><a href="{{ url_for('admin.copy') }}">All groups</a></p>
+    {% if note %}<p>{{ note }}</p>{% endif %}
+    <p><a href="{{ url_for('admin.copy') }}">← All parts of the site</a></p>
   </div>
 </div>
 
@@ -13,8 +14,22 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   {% for key in keys %}
+    {% set changed = values[key]['ar'] != shipped[key]['ar']
+                     or values[key]['en'] != shipped[key]['en'] %}
     <div class="adm-panel">
-      <div class="adm-panel__title">{{ key }}</div>
+      {# The English wording is the heading. A row headed `hero_sub` tells an
+         editor nothing; the sentence itself tells them exactly which line on
+         the page they are about to change. The key stays, small, because it
+         is what the audit log and a bug report name. #}
+      <div class="adm-panel__title">
+        <span style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--adm-ink)">
+          {{ values[key]['en'] | truncate(80) or key }}
+        </span>
+        <span>
+          {% if changed %}<span class="adm-tag adm-tag--ok">edited</span> {% endif %}
+          <code>{{ key }}</code>
+        </span>
+      </div>
       {% if key in locked %}
         <p class="adm-empty">
           Fixed: this names the language rather than saying anything in it.
@@ -37,7 +52,9 @@
               {% endif %}
               {% if values[key][locale] != shipped[key][locale] %}
                 <span class="adm-field__hint">
-                  Shipped: <span dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}">{{ shipped[key][locale] }}</span>
+                  Was, when the site was built:
+                  <span dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}">{{ shipped[key][locale] }}</span>
+                  — paste that back to undo.
                 </span>
               {% endif %}
             </div>

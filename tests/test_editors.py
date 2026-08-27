@@ -60,6 +60,13 @@ def test_every_field_a_record_carries_is_declared():
         assert set(record) - declared == set(), spec.kind
 
 
+def test_every_copy_group_says_what_it_covers():
+    """The label names a section of the copy file; the note says where on the
+    site the strings turn up. Without it the page is a list of jargon."""
+    for label, _keys in editors.COPY_GROUPS:
+        assert editors.group_note(label), label
+
+
 def test_group_slugs_are_unique():
     slugs = [editors.group_slug(label) for label, _ in editors.COPY_GROUPS]
     assert len(slugs) == len(set(slugs))

@@ -1,0 +1,42 @@
+{# Analytics and advertising tags.
+
+   Every id here comes from the admin's Settings page or from the deploy's
+   environment, resolved in create_app by _tracking(), which returns empty
+   strings anywhere but production. So this file needs no environment test of
+   its own: an id that is set is an id that should fire.
+
+   Both snippets are the vendors' published base code, with only the id
+   interpolated. Nothing here is a place to paste markup — the admin stores
+   ids, not script, which is why an editor account cannot put JavaScript on
+   the public site. #}
+
+{% if ga_id %}
+{# Google Analytics 4. Async, so it is never on the path to the first paint. #}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ ga_id }}');
+</script>
+{% endif %}
+
+{% if meta_pixel_id %}
+{# Meta pixel — Facebook and Instagram ads. The loader appends its own async
+   script, so this tag blocks nothing either. #}
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '{{ meta_pixel_id }}');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id={{ meta_pixel_id }}&ev=PageView&noscript=1"></noscript>
+{% endif %}
